@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>TIKA — Investir</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--green:#00A651;--green-dark:#007A3D;--green-light:#E8F7EF;--red:#E63946;--red-light:#FDECEA;--gray:#F4F6F8;--gray2:#E8ECF0;--text:#1A1A2E;--text2:#6B7280;--shadow:0 4px 24px rgba(0,166,81,0.15);}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);color:var(--text);overflow-x:hidden}
+#app{max-width:430px;margin:0 auto;min-height:100vh;padding-bottom:90px}
+.header{background:linear-gradient(135deg,#00A651,#007A3D);padding:50px 24px 24px;position:relative;overflow:hidden;}
+.header::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,0.07);}
+.header-top{display:flex;align-items:center;gap:14px;position:relative;z-index:1;}
+.back-btn{width:40px;height:40px;background:rgba(255,255,255,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:#fff;}
+.header-title{font-size:20px;font-weight:700;color:#fff;}
+.header-sub{font-size:13px;color:rgba(255,255,255,0.75);margin-top:2px;}
+.balance-banner{margin:20px;background:#fff;border-radius:16px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 12px rgba(0,0,0,0.07);}
+.balance-banner-left{font-size:12px;color:var(--text2);font-weight:500;}
+.balance-banner-amount{font-size:20px;font-weight:700;color:var(--text);margin-top:2px;}
+.balance-banner-right{background:var(--green-light);padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;color:var(--green-dark);cursor:pointer;}
+.section{padding:0 20px;margin-bottom:20px;}
+.section-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:14px;}
+.plans-grid{display:flex;flex-direction:column;gap:14px;}
+.plan-card{background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.07);transition:.2s;}
+.plan-card:active{transform:scale(.99)}
+.plan-card.popular{border:2px solid var(--green);}
+.plan-header{padding:18px 20px 14px;display:flex;align-items:center;justify-content:space-between;}
+.plan-badge{display:flex;align-items:center;gap:10px;}
+.plan-level{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--green),var(--green-dark));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;}
+.plan-name{font-size:16px;font-weight:700;color:var(--text);}
+.plan-price{font-size:13px;color:var(--text2);margin-top:2px;}
+.popular-tag{background:var(--green);color:#fff;font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px;}
+.plan-divider{height:1px;background:var(--gray2);margin:0 20px;}
+.plan-body{padding:14px 20px 18px;}
+.plan-stats{display:flex;gap:12px;margin-bottom:16px;}
+.plan-stat{flex:1;background:var(--gray);border-radius:12px;padding:12px;}
+.plan-stat-label{font-size:11px;color:var(--text2);font-weight:500;}
+.plan-stat-val{font-size:16px;font-weight:700;margin-top:4px;}
+.plan-stat-val.green{color:var(--green);}
+.plan-btn{width:100%;padding:14px;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.plan-btn:active{transform:scale(.98)}
+.plan-btn.invest{background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;box-shadow:var(--shadow);}
+.plan-btn.active-plan{background:var(--green-light);color:var(--green-dark);cursor:default;}
+.plan-btn.no-balance{background:var(--gray);color:var(--text2);}
+.navbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#fff;border-top:1px solid var(--gray2);display:flex;padding:8px 0 20px;z-index:100;box-shadow:0 -4px 20px rgba(0,0,0,0.08);}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:6px 0;}
+.nav-icon{font-size:22px;transition:.2s;}
+.nav-label{font-size:10px;font-weight:500;color:var(--text2);}
+.nav-item.active .nav-label{color:var(--green);}
+.nav-item.active .nav-icon{transform:scale(1.1);}
+#toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:500;opacity:0;transition:.3s;z-index:9999;max-width:340px;text-align:center;pointer-events:none;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.success{background:var(--green)}
+#toast.error{background:var(--red)}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:none;align-items:flex-end;justify-content:center;}
+.modal-overlay.show{display:flex;}
+.modal{background:#fff;border-radius:24px 24px 0 0;padding:24px;width:100%;max-width:430px;}
+.modal-handle{width:40px;height:4px;background:var(--gray2);border-radius:4px;margin:0 auto 20px;}
+.modal-title{font-size:18px;font-weight:700;margin-bottom:6px;}
+.modal-sub{font-size:13px;color:var(--text2);margin-bottom:20px;}
+.confirm-box{background:var(--gray);border-radius:16px;padding:16px;margin-bottom:20px;}
+.confirm-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;}
+.confirm-row:not(:last-child){border-bottom:1px solid var(--gray2);}
+.confirm-label{font-size:13px;color:var(--text2);}
+.confirm-val{font-size:13px;font-weight:600;color:var(--text);}
+.confirm-val.green{color:var(--green);}
+.confirm-val.red{color:var(--red);}
+.btn-primary{width:100%;padding:16px;background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;cursor:pointer;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-primary:disabled{opacity:.6}
+.btn-cancel{width:100%;padding:14px;background:var(--gray);color:var(--text2);border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;margin-top:10px;}
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.warning-box{background:var(--red-light);border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--red);display:flex;align-items:center;gap:8px;}
+.loader-wrap{padding:40px;text-align:center;color:var(--text2);}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <div class="header-top">
+      <div class="back-btn" onclick="window.location.href='dashboard.html'">&#8592;</div>
+      <div>
+        <div class="header-title">Plans d'investissement</div>
+        <div class="header-sub">Choisissez votre niveau VIP</div>
+      </div>
+    </div>
+  </div>
+  <div class="balance-banner">
+    <div>
+      <div class="balance-banner-left">Solde disponible</div>
+      <div class="balance-banner-amount">FCFA <span id="user-balance">0</span></div>
+    </div>
+    <div class="balance-banner-right" onclick="window.location.href='dashboard.html'">+ Recharger</div>
+  </div>
+  <div class="section">
+    <div class="section-title">Tous les plans VIP</div>
+    <div class="plans-grid" id="plans-grid">
+      <div class="loader-wrap">Chargement des plans...</div>
+    </div>
+  </div>
+</div>
+<div class="navbar">
+  <div class="nav-item" onclick="window.location.href='dashboard.html'">
+    <div class="nav-icon">&#127968;</div>
+    <div class="nav-label">Accueil</div>
+  </div>
+  <div class="nav-item active">
+    <div class="nav-icon">&#128200;</div>
+    <div class="nav-label">Investir</div>
+  </div>
+  <div class="nav-item" onclick="window.location.href='wallet.html'">
+    <div class="nav-icon">&#128176;</div>
+    <div class="nav-label">Wallet</div>
+  </div>
+  <div class="nav-item" onclick="window.location.href='referral.html'">
+    <div class="nav-icon">&#129309;</div>
+    <div class="nav-label">Parrainage</div>
+  </div>
+  <div class="nav-item" onclick="window.location.href='profile.html'">
+    <div class="nav-icon">&#128100;</div>
+    <div class="nav-label">Profil</div>
+  </div>
+</div>
+<div class="modal-overlay" id="modal-confirm">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Confirmer l'investissement</div>
+    <div class="modal-sub">Verifiez les details avant de confirmer</div>
+    <div class="confirm-box">
+      <div class="confirm-row">
+        <span class="confirm-label">Plan</span>
+        <span class="confirm-val" id="confirm-plan">-</span>
+      </div>
+      <div class="confirm-row">
+        <span class="confirm-label">Montant investi</span>
+        <span class="confirm-val red" id="confirm-amount">-</span>
+      </div>
+      <div class="confirm-row">
+        <span class="confirm-label">Gain quotidien</span>
+        <span class="confirm-val green" id="confirm-gain">-</span>
+      </div>
+      <div class="confirm-row">
+        <span class="confirm-label">Solde apres</span>
+        <span class="confirm-val" id="confirm-after">-</span>
+      </div>
+    </div>
+    <div class="warning-box" id="confirm-warning" style="display:none">Solde insuffisant pour ce plan</div>
+    <button class="btn-primary" id="btn-confirm" onclick="confirmInvest()">Confirmer l'investissement</button>
+    <button class="btn-cancel" onclick="closeModal()">Annuler</button>
+  </div>
+</div>
+<div id="toast"></div>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+const SUPABASE_URL = 'https://ainispvuqmuigfxzkkqh.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpbmlzcHZ1cW11aWdmeHpra3FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0ODcyMDUsImV4cCI6MjA5NjA2MzIwNX0.UOZxfyhC2_B7TtuSK4ea_x6u4GOdIsVEIMX8NUlmndc';
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+let profile = null;
+let selectedPlan = null;
+let activeInvestments = [];
+const fmt = n => Number(n||0).toLocaleString('fr-FR');
+window.toast = (msg, type='') => {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + type;
+  setTimeout(() => t.className='', 3000);
+};
+const { data: { session } } = await sb.auth.getSession();
+if (!session) { window.location.href = 'index.html'; }
+const uid = session.user.id;
+const { data: prof } = await sb.from('profiles').select('*').eq('id', uid).single();
+profile = prof;
+document.getElementById('user-balance').textContent = fmt(prof?.balance || 0);
+const { data: actives } = await sb.from('investments').select('vip_level').eq('user_id', uid).eq('status','active');
+activeInvestments = (actives || []).map(a => a.vip_level);
+const { data: plans } = await sb.from('vip_plans').select('*').eq('is_active', true).order('level');
+if (!plans || plans.length === 0) {
+  document.getElementById('plans-grid').innerHTML = '<div class="loader-wrap">Aucun plan disponible</div>';
+} else { renderPlans(plans); }
+function renderPlans(plans) {
+  const popular = [4,6,8];
+  const html = plans.map(p => {
+    const isActive = activeInvestments.includes(p.level);
+    const canAfford = (profile?.balance || 0) >= p.price;
+    const isPopular = popular.includes(p.level);
+    const planStr = encodeURIComponent(JSON.stringify(p));
+    let btnHtml = isActive
+      ? '<button class="plan-btn active-plan">&#10003; Actif</button>'
+      : canAfford
+        ? '<button class="plan-btn invest" onclick="openConfirm(decodeURIComponent(\'' + planStr + '\'))">Investir maintenant</button>'
+        : '<button class="plan-btn no-balance" onclick="openConfirm(decodeURIComponent(\'' + planStr + '\'))">Solde insuffisant</button>';
+    return '<div class="plan-card ' + (isPopular?'popular':'') + '"><div class="plan-header"><div class="plan-badge"><div class="plan-level">V' + p.level + '</div><div><div class="plan-name">' + p.name + '</div><div class="plan-price">' + fmt(p.price) + ' FCFA</div></div></div>' + (isPopular ? '<div class="popular-tag">Populaire</div>' : '') + (isActive ? '<div class="popular-tag" style="background:var(--green-dark)">Actif</div>' : '') + '</div><div class="plan-divider"></div><div class="plan-body"><div class="plan-stats"><div class="plan-stat"><div class="plan-stat-label">Investissement</div><div class="plan-stat-val">' + fmt(p.price) + ' F</div></div><div class="plan-stat"><div class="plan-stat-label">Gain / jour</div><div class="plan-stat-val green">+' + fmt(p.daily_gain) + ' F</div></div><div class="plan-stat"><div class="plan-stat-label">Rendement</div><div class="plan-stat-val green">' + p.daily_percent + '%</div></div></div>' + btnHtml + '</div></div>';
+  }).join('');
+  document.getElementById('plans-grid').innerHTML = html;
+}
+window.openConfirm = (planStr) => {
+  const p = typeof planStr === 'string' ? JSON.parse(planStr) : planStr;
+  selectedPlan = p;
+  const balanceAfter = (profile?.balance || 0) - p.price;
+  const insufficient = balanceAfter < 0;
+  document.getElementById('confirm-plan').textContent = p.name;
+  document.getElementById('confirm-amount').textContent = fmt(p.price) + ' FCFA';
+  document.getElementById('confirm-gain').textContent = '+' + fmt(p.daily_gain) + ' FCFA/jour';
+  document.getElementById('confirm-after').textContent = insufficient ? 'Insuffisant' : fmt(balanceAfter) + ' FCFA';
+  document.getElementById('confirm-warning').style.display = insufficient ? 'flex' : 'none';
+  document.getElementById('btn-confirm').disabled = insufficient;
+  document.getElementById('modal-confirm').classList.add('show');
+};
+window.confirmInvest = async () => {
+  if (!selectedPlan) return;
+  if ((profile?.balance || 0) < selectedPlan.price) { toast('Solde insuffisant', 'error'); return; }
+  const btn = document.getElementById('btn-confirm');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div>';
+  const { error } = await sb.from('investments').insert({ user_id: uid, vip_plan_id: selectedPlan.id, vip_level: selectedPlan.level, amount: selectedPlan.price, daily_gain: selectedPlan.daily_gain, status: 'active', last_gain_at: new Date().toISOString() });
+  if (error) { toast("Erreur lors de l'investissement", 'error'); btn.disabled=false; btn.textContent="Confirmer l'investissement"; return; }
+  await sb.from('profiles').update({ balance: profile.balance - selectedPlan.price, total_invested: (profile.total_invested||0) + selectedPlan.price }).eq('id', uid);
+  await sb.from('notifications').insert({ user_id: uid, title: 'Investissement active !', message: 'Votre plan ' + selectedPlan.name + ' est actif. Vous gagnez +' + fmt(selectedPlan.daily_gain) + ' FCFA/jour.', type: 'success' });
+  closeModal();
+  toast('Investissement active avec succes !', 'success');
+  const { data: newProf } = await sb.from('profiles').select('*').eq('id', uid).single();
+  profile = newProf;
+  document.getElementById('user-balance').textContent = fmt(newProf?.balance || 0);
+  const { data: newActives } = await sb.from('investments').select('vip_level').eq('user_id', uid).eq('status','active');
+  activeInvestments = (newActives||[]).map(a => a.vip_level);
+  const { data: newPlans } = await sb.from('vip_plans').select('*').eq('is_active', true).order('level');
+  renderPlans(newPlans);
+};
+window.closeModal = () => {
+  document.getElementById('modal-confirm').classList.remove('show');
+  selectedPlan = null;
+  const btn = document.getElementById('btn-confirm');
+  btn.disabled = false;
+  btn.textContent = "Confirmer l'investissement";
+};
+</script>
+</body>
+</html>
