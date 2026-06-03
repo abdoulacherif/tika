@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>TIKA — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--green:#00A651;--green-dark:#007A3D;--green-light:#E8F7EF;--red:#E63946;--red-light:#FDECEA;--gray:#F4F6F8;--gray2:#E8ECF0;--text:#1A1A2E;--text2:#6B7280;--shadow:0 4px 24px rgba(0,166,81,0.15);}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);color:var(--text);overflow-x:hidden}
+#app{max-width:430px;margin:0 auto;min-height:100vh;padding-bottom:90px}
+.header{background:linear-gradient(135deg,#00A651,#007A3D);padding:50px 24px 80px;position:relative;overflow:hidden;}
+.header::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,0.07);}
+.header::after{content:'';position:absolute;bottom:-50px;left:-30px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,0.05);}
+.header-top{display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1;}
+.header-left{display:flex;align-items:center;gap:12px;}
+.avatar{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;border:2px solid rgba(255,255,255,0.4);}
+.header-greet{color:rgba(255,255,255,0.8);font-size:12px;}
+.header-name{color:#fff;font-size:16px;font-weight:600;}
+.header-notif{width:40px;height:40px;background:rgba(255,255,255,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;}
+.notif-dot{position:absolute;top:8px;right:8px;width:8px;height:8px;background:var(--red);border-radius:50%;border:2px solid #007A3D;}
+.balance-card{margin:0 20px;margin-top:-50px;background:#fff;border-radius:20px;padding:24px;box-shadow:0 8px 32px rgba(0,0,0,0.12);position:relative;z-index:2;}
+.balance-label{font-size:12px;color:var(--text2);font-weight:500;text-transform:uppercase;letter-spacing:.8px;}
+.balance-amount{font-size:32px;font-weight:700;color:var(--text);margin:6px 0;font-family:'Playfair Display',serif;}
+.balance-amount span{font-size:16px;font-weight:500;color:var(--text2);}
+.balance-row{display:flex;gap:12px;margin-top:16px;}
+.balance-mini{flex:1;background:var(--gray);border-radius:12px;padding:12px;}
+.balance-mini-label{font-size:11px;color:var(--text2);font-weight:500;}
+.balance-mini-val{font-size:15px;font-weight:700;margin-top:4px;}
+.balance-mini-val.green{color:var(--green)}
+.balance-mini-val.red{color:var(--red)}
+.action-btns{display:flex;gap:12px;padding:20px;}
+.action-btn{flex:1;padding:14px;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:.2s;}
+.action-btn:active{transform:scale(.97)}
+.btn-recharge{background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;box-shadow:var(--shadow);}
+.btn-withdraw{background:#fff;color:var(--text);border:2px solid var(--gray2);}
+.section{padding:0 20px;margin-bottom:20px;}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.section-title{font-size:16px;font-weight:700;color:var(--text);}
+.section-link{font-size:13px;color:var(--green);font-weight:500;cursor:pointer;}
+.stats-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.stat-card{background:#fff;border-radius:16px;padding:16px;box-shadow:0 2px 12px rgba(0,0,0,0.05);}
+.stat-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:10px;}
+.stat-icon.green{background:var(--green-light);}
+.stat-icon.red{background:var(--red-light);}
+.stat-icon.blue{background:#EEF2FF;}
+.stat-icon.yellow{background:#FFFBEB;}
+.stat-label{font-size:11px;color:var(--text2);font-weight:500;}
+.stat-val{font-size:17px;font-weight:700;color:var(--text);margin-top:4px;}
+.invest-card{background:#fff;border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 2px 12px rgba(0,0,0,0.05);display:flex;align-items:center;gap:14px;}
+.invest-badge{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--green),var(--green-dark));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;flex-shrink:0;}
+.invest-info{flex:1;}
+.invest-name{font-size:15px;font-weight:600;color:var(--text);}
+.invest-sub{font-size:12px;color:var(--text2);margin-top:2px;}
+.invest-gain{text-align:right;}
+.invest-gain-val{font-size:15px;font-weight:700;color:var(--green);}
+.invest-gain-label{font-size:11px;color:var(--text2);}
+.invest-status{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px;margin-top:4px;}
+.invest-status.active{background:var(--green-light);color:var(--green-dark);}
+.empty-state{text-align:center;padding:32px 20px;background:#fff;border-radius:16px;}
+.empty-icon{font-size:40px;margin-bottom:12px;}
+.empty-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px;}
+.empty-sub{font-size:13px;color:var(--text2);}
+.empty-btn{margin-top:16px;display:inline-block;background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;padding:12px 24px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;border:none;}
+.quick-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 20px;margin-bottom:20px;}
+.quick-btn{background:#fff;border-radius:14px;padding:14px 8px;text-align:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.05);transition:.2s;}
+.quick-btn:active{transform:scale(.95)}
+.quick-btn-icon{font-size:22px;margin-bottom:6px;}
+.quick-btn-label{font-size:11px;color:var(--text2);font-weight:500;}
+.navbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#fff;border-top:1px solid var(--gray2);display:flex;padding:8px 0 20px;z-index:100;box-shadow:0 -4px 20px rgba(0,0,0,0.08);}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:6px 0;}
+.nav-icon{font-size:22px;transition:.2s;}
+.nav-label{font-size:10px;font-weight:500;color:var(--text2);}
+.nav-item.active .nav-label{color:var(--green);}
+.nav-item.active .nav-icon{transform:scale(1.1);}
+#toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:500;opacity:0;transition:.3s;z-index:9999;max-width:340px;text-align:center;pointer-events:none;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.success{background:var(--green)}
+#toast.error{background:var(--red)}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:none;align-items:flex-end;justify-content:center;}
+.modal-overlay.show{display:flex;}
+.modal{background:#fff;border-radius:24px 24px 0 0;padding:24px;width:100%;max-width:430px;max-height:85vh;overflow-y:auto;}
+.modal-handle{width:40px;height:4px;background:var(--gray2);border-radius:4px;margin:0 auto 20px;}
+.modal-title{font-size:18px;font-weight:700;margin-bottom:20px;}
+.form-group{margin-bottom:16px;}
+.form-label{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;display:block;}
+.form-input{width:100%;padding:14px 16px;border:2px solid var(--gray2);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--text);background:#fff;outline:none;transition:.2s;}
+.form-input:focus{border-color:var(--green);box-shadow:0 0 0 4px rgba(0,166,81,0.08)}
+.btn-primary{width:100%;padding:16px;background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;cursor:pointer;transition:.2s;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-primary:active{transform:scale(.98)}
+.btn-primary:disabled{opacity:.6}
+.btn-cancel{width:100%;padding:14px;background:var(--gray);color:var(--text2);border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;margin-top:10px;}
+.payment-methods{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.pay-method{padding:12px;border:2px solid var(--gray2);border-radius:12px;cursor:pointer;text-align:center;transition:.2s;}
+.pay-method.selected{border-color:var(--green);background:var(--green-light);}
+.pay-method-icon{font-size:20px;margin-bottom:4px;}
+.pay-method-label{font-size:12px;font-weight:600;color:var(--text);}
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.info-box{background:var(--green-light);border-radius:12px;padding:14px;margin-bottom:16px;font-size:13px;color:var(--green-dark);}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <div class="header-top">
+      <div class="header-left">
+        <div class="avatar" id="user-avatar">?</div>
+        <div>
+          <div class="header-greet">Bonjour</div>
+          <div class="header-name" id="user-name">Chargement...</div>
+        </div>
+      </div>
+      <div class="header-notif" onclick="window.location.href='notifications.html'">
+        <span>&#128276;</span>
+        <div class="notif-dot" id="notif-dot" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+  <div class="balance-card">
+    <div class="balance-label">Solde disponible</div>
+    <div class="balance-amount"><span>FCFA </span><span id="balance">0</span></div>
+    <div class="balance-row">
+      <div class="balance-mini">
+        <div class="balance-mini-label">Gains aujourd'hui</div>
+        <div class="balance-mini-val green" id="today-gain">+0 F</div>
+      </div>
+      <div class="balance-mini">
+        <div class="balance-mini-label">Total investi</div>
+        <div class="balance-mini-val" id="total-invested">0 F</div>
+      </div>
+      <div class="balance-mini">
+        <div class="balance-mini-label">Total retire</div>
+        <div class="balance-mini-val red" id="total-withdrawn">0 F</div>
+      </div>
+    </div>
+  </div>
+  <div class="action-btns">
+    <button class="action-btn btn-recharge" onclick="openRecharge()">Recharger</button>
+    <button class="action-btn btn-withdraw" onclick="openWithdraw()">Retirer</button>
+  </div>
+  <div class="quick-actions">
+    <div class="quick-btn" onclick="window.location.href='invest.html'">
+      <div class="quick-btn-icon">&#128200;</div>
+      <div class="quick-btn-label">Investir</div>
+    </div>
+    <div class="quick-btn" onclick="window.location.href='referral.html'">
+      <div class="quick-btn-icon">&#129309;</div>
+      <div class="quick-btn-label">Parrainer</div>
+    </div>
+    <div class="quick-btn" onclick="window.location.href='wallet.html'">
+      <div class="quick-btn-icon">&#128176;</div>
+      <div class="quick-btn-label">Historique</div>
+    </div>
+    <div class="quick-btn" onclick="window.location.href='support.html'">
+      <div class="quick-btn-icon">&#128172;</div>
+      <div class="quick-btn-label">Support</div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">Mes statistiques</div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon green">&#128202;</div>
+        <div class="stat-label">Total des gains</div>
+        <div class="stat-val" id="stat-total-gains">0 F</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon blue">&#127942;</div>
+        <div class="stat-label">Investissements actifs</div>
+        <div class="stat-val" id="stat-active">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon yellow">&#128101;</div>
+        <div class="stat-label">Filleuls</div>
+        <div class="stat-val" id="stat-referrals">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon red">&#128142;</div>
+        <div class="stat-label">Commissions</div>
+        <div class="stat-val" id="stat-commissions">0 F</div>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">Mes investissements</div>
+      <div class="section-link" onclick="window.location.href='invest.html'">Voir tout</div>
+    </div>
+    <div id="investments-list">
+      <div class="empty-state">
+        <div class="empty-icon">&#128200;</div>
+        <div class="empty-title">Aucun investissement actif</div>
+        <div class="empty-sub">Commencez a investir pour generer des gains quotidiens</div>
+        <button class="empty-btn" onclick="window.location.href='invest.html'">Investir maintenant</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="navbar">
+  <div class="nav-item active" onclick="window.location.href='dashboard.html'">
+    <div class="nav-icon">&#127968;</div>
+    <div class="nav-label">Accueil</div>
+  </div>
+  <div class="nav-item" onclick="window.location.href='invest.html'">
+    <div class="nav-icon">&#128200;</div>
+    <div class="nav-label">Investir</div>
+  </div>
+  <div class="nav-item" onclick="window.location.href='wallet.html'">
+    <div class="nav-icon">&#128176;</div>
+    <div class="nav-label">Wallet</div>
+  </div>
+  <div class="nav-item" onclick="window.location.href='referral.html'">
+    <div class="nav-icon">&#129309;</div>
+    <div class="nav-label">Parrainage</div>
+  </div>
+  <div class="nav-item" onclick="window.location.href='profile.html'">
+    <div class="nav-icon">&#128100;</div>
+    <div class="nav-label">Profil</div>
+  </div>
+</div>
+<div class="modal-overlay" id="modal-recharge">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Recharger mon compte</div>
+    <div class="info-box" id="recharge-info">Choisissez votre methode de paiement</div>
+    <div class="payment-methods">
+      <div class="pay-method" onclick="selectPay('orange_money',this)">
+        <div class="pay-method-icon">&#128992;</div>
+        <div class="pay-method-label">Orange Money</div>
+      </div>
+      <div class="pay-method" onclick="selectPay('wave',this)">
+        <div class="pay-method-icon">&#128994;</div>
+        <div class="pay-method-label">Wave</div>
+      </div>
+      <div class="pay-method" onclick="selectPay('mtn',this)">
+        <div class="pay-method-icon">&#129000;</div>
+        <div class="pay-method-label">MTN Money</div>
+      </div>
+      <div class="pay-method" onclick="selectPay('moov',this)">
+        <div class="pay-method-icon">&#128995;</div>
+        <div class="pay-method-label">Moov Money</div>
+      </div>
+      <div class="pay-method" onclick="selectPay('crypto',this)" style="grid-column:1/-1">
+        <div class="pay-method-icon">&#8383;</div>
+        <div class="pay-method-label">Crypto (USDT/BTC)</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Montant (FCFA)</label>
+      <input class="form-input" type="number" id="recharge-amount" placeholder="Ex: 5000"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Votre numero / adresse</label>
+      <input class="form-input" type="text" id="recharge-number" placeholder="Numero ou adresse wallet"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Reference de transaction</label>
+      <input class="form-input" type="text" id="recharge-ref" placeholder="Ex: TXN123456"/>
+    </div>
+    <button class="btn-primary" id="btn-recharge-submit" onclick="submitRecharge()">Envoyer la demande</button>
+    <button class="btn-cancel" onclick="closeModal('modal-recharge')">Annuler</button>
+  </div>
+</div>
+<div class="modal-overlay" id="modal-withdraw">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Retirer mes gains</div>
+    <div class="info-box">Solde disponible : <strong id="withdraw-balance">0 FCFA</strong></div>
+    <div class="payment-methods">
+      <div class="pay-method" onclick="selectWithdrawPay('orange_money',this)">
+        <div class="pay-method-icon">&#128992;</div>
+        <div class="pay-method-label">Orange Money</div>
+      </div>
+      <div class="pay-method" onclick="selectWithdrawPay('wave',this)">
+        <div class="pay-method-icon">&#128994;</div>
+        <div class="pay-method-label">Wave</div>
+      </div>
+      <div class="pay-method" onclick="selectWithdrawPay('mtn',this)">
+        <div class="pay-method-icon">&#129000;</div>
+        <div class="pay-method-label">MTN Money</div>
+      </div>
+      <div class="pay-method" onclick="selectWithdrawPay('moov',this)">
+        <div class="pay-method-icon">&#128995;</div>
+        <div class="pay-method-label">Moov Money</div>
+      </div>
+      <div class="pay-method" onclick="selectWithdrawPay('crypto',this)" style="grid-column:1/-1">
+        <div class="pay-method-icon">&#8383;</div>
+        <div class="pay-method-label">Crypto (USDT/BTC)</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Montant a retirer (FCFA)</label>
+      <input class="form-input" type="number" id="withdraw-amount" placeholder="Montant minimum : 1000 F"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Numero / adresse de reception</label>
+      <input class="form-input" type="text" id="withdraw-number" placeholder="Votre numero ou adresse"/>
+    </div>
+    <button class="btn-primary" id="btn-withdraw-submit" onclick="submitWithdraw()">Demander le retrait</button>
+    <button class="btn-cancel" onclick="closeModal('modal-withdraw')">Annuler</button>
+  </div>
+</div>
+<div id="toast"></div>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+const SUPABASE_URL = 'https://ainispvuqmuigfxzkkqh.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpbmlzcHZ1cW11aWdmeHpra3FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0ODcyMDUsImV4cCI6MjA5NjA2MzIwNX0.UOZxfyhC2_B7TtuSK4ea_x6u4GOdIsVEIMX8NUlmndc';
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+window.sb = sb;
+let profile = null;
+let selectedPayMethod = '';
+let selectedWithdrawMethod = '';
+let withdrawMin = 1000;
+const fmt = (n) => Number(n||0).toLocaleString('fr-FR');
+window.toast = (msg, type='') => {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + type;
+  setTimeout(() => t.className = '', 3000);
+};
+const { data: { session } } = await sb.auth.getSession();
+if (!session) { window.location.href = 'index.html'; }
+const uid = session.user.id;
+const { data: settings } = await sb.from('settings').select('key,value');
+if (settings) {
+  const s = Object.fromEntries(settings.map(x => [x.key, x.value]));
+  withdrawMin = parseInt(s.withdrawal_min || 1000);
+}
+async function loadProfile() {
+  const { data } = await sb.from('profiles').select('*').eq('id', uid).single();
+  if (!data) return;
+  profile = data;
+  const initials = (data.full_name||'U').split(' ').map(x=>x[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('user-avatar').textContent = initials;
+  document.getElementById('user-name').textContent = data.full_name || 'Utilisateur';
+  document.getElementById('balance').textContent = fmt(data.balance);
+  document.getElementById('total-invested').textContent = fmt(data.total_invested) + ' F';
+  document.getElementById('total-withdrawn').textContent = fmt(data.total_withdrawn) + ' F';
+  document.getElementById('stat-total-gains').textContent = fmt(data.total_gains) + ' F';
+  document.getElementById('stat-commissions').textContent = fmt((data.commission_n1||0)+(data.commission_n2||0)+(data.commission_n3||0)) + ' F';
+  document.getElementById('withdraw-balance').textContent = fmt(data.balance) + ' FCFA';
+}
+async function loadInvestments() {
+  const { data } = await sb.from('investments').select('*,vip_plans(name)').eq('user_id', uid).eq('status','active');
+  if (!data || data.length === 0) return;
+  document.getElementById('stat-active').textContent = data.length;
+  let todayGain = 0;
+  data.forEach(inv => todayGain += inv.daily_gain);
+  document.getElementById('today-gain').textContent = '+' + fmt(todayGain) + ' F';
+  const html = data.map(inv => '<div class="invest-card"><div class="invest-badge">VIP' + inv.vip_level + '</div><div class="invest-info"><div class="invest-name">' + (inv.vip_plans?.name || 'VIP '+inv.vip_level) + '</div><div class="invest-sub">Investi : ' + fmt(inv.amount) + ' FCFA</div><div class="invest-status active">Actif</div></div><div class="invest-gain"><div class="invest-gain-val">+' + fmt(inv.daily_gain) + ' F</div><div class="invest-gain-label">/jour</div></div></div>').join('');
+  document.getElementById('investments-list').innerHTML = html;
+}
+async function loadReferrals() {
+  const { count } = await sb.from('profiles').select('*', {count:'exact',head:true}).eq('referred_by', uid);
+  document.getElementById('stat-referrals').textContent = count || 0;
+}
+async function loadNotifications() {
+  const { count } = await sb.from('notifications').select('*', {count:'exact',head:true}).eq('user_id', uid).eq('is_read', false);
+  if (count > 0) document.getElementById('notif-dot').style.display = 'block';
+}
+await Promise.all([loadProfile(), loadInvestments(), loadReferrals(), loadNotifications()]);
+window.openRecharge = () => { document.getElementById('modal-recharge').classList.add('show'); };
+window.selectPay = (method, el) => {
+  selectedPayMethod = method;
+  document.querySelectorAll('#modal-recharge .pay-method').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+};
+window.submitRecharge = async () => {
+  if (!selectedPayMethod) { toast('Choisissez une methode de paiement', 'error'); return; }
+  const amount = parseInt(document.getElementById('recharge-amount').value);
+  const number = document.getElementById('recharge-number').value.trim();
+  const ref = document.getElementById('recharge-ref').value.trim();
+  if (!amount || amount < 1000) { toast('Montant minimum : 1000 FCFA', 'error'); return; }
+  if (!number) { toast('Entrez votre numero / adresse', 'error'); return; }
+  const btn = document.getElementById('btn-recharge-submit');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div>';
+  const { error } = await sb.from('recharges').insert({ user_id: uid, amount, payment_method: selectedPayMethod, payment_number: number, transaction_ref: ref, status: 'pending' });
+  btn.disabled = false; btn.textContent = 'Envoyer la demande';
+  if (error) { toast('Erreur lors de la demande', 'error'); return; }
+  closeModal('modal-recharge');
+  toast('Demande de recharge envoyee !', 'success');
+  document.getElementById('recharge-amount').value = '';
+  document.getElementById('recharge-number').value = '';
+  document.getElementById('recharge-ref').value = '';
+  selectedPayMethod = '';
+};
+window.openWithdraw = () => { document.getElementById('modal-withdraw').classList.add('show'); };
+window.selectWithdrawPay = (method, el) => {
+  selectedWithdrawMethod = method;
+  document.querySelectorAll('#modal-withdraw .pay-method').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+};
+window.submitWithdraw = async () => {
+  if (!selectedWithdrawMethod) { toast('Choisissez une methode', 'error'); return; }
+  const amount = parseInt(document.getElementById('withdraw-amount').value);
+  const number = document.getElementById('withdraw-number').value.trim();
+  if (!amount || amount < withdrawMin) { toast('Minimum : ' + fmt(withdrawMin) + ' FCFA', 'error'); return; }
+  if (!number) { toast('Entrez votre numero / adresse', 'error'); return; }
+  if (!profile || amount > profile.balance) { toast('Solde insuffisant', 'error'); return; }
+  const btn = document.getElementById('btn-withdraw-submit');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div>';
+  const { data: wSettings } = await sb.from('settings').select('value').eq('key','withdrawal_auto_limit').single();
+  const autoLimit = parseInt(wSettings?.value || 50000);
+  const isAuto = amount <= autoLimit;
+  const { error } = await sb.from('withdrawals').insert({ user_id: uid, amount, payment_method: selectedWithdrawMethod, payment_number: number, status: isAuto ? 'processing' : 'pending', is_auto: isAuto });
+  if (!error) { await sb.from('profiles').update({ balance: profile.balance - amount, total_withdrawn: (profile.total_withdrawn||0) + amount }).eq('id', uid); }
+  btn.disabled = false; btn.textContent = 'Demander le retrait';
+  if (error) { toast('Erreur lors du retrait', 'error'); return; }
+  closeModal('modal-withdraw');
+  toast(isAuto ? 'Retrait en cours !' : "Demande envoyee a l'admin", 'success');
+  loadProfile();
+  selectedWithdrawMethod = '';
+};
+window.closeModal = (id) => { document.getElementById(id).classList.remove('show'); };
+</script>
+</body>
+</html>
