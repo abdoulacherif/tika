@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>TIKA — Parrainage</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--green:#00A651;--green-dark:#007A3D;--green-light:#E8F7EF;--red:#E63946;--red-light:#FDECEA;--gray:#F4F6F8;--gray2:#E8ECF0;--text:#1A1A2E;--text2:#6B7280;--shadow:0 4px 24px rgba(0,166,81,0.15);}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);color:var(--text);overflow-x:hidden}
+#app{max-width:430px;margin:0 auto;min-height:100vh;padding-bottom:90px}
+.header{background:linear-gradient(135deg,#00A651,#007A3D);padding:50px 24px 24px;position:relative;overflow:hidden;}
+.header-top{display:flex;align-items:center;gap:14px;position:relative;z-index:1;}
+.back-btn{width:40px;height:40px;background:rgba(255,255,255,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:#fff;}
+.header-title{font-size:20px;font-weight:700;color:#fff;}
+.header-sub{font-size:13px;color:rgba(255,255,255,0.75);margin-top:2px;}
+.section{padding:20px;}
+.ref-card{background:#fff;border-radius:20px;padding:20px;box-shadow:0 4px 20px rgba(0,0,0,0.07);margin-bottom:16px;}
+.ref-card-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:14px;}
+.ref-code-box{background:var(--green-light);border-radius:14px;padding:16px;display:flex;align-items:center;justify-content:space-between;}
+.ref-code{font-size:24px;font-weight:900;color:var(--green-dark);letter-spacing:3px;font-family:'Playfair Display',serif;}
+.copy-btn{background:var(--green);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.ref-link-box{background:var(--gray);border-radius:12px;padding:12px 16px;margin-top:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.ref-link-text{font-size:12px;color:var(--text2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.share-btn{background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+.levels-grid{display:flex;flex-direction:column;gap:10px;}
+.level-card{background:var(--gray);border-radius:14px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;}
+.level-left{display:flex;align-items:center;gap:12px;}
+.level-badge{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;}
+.level-badge.n1{background:linear-gradient(135deg,#FFD700,#FFA500);}
+.level-badge.n2{background:linear-gradient(135deg,#C0C0C0,#A0A0A0);}
+.level-badge.n3{background:linear-gradient(135deg,#CD7F32,#A0522D);}
+.level-name{font-size:14px;font-weight:600;color:var(--text);}
+.level-desc{font-size:12px;color:var(--text2);margin-top:2px;}
+.level-percent{font-size:20px;font-weight:700;color:var(--green);}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.stat-box{background:var(--gray);border-radius:14px;padding:14px;}
+.stat-box-label{font-size:11px;color:var(--text2);font-weight:500;}
+.stat-box-val{font-size:18px;font-weight:700;color:var(--text);margin-top:4px;}
+.stat-box-val.green{color:var(--green);}
+.filleul-card{background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,0.04);}
+.filleul-avatar{width:40px;height:40px;border-radius:50%;background:var(--green-light);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--green-dark);font-size:15px;}
+.filleul-info{flex:1;}
+.filleul-name{font-size:14px;font-weight:600;color:var(--text);}
+.filleul-date{font-size:11px;color:var(--text2);margin-top:2px;}
+.filleul-level{font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px;}
+.filleul-level.n1{background:rgba(255,215,0,0.15);color:#B8860B;}
+.filleul-level.n2{background:rgba(192,192,192,0.15);color:#808080;}
+.filleul-level.n3{background:rgba(205,127,50,0.15);color:#8B4513;}
+.empty-state{text-align:center;padding:30px;background:var(--gray);border-radius:14px;}
+.empty-icon{font-size:36px;margin-bottom:10px;}
+.empty-title{font-size:14px;font-weight:600;color:var(--text);}
+.empty-sub{font-size:12px;color:var(--text2);margin-top:4px;}
+.navbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#fff;border-top:1px solid var(--gray2);display:flex;padding:8px 0 20px;z-index:100;box-shadow:0 -4px 20px rgba(0,0,0,0.08);}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:6px 0;}
+.nav-icon{font-size:22px;transition:.2s;}
+.nav-label{font-size:10px;font-weight:500;color:var(--text2);}
+.nav-item.active .nav-label{color:var(--green);}
+#toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:500;opacity:0;transition:.3s;z-index:9999;max-width:340px;text-align:center;pointer-events:none;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.success{background:var(--green)}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <div class="header-top">
+      <div class="back-btn" onclick="window.location.href='dashboard.html'">&#8592;</div>
+      <div>
+        <div class="header-title">Parrainage</div>
+        <div class="header-sub">Invitez et gagnez des commissions</div>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="ref-card">
+      <div class="ref-card-title">&#127381; Mon code de parrainage</div>
+      <div class="ref-code-box">
+        <div class="ref-code" id="ref-code">------</div>
+        <button class="copy-btn" onclick="copyCode()">Copier</button>
+      </div>
+      <div class="ref-link-box">
+        <div class="ref-link-text" id="ref-link">Chargement...</div>
+        <button class="share-btn" onclick="shareLink()">Partager</button>
+      </div>
+    </div>
+    <div class="ref-card">
+      <div class="ref-card-title">&#128176; Mes commissions</div>
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-box-label">Commission N1 (20%)</div>
+          <div class="stat-box-val green" id="comm-n1">0 F</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-box-label">Commission N2 (8%)</div>
+          <div class="stat-box-val green" id="comm-n2">0 F</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-box-label">Commission N3 (2%)</div>
+          <div class="stat-box-val green" id="comm-n3">0 F</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-box-label">Total filleuls</div>
+          <div class="stat-box-val" id="total-filleuls">0</div>
+        </div>
+      </div>
+    </div>
+    <div class="ref-card">
+      <div class="ref-card-title">&#127942; Niveaux de commission</div>
+      <div class="levels-grid">
+        <div class="level-card">
+          <div class="level-left">
+            <div class="level-badge n1">N1</div>
+            <div>
+              <div class="level-name">Filleuls directs</div>
+              <div class="level-desc">Commission sur leur 1er depot</div>
+            </div>
+          </div>
+          <div class="level-percent" id="pct-n1">20%</div>
+        </div>
+        <div class="level-card">
+          <div class="level-left">
+            <div class="level-badge n2">N2</div>
+            <div>
+              <div class="level-name">Filleuls de filleuls</div>
+              <div class="level-desc">Commission sur leur 1er depot</div>
+            </div>
+          </div>
+          <div class="level-percent" id="pct-n2">8%</div>
+        </div>
+        <div class="level-card">
+          <div class="level-left">
+            <div class="level-badge n3">N3</div>
+            <div>
+              <div class="level-name">Niveau 3</div>
+              <div class="level-desc">Commission sur leur 1er depot</div>
+            </div>
+          </div>
+          <div class="level-percent" id="pct-n3">2%</div>
+        </div>
+      </div>
+    </div>
+    <div class="ref-card">
+      <div class="ref-card-title">&#128101; Mes filleuls directs</div>
+      <div id="filleuls-list">
+        <div class="empty-state">
+          <div class="empty-icon">&#9203;</div>
+          <div class="empty-title">Chargement...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="navbar">
+  <div class="nav-item" onclick="window.location.href='dashboard.html'">
+    <div class="nav-icon">&#127968;</div>
+    <div class="nav-label">Accueil</div>
+  </div>
+  <div class="nav-item" onclick="window.location.href='invest.html'">
+    <div class="nav-icon">&#128200;</div>
+    <div class="nav-label">Investir</div>
+  </div>
+  <div class="nav-item" onclick="window.location.href='wallet.html'">
+    <div class="nav-icon">&#128176;</div>
+    <div class="nav-label">Wallet</div>
+  </div>
+  <div class="nav-item active">
+    <div class="nav-icon">&#129309;</div>
+    <div class="nav-label">Parrainage</div>
+  </div>
+  <div class="nav-item" onclick="window.location.href='profile.html'">
+    <div class="nav-icon">&#128100;</div>
+    <div class="nav-label">Profil</div>
+  </div>
+</div>
+<div id="toast"></div>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+const sb = createClient('https://ainispvuqmuigfxzkkqh.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpbmlzcHZ1cW11aWdmeHpra3FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0ODcyMDUsImV4cCI6MjA5NjA2MzIwNX0.UOZxfyhC2_B7TtuSK4ea_x6u4GOdIsVEIMX8NUlmndc');
+const fmt = n => Number(n||0).toLocaleString('fr-FR');
+const fmtDate = d => new Date(d).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'});
+window.toast = (msg,type='') => {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='show '+type;
+  setTimeout(()=>t.className='',3000);
+};
+const {data:{session}} = await sb.auth.getSession();
+if(!session){window.location.href='index.html';}
+const uid = session.user.id;
+const {data:prof} = await sb.from('profiles').select('*').eq('id',uid).single();
+if(prof){
+  document.getElementById('ref-code').textContent = prof.referral_code || '------';
+  const link = window.location.origin+'/index.html?ref='+(prof.referral_code||'');
+  document.getElementById('ref-link').textContent = link;
+  document.getElementById('comm-n1').textContent = fmt(prof.commission_n1)+' F';
+  document.getElementById('comm-n2').textContent = fmt(prof.commission_n2)+' F';
+  document.getElementById('comm-n3').textContent = fmt(prof.commission_n3)+' F';
+}
+const {data:settings} = await sb.from('settings').select('key,value');
+if(settings){
+  const s = Object.fromEntries(settings.map(x=>[x.key,x.value]));
+  document.getElementById('pct-n1').textContent = (s.referral_n1_percent||20)+'%';
+  document.getElementById('pct-n2').textContent = (s.referral_n2_percent||8)+'%';
+  document.getElementById('pct-n3').textContent = (s.referral_n3_percent||2)+'%';
+  document.getElementById('comm-n1').previousElementSibling.textContent = 'Commission N1 ('+(s.referral_n1_percent||20)+'%)';
+  document.getElementById('comm-n2').previousElementSibling.textContent = 'Commission N2 ('+(s.referral_n2_percent||8)+'%)';
+  document.getElementById('comm-n3').previousElementSibling.textContent = 'Commission N3 ('+(s.referral_n3_percent||2)+'%)';
+}
+const {data:filleuls,count} = await sb.from('profiles').select('*',{count:'exact'}).eq('referred_by',uid).order('created_at',{ascending:false});
+document.getElementById('total-filleuls').textContent = count || 0;
+if(!filleuls||filleuls.length===0){
+  document.getElementById('filleuls-list').innerHTML='<div class="empty-state"><div class="empty-icon">&#129309;</div><div class="empty-title">Aucun filleul pour l\'instant</div><div class="empty-sub">Partagez votre code pour gagner des commissions</div></div>';
+} else {
+  document.getElementById('filleuls-list').innerHTML = filleuls.map(f=>{
+    const init=(f.full_name||'U').split(' ').map(x=>x[0]).join('').toUpperCase().slice(0,2);
+    return '<div class="filleul-card"><div class="filleul-avatar">'+init+'</div><div class="filleul-info"><div class="filleul-name">'+(f.full_name||'Utilisateur')+'</div><div class="filleul-date">Inscrit le '+fmtDate(f.created_at)+'</div></div><div class="filleul-level n1">N1</div></div>';
+  }).join('');
+}
+window.copyCode = () => {
+  navigator.clipboard.writeText(prof?.referral_code||'').then(()=>toast('Code copie !','success'));
+};
+window.shareLink = () => {
+  const link = window.location.origin+'/index.html?ref='+(prof?.referral_code||'');
+  const msg = 'Rejoins TIKA et investis des maintenant ! Utilise mon code : '+(prof?.referral_code||'')+'\n'+link;
+  if(navigator.share){navigator.share({title:'TIKA',text:msg});}
+  else{navigator.clipboard.writeText(msg).then(()=>toast('Lien copie !','success'));}
+};
+</script>
+</body>
+</html>

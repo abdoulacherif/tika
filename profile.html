@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>TIKA — Profil</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--green:#00A651;--green-dark:#007A3D;--green-light:#E8F7EF;--red:#E63946;--red-light:#FDECEA;--gray:#F4F6F8;--gray2:#E8ECF0;--text:#1A1A2E;--text2:#6B7280;--shadow:0 4px 24px rgba(0,166,81,0.15);}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);color:var(--text);overflow-x:hidden}
+#app{max-width:430px;margin:0 auto;min-height:100vh;padding-bottom:90px}
+.header{background:linear-gradient(135deg,#00A651,#007A3D);padding:50px 24px 70px;position:relative;overflow:hidden;}
+.header::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,0.07);}
+.header-top{display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1;}
+.back-btn{width:40px;height:40px;background:rgba(255,255,255,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:#fff;}
+.header-title{font-size:20px;font-weight:700;color:#fff;}
+.logout-btn{width:40px;height:40px;background:rgba(255,255,255,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:#fff;}
+.profile-card{margin:0 20px;margin-top:-50px;background:#fff;border-radius:20px;padding:24px;box-shadow:0 8px 32px rgba(0,0,0,0.10);position:relative;z-index:2;text-align:center;}
+.profile-avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green-dark));display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#fff;margin:0 auto 12px;border:4px solid #fff;box-shadow:0 4px 16px rgba(0,166,81,0.3);}
+.profile-name{font-size:20px;font-weight:700;color:var(--text);font-family:'Playfair Display',serif;}
+.profile-email{font-size:13px;color:var(--text2);margin-top:4px;}
+.profile-phone{font-size:13px;color:var(--text2);margin-top:2px;}
+.profile-ref{display:inline-flex;align-items:center;gap:6px;background:var(--green-light);color:var(--green-dark);padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;margin-top:10px;cursor:pointer;}
+.section{padding:20px 20px 0;}
+.section-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:12px;}
+.form-group{margin-bottom:14px;}
+.form-label{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;display:block;}
+.form-input{width:100%;padding:14px 16px;border:2px solid var(--gray2);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--text);background:#fff;outline:none;transition:.2s;}
+.form-input:focus{border-color:var(--green);box-shadow:0 0 0 4px rgba(0,166,81,0.08)}
+.form-input:disabled{background:var(--gray);color:var(--text2);}
+.btn-save{width:100%;padding:15px;background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px;}
+.btn-save:disabled{opacity:.6}
+.menu-list{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.05);}
+.menu-item{display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;border-bottom:1px solid var(--gray2);transition:.1s;}
+.menu-item:last-child{border-bottom:none;}
+.menu-item:active{background:var(--gray);}
+.menu-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.menu-icon.green{background:var(--green-light);}
+.menu-icon.blue{background:#EEF2FF;}
+.menu-icon.yellow{background:#FFFBEB;}
+.menu-icon.red{background:var(--red-light);}
+.menu-text{flex:1;}
+.menu-title{font-size:14px;font-weight:600;color:var(--text);}
+.menu-sub{font-size:12px;color:var(--text2);margin-top:2px;}
+.menu-arrow{color:var(--text2);font-size:16px;}
+.danger-btn{width:100%;padding:15px;background:var(--red-light);color:var(--red);border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px;}
+.navbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#fff;border-top:1px solid var(--gray2);display:flex;padding:8px 0 20px;z-index:100;box-shadow:0 -4px 20px rgba(0,0,0,0.08);}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:6px 0;}
+.nav-icon{font-size:22px;}
+.nav-label{font-size:10px;font-weight:500;color:var(--text2);}
+.nav-item.active .nav-label{color:var(--green);}
+#toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:500;opacity:0;transition:.3s;z-index:9999;max-width:340px;text-align:center;pointer-events:none;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.success{background:var(--green)}
+#toast.error{background:var(--red)}
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <div class="header-top">
+      <div class="back-btn" onclick="window.location.href='dashboard.html'">&#8592;</div>
+      <div class="header-title">Mon Profil</div>
+      <div class="logout-btn" onclick="doLogout()">&#128682;</div>
+    </div>
+  </div>
+  <div class="profile-card">
+    <div class="profile-avatar" id="profile-avatar">?</div>
+    <div class="profile-name" id="profile-name">Chargement...</div>
+    <div class="profile-email" id="profile-email"></div>
+    <div class="profile-phone" id="profile-phone"></div>
+    <div class="profile-ref" onclick="copyRef()" id="profile-ref">&#127381; ------</div>
+  </div>
+  <div class="section">
+    <div class="section-title">Modifier mes informations</div>
+    <div class="form-group">
+      <label class="form-label">Nom complet</label>
+      <input class="form-input" type="text" id="edit-name" placeholder="Votre nom complet"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Telephone</label>
+      <input class="form-input" type="tel" id="edit-phone" placeholder="+237 6XX XXX XXX"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email (non modifiable)</label>
+      <input class="form-input" type="email" id="edit-email" disabled/>
+    </div>
+    <button class="btn-save" id="btn-save" onclick="saveProfile()">Enregistrer</button>
+  </div>
+  <div class="section" style="margin-top:20px;">
+    <div class="section-title">Mon compte</div>
+    <div class="menu-list">
+      <div class="menu-item" onclick="window.location.href='wallet.html'">
+        <div class="menu-icon green">&#128176;</div>
+        <div class="menu-text">
+          <div class="menu-title">Historique transactions</div>
+          <div class="menu-sub">Recharges, retraits, gains</div>
+        </div>
+        <div class="menu-arrow">&#8250;</div>
+      </div>
+      <div class="menu-item" onclick="window.location.href='referral.html'">
+        <div class="menu-icon yellow">&#129309;</div>
+        <div class="menu-text">
+          <div class="menu-title">Mon parrainage</div>
+          <div class="menu-sub">Code et commissions</div>
+        </div>
+        <div class="menu-arrow">&#8250;</div>
+      </div>
+      <div class="menu-item" onclick="window.location.href='support.html'">
+        <div class="menu-icon blue">&#128172;</div>
+        <div class="menu-text">
+          <div class="menu-title">Support</div>
+          <div class="menu-sub">Contactez-nous</div>
+        </div>
+        <div class="menu-arrow">&#8250;</div>
+      </div>
+    </div>
+  </div>
+  <div class="section" style="margin-top:16px;padding-bottom:20px;">
+    <button class="danger-btn" onclick="doLogout()">&#128682; Se deconnecter</button>
+  </div>
+</div>
+<div class="navbar">
+  <div class="nav-item" onclick="window.location.href='dashboard.html'">
+    <div class="nav-icon">&#127968;</div>
+    <div class="nav-label">Accueil</div>
+  </div>
+  <div class="nav-item" onclick="window.location.href='invest.html'">
+    <div class="nav-icon">&#128200;</div>
+    <div class="nav-label">Investir</div>
+  </div>
+  <div class="nav-item" onclick="window.location.href='wallet.html'">
+    <div class="nav-icon">&#128176;</div>
+    <div class="nav-label">Wallet</div>
+  </div>
+  <div class="nav-item" onclick="window.location.href='referral.html'">
+    <div class="nav-icon">&#129309;</div>
+    <div class="nav-label">Parrainage</div>
+  </div>
+  <div class="nav-item active">
+    <div class="nav-icon">&#128100;</div>
+    <div class="nav-label">Profil</div>
+  </div>
+</div>
+<div id="toast"></div>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+const sb = createClient('https://ainispvuqmuigfxzkkqh.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpbmlzcHZ1cW11aWdmeHpra3FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0ODcyMDUsImV4cCI6MjA5NjA2MzIwNX0.UOZxfyhC2_B7TtuSK4ea_x6u4GOdIsVEIMX8NUlmndc');
+window.toast = (msg,type='') => {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='show '+type;
+  setTimeout(()=>t.className='',3000);
+};
+const {data:{session}} = await sb.auth.getSession();
+if(!session){window.location.href='index.html';}
+const uid = session.user.id;
+let profile = null;
+const {data:prof} = await sb.from('profiles').select('*').eq('id',uid).single();
+profile = prof;
+if(prof){
+  const init=(prof.full_name||'U').split(' ').map(x=>x[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('profile-avatar').textContent = init;
+  document.getElementById('profile-name').textContent = prof.full_name||'Utilisateur';
+  document.getElementById('profile-email').textContent = prof.email||session.user.email||'';
+  document.getElementById('profile-phone').textContent = prof.phone||'';
+  document.getElementById('profile-ref').textContent = '&#127381; '+(prof.referral_code||'------');
+  document.getElementById('profile-ref').innerHTML = '&#127381; '+(prof.referral_code||'------');
+  document.getElementById('edit-name').value = prof.full_name||'';
+  document.getElementById('edit-phone').value = prof.phone||'';
+  document.getElementById('edit-email').value = prof.email||session.user.email||'';
+}
+window.saveProfile = async () => {
+  const name = document.getElementById('edit-name').value.trim();
+  const phone = document.getElementById('edit-phone').value.trim();
+  if(!name){toast('Entrez votre nom','error');return;}
+  const btn = document.getElementById('btn-save');
+  btn.disabled=true; btn.innerHTML='<div class="spinner"></div>';
+  const {error} = await sb.from('profiles').update({full_name:name,phone}).eq('id',uid);
+  btn.disabled=false; btn.textContent='Enregistrer';
+  if(error){toast('Erreur sauvegarde','error');return;}
+  document.getElementById('profile-name').textContent = name;
+  const init=name.split(' ').map(x=>x[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('profile-avatar').textContent = init;
+  toast('Profil mis a jour !','success');
+};
+window.copyRef = () => {
+  navigator.clipboard.writeText(profile?.referral_code||'').then(()=>toast('Code copie !','success'));
+};
+window.doLogout = async () => {
+  await sb.auth.signOut();
+  window.location.href = 'index.html';
+};
+</script>
+</body>
+</html>
