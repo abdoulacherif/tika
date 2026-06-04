@@ -10,7 +10,7 @@
 :root{--green:#00A651;--green-dark:#007A3D;--green-light:#E8F7EF;--red:#E63946;--red-light:#FDECEA;--gray:#F4F6F8;--gray2:#E8ECF0;--text:#1A1A2E;--text2:#6B7280;--shadow:0 4px 24px rgba(0,166,81,0.15);}
 html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);color:var(--text);overflow-x:hidden}
 #app{max-width:430px;margin:0 auto;min-height:100vh;padding-bottom:90px}
-.header{background:linear-gradient(135deg,#00A651,#007A3D);padding:50px 24px 80px;position:relative;overflow:hidden;}
+.header{background:linear-gradient(135deg,rgba(0,100,50,0.88),rgba(0,60,30,0.95)),url(https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800) center/cover no-repeat;padding:50px 24px 80px;position:relative;overflow:hidden;}
 .header::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,0.07);}
 .header::after{content:'';position:absolute;bottom:-50px;left:-30px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,0.05);}
 .header-top{display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1;}
@@ -351,15 +351,15 @@ async function loadInvestments() {
   let todayGain = 0;
   data.forEach(inv => todayGain += inv.daily_gain);
   document.getElementById('today-gain').textContent = '+' + fmt(todayGain) + ' F';
-  const html = data.map(inv => '<div class="invest-card"><div class="invest-badge">VIP' + inv.vip_level + '</div><div class="invest-info"><div class="invest-name">' + (inv.vip_plans?.name || 'VIP '+inv.vip_level) + '</div><div class="invest-sub">Investi : ' + fmt(inv.amount) + ' FCFA</div><div class="invest-status active">Actif</div></div><div class="invest-gain"><div class="invest-gain-val">+' + fmt(inv.daily_gain) + ' F</div><div class="invest-gain-label">/jour</div></div></div>').join('');
+  const html = data.map(inv => '<div class="invest-card"><div class="invest-badge">VIP' + inv.vip_level + '</div><div class="invest-info"><div class="invest-name">' + (inv.vip_plans?.name||'VIP '+inv.vip_level) + '</div><div class="invest-sub">Investi : ' + fmt(inv.amount) + ' FCFA</div><div class="invest-status active">Actif</div></div><div class="invest-gain"><div class="invest-gain-val">+' + fmt(inv.daily_gain) + ' F</div><div class="invest-gain-label">/jour</div></div></div>').join('');
   document.getElementById('investments-list').innerHTML = html;
 }
 async function loadReferrals() {
-  const { count } = await sb.from('profiles').select('*', {count:'exact',head:true}).eq('referred_by', uid);
+  const { count } = await sb.from('profiles').select('*',{count:'exact',head:true}).eq('referred_by', uid);
   document.getElementById('stat-referrals').textContent = count || 0;
 }
 async function loadNotifications() {
-  const { count } = await sb.from('notifications').select('*', {count:'exact',head:true}).eq('user_id', uid).eq('is_read', false);
+  const { count } = await sb.from('notifications').select('*',{count:'exact',head:true}).eq('user_id', uid).eq('is_read', false);
   if (count > 0) document.getElementById('notif-dot').style.display = 'block';
 }
 await Promise.all([loadProfile(), loadInvestments(), loadReferrals(), loadNotifications()]);
@@ -370,12 +370,12 @@ window.selectPay = (method, el) => {
   el.classList.add('selected');
 };
 window.submitRecharge = async () => {
-  if (!selectedPayMethod) { toast('Choisissez une methode de paiement', 'error'); return; }
+  if (!selectedPayMethod) { toast('Choisissez une methode', 'error'); return; }
   const amount = parseInt(document.getElementById('recharge-amount').value);
   const number = document.getElementById('recharge-number').value.trim();
   const ref = document.getElementById('recharge-ref').value.trim();
   if (!amount || amount < 1000) { toast('Montant minimum : 1000 FCFA', 'error'); return; }
-  if (!number) { toast('Entrez votre numero / adresse', 'error'); return; }
+  if (!number) { toast('Entrez votre numero', 'error'); return; }
   const btn = document.getElementById('btn-recharge-submit');
   btn.disabled = true; btn.innerHTML = '<div class="spinner"></div>';
   const { error } = await sb.from('recharges').insert({ user_id: uid, amount, payment_method: selectedPayMethod, payment_number: number, transaction_ref: ref, status: 'pending' });
@@ -399,7 +399,7 @@ window.submitWithdraw = async () => {
   const amount = parseInt(document.getElementById('withdraw-amount').value);
   const number = document.getElementById('withdraw-number').value.trim();
   if (!amount || amount < withdrawMin) { toast('Minimum : ' + fmt(withdrawMin) + ' FCFA', 'error'); return; }
-  if (!number) { toast('Entrez votre numero / adresse', 'error'); return; }
+  if (!number) { toast('Entrez votre numero', 'error'); return; }
   if (!profile || amount > profile.balance) { toast('Solde insuffisant', 'error'); return; }
   const btn = document.getElementById('btn-withdraw-submit');
   btn.disabled = true; btn.innerHTML = '<div class="spinner"></div>';
@@ -409,7 +409,7 @@ window.submitWithdraw = async () => {
   const { error } = await sb.from('withdrawals').insert({ user_id: uid, amount, payment_method: selectedWithdrawMethod, payment_number: number, status: isAuto ? 'processing' : 'pending', is_auto: isAuto });
   if (!error) { await sb.from('profiles').update({ balance: profile.balance - amount, total_withdrawn: (profile.total_withdrawn||0) + amount }).eq('id', uid); }
   btn.disabled = false; btn.textContent = 'Demander le retrait';
-  if (error) { toast('Erreur lors du retrait', 'error'); return; }
+  if (error) { toast('Erreur retrait', 'error'); return; }
   closeModal('modal-withdraw');
   toast(isAuto ? 'Retrait en cours !' : "Demande envoyee a l'admin", 'success');
   loadProfile();
