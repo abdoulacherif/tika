@@ -7,11 +7,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-:root{--green:#00A651;--green-dark:#007A3D;--green-light:#E8F7EF;--red:#E63946;--red-dark:#C0392B;--red-light:#FDECEA;--white:#FFFFFF;--gray:#F4F6F8;--gray2:#E8ECF0;--text:#1A1A2E;--text2:#6B7280;--shadow-green:0 4px 24px rgba(0,166,81,0.25);--shadow-red:0 4px 24px rgba(230,57,70,0.25);}
+:root{--green:#00A651;--green-dark:#007A3D;--green-light:#E8F7EF;--red:#E63946;--red-dark:#C0392B;--red-light:#FDECEA;--gray:#F4F6F8;--gray2:#E8ECF0;--text:#1A1A2E;--text2:#6B7280;--shadow-green:0 4px 24px rgba(0,166,81,0.25);--shadow-red:0 4px 24px rgba(230,57,70,0.25);}
 html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);color:var(--text);overflow-x:hidden}
 #app{max-width:430px;margin:0 auto;min-height:100vh;padding-bottom:90px}
-
-/* HEADER */
 .header{background:linear-gradient(135deg,rgba(0,100,50,0.88),rgba(0,60,30,0.95)),url(https://i.ibb.co/gbFL7njn/Screenshot-20260604-072208-Chrome.jpg) center/cover no-repeat;padding:50px 24px 80px;position:relative;overflow:hidden;}
 .header-accent{position:absolute;top:0;right:0;width:120px;height:120px;background:linear-gradient(135deg,var(--red),var(--red-dark));border-radius:0 0 0 100%;opacity:0.6;}
 .header-accent2{position:absolute;bottom:-20px;left:-20px;width:100px;height:100px;background:rgba(255,255,255,0.06);border-radius:50%;}
@@ -21,9 +19,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
 .header-greet{color:rgba(255,255,255,0.75);font-size:12px;}
 .header-name{color:#fff;font-size:16px;font-weight:700;}
 .header-notif{width:42px;height:42px;background:rgba(255,255,255,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;border:1px solid rgba(255,255,255,0.2);}
-.notif-dot{position:absolute;top:8px;right:8px;width:8px;height:8px;background:var(--red);border-radius:50%;border:2px solid transparent;}
-
-/* BALANCE CARD */
+.notif-dot{position:absolute;top:8px;right:8px;width:8px;height:8px;background:var(--red);border-radius:50%;}
 .balance-card{margin:0 16px;margin-top:-52px;background:#fff;border-radius:22px;padding:22px;box-shadow:0 8px 40px rgba(0,0,0,0.13);position:relative;z-index:2;overflow:hidden;}
 .balance-card::before{content:'';position:absolute;top:0;right:0;width:80px;height:80px;background:linear-gradient(135deg,var(--green-light),transparent);border-radius:0 22px 0 80px;}
 .balance-card::after{content:'';position:absolute;bottom:0;left:0;width:60px;height:60px;background:linear-gradient(135deg,transparent,var(--red-light));border-radius:0 60px 0 22px;}
@@ -42,15 +38,11 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
 .balance-mini-val.green{color:var(--green-dark)}
 .balance-mini-val.red{color:var(--red)}
 .balance-mini-val.dark{color:var(--text)}
-
-/* ACTION BTNS */
 .action-btns{display:flex;gap:12px;padding:16px;}
-.action-btn{flex:1;padding:15px;border:none;border-radius:16px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:.2s;letter-spacing:.3px;}
+.action-btn{flex:1;padding:15px;border:none;border-radius:16px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:.2s;}
 .action-btn:active{transform:scale(.97)}
 .btn-recharge{background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;box-shadow:var(--shadow-green);}
 .btn-withdraw{background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;box-shadow:var(--shadow-red);}
-
-/* QUICK ACTIONS */
 .quick-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:0 16px;margin-bottom:20px;}
 .quick-btn{background:#fff;border-radius:16px;padding:14px 6px;text-align:center;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,0.06);transition:.2s;position:relative;overflow:hidden;}
 .quick-btn:active{transform:scale(.95)}
@@ -61,8 +53,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
 .quick-btn:nth-child(4)::before{background:var(--red);}
 .quick-btn-icon{font-size:22px;margin-bottom:6px;}
 .quick-btn-label{font-size:10px;color:var(--text2);font-weight:600;}
-
-/* STATS */
 .section{padding:0 16px;margin-bottom:20px;}
 .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
 .section-title{font-size:15px;font-weight:700;color:var(--text);}
@@ -78,8 +68,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
 .stat-val{font-size:18px;font-weight:700;margin-top:4px;}
 .stat-val.green{color:var(--green)}
 .stat-val.red{color:var(--red)}
-
-/* INVEST CARD */
 .invest-card{background:#fff;border-radius:16px;padding:14px 16px;margin-bottom:10px;box-shadow:0 2px 12px rgba(0,0,0,0.05);display:flex;align-items:center;gap:12px;border-left:4px solid var(--green);}
 .invest-badge{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,var(--green),var(--green-dark));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:12px;flex-shrink:0;}
 .invest-info{flex:1;}
@@ -89,56 +77,66 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
 .invest-gain-val{font-size:15px;font-weight:700;color:var(--green);}
 .invest-gain-label{font-size:10px;color:var(--text2);}
 .invest-status{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;margin-top:3px;background:var(--green-light);color:var(--green-dark);}
-
-/* EMPTY */
 .empty-state{text-align:center;padding:28px 16px;background:#fff;border-radius:16px;border:2px dashed var(--gray2);}
 .empty-icon{font-size:36px;margin-bottom:10px;}
 .empty-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;}
 .empty-sub{font-size:12px;color:var(--text2);}
-.empty-btn{margin-top:14px;display:inline-block;background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;padding:11px 22px;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;border:none;box-shadow:var(--shadow-green);}
-
-/* NAVBAR */
+.empty-btn{margin-top:14px;display:inline-block;background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;padding:11px 22px;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;border:none;}
 .navbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#fff;border-top:1px solid var(--gray2);display:flex;padding:8px 0 20px;z-index:100;box-shadow:0 -4px 20px rgba(0,0,0,0.08);}
 .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 0;}
-.nav-icon{font-size:20px;transition:.2s;}
+.nav-icon{font-size:20px;}
 .nav-label{font-size:10px;font-weight:500;color:var(--text2);}
 .nav-item.active .nav-label{color:var(--green);font-weight:700;}
-.nav-item.active .nav-icon{transform:scale(1.15);}
-
-/* TOAST */
 #toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:500;opacity:0;transition:.3s;z-index:9999;max-width:340px;text-align:center;pointer-events:none;}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 #toast.success{background:var(--green)}
 #toast.error{background:var(--red)}
-
-/* MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:200;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);}
 .modal-overlay.show{display:flex;}
 .modal{background:#fff;border-radius:28px 28px 0 0;padding:24px;width:100%;max-width:430px;max-height:88vh;overflow-y:auto;}
 .modal-handle{width:36px;height:4px;background:var(--gray2);border-radius:4px;margin:0 auto 20px;}
-.modal-title{font-size:18px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.modal-title{font-size:18px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:10px;}
 .modal-title span{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
 .modal-title span.green{background:var(--green-light);}
 .modal-title span.red{background:var(--red-light);}
+.modal-sub{font-size:13px;color:var(--text2);margin-bottom:20px;}
 .form-group{margin-bottom:14px;}
 .form-label{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:block;}
 .form-input{width:100%;padding:14px 16px;border:2px solid var(--gray2);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--text);background:#fff;outline:none;transition:.2s;}
 .form-input:focus{border-color:var(--green);box-shadow:0 0 0 4px rgba(0,166,81,0.08)}
+.amount-presets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;}
+.preset-btn{padding:10px;border:2px solid var(--gray2);border-radius:10px;background:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;color:var(--text);cursor:pointer;transition:.2s;text-align:center;}
+.preset-btn:active{transform:scale(.96)}
+.preset-btn.selected{border-color:var(--green);background:var(--green-light);color:var(--green-dark);}
+.bka-box{background:linear-gradient(135deg,#1A1A2E,#2D3748);border-radius:16px;padding:16px;margin-bottom:16px;display:flex;align-items:center;gap:14px;}
+.bka-logo{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--green),var(--red));display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.bka-info{flex:1;}
+.bka-name{font-size:14px;font-weight:700;color:#fff;}
+.bka-sub{font-size:11px;color:rgba(255,255,255,0.6);margin-top:2px;}
+.bka-countries{display:flex;gap:4px;margin-top:6px;}
+.country-flag{font-size:16px;}
+.btn-bka{width:100%;padding:16px;background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-green);display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;}
+.btn-bka:active{transform:scale(.98)}
+.btn-bka:disabled{opacity:.6}
+.btn-manual{width:100%;padding:13px;background:var(--gray);color:var(--text2);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;}
+.info-box-green{background:var(--green-light);border-radius:12px;padding:12px 16px;margin-bottom:14px;font-size:12px;color:var(--green-dark);font-weight:500;line-height:1.5;}
 .payment-methods{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
 .pay-method{padding:12px;border:2px solid var(--gray2);border-radius:12px;cursor:pointer;text-align:center;transition:.2s;}
-.pay-method.selected{border-color:var(--green);background:var(--green-light);}
-.pay-method.selected-red{border-color:var(--red);background:var(--red-light);}
+.pay-method.selected{border-color:var(--red);background:var(--red-light);}
 .pay-method-icon{font-size:20px;margin-bottom:4px;}
 .pay-method-label{font-size:11px;font-weight:700;color:var(--text);}
-.btn-green{width:100%;padding:16px;background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-green);display:flex;align-items:center;justify-content:center;gap:8px;}
-.btn-green:disabled{opacity:.6}
 .btn-red{width:100%;padding:16px;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-red);display:flex;align-items:center;justify-content:center;gap:8px;}
 .btn-red:disabled{opacity:.6}
 .btn-cancel{width:100%;padding:14px;background:var(--gray);color:var(--text2);border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;margin-top:10px;}
-.info-box-green{background:var(--green-light);border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--green-dark);font-weight:500;}
 .info-box-red{background:var(--red-light);border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--red);font-weight:500;}
 .spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+.step-indicator{display:flex;align-items:center;gap:8px;margin-bottom:16px;}
+.step{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;}
+.step.active{background:var(--green);color:#fff;}
+.step.inactive{background:var(--gray2);color:var(--text2);}
+.step-line{flex:1;height:2px;background:var(--gray2);}
+.step-line.done{background:var(--green);}
 </style>
 </head>
 <body>
@@ -186,48 +184,18 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
     <button class="action-btn btn-withdraw" onclick="openWithdraw()">&#128184; Retirer</button>
   </div>
   <div class="quick-actions">
-    <div class="quick-btn" onclick="window.location.href='invest.html'">
-      <div class="quick-btn-icon">&#128200;</div>
-      <div class="quick-btn-label">Investir</div>
-    </div>
-    <div class="quick-btn" onclick="window.location.href='referral.html'">
-      <div class="quick-btn-icon">&#129309;</div>
-      <div class="quick-btn-label">Parrainer</div>
-    </div>
-    <div class="quick-btn" onclick="window.location.href='wallet.html'">
-      <div class="quick-btn-icon">&#128176;</div>
-      <div class="quick-btn-label">Historique</div>
-    </div>
-    <div class="quick-btn" onclick="window.location.href='support.html'">
-      <div class="quick-btn-icon">&#128172;</div>
-      <div class="quick-btn-label">Support</div>
-    </div>
+    <div class="quick-btn" onclick="window.location.href='invest.html'"><div class="quick-btn-icon">&#128200;</div><div class="quick-btn-label">Investir</div></div>
+    <div class="quick-btn" onclick="window.location.href='referral.html'"><div class="quick-btn-icon">&#129309;</div><div class="quick-btn-label">Parrainer</div></div>
+    <div class="quick-btn" onclick="window.location.href='wallet.html'"><div class="quick-btn-icon">&#128176;</div><div class="quick-btn-label">Historique</div></div>
+    <div class="quick-btn" onclick="window.location.href='support.html'"><div class="quick-btn-icon">&#128172;</div><div class="quick-btn-label">Support</div></div>
   </div>
   <div class="section">
-    <div class="section-header">
-      <div class="section-title">Statistiques</div>
-    </div>
+    <div class="section-header"><div class="section-title">Statistiques</div></div>
     <div class="stats-row">
-      <div class="stat-card green">
-        <div class="stat-icon">&#128200;</div>
-        <div class="stat-label">Total gains</div>
-        <div class="stat-val" id="stat-total-gains">0 F</div>
-      </div>
-      <div class="stat-card red">
-        <div class="stat-icon">&#127942;</div>
-        <div class="stat-label">Investissements</div>
-        <div class="stat-val" id="stat-active">0 actifs</div>
-      </div>
-      <div class="stat-card white">
-        <div class="stat-icon">&#128101;</div>
-        <div class="stat-label">Filleuls</div>
-        <div class="stat-val green" id="stat-referrals">0</div>
-      </div>
-      <div class="stat-card dark">
-        <div class="stat-icon">&#128142;</div>
-        <div class="stat-label">Commissions</div>
-        <div class="stat-val" style="color:#00A651" id="stat-commissions">0 F</div>
-      </div>
+      <div class="stat-card green"><div class="stat-icon">&#128200;</div><div class="stat-label">Total gains</div><div class="stat-val" id="stat-total-gains">0 F</div></div>
+      <div class="stat-card red"><div class="stat-icon">&#127942;</div><div class="stat-label">Investissements</div><div class="stat-val" id="stat-active">0 actifs</div></div>
+      <div class="stat-card white"><div class="stat-icon">&#128101;</div><div class="stat-label" style="color:var(--text2);opacity:1">Filleuls</div><div class="stat-val green" id="stat-referrals">0</div></div>
+      <div class="stat-card dark"><div class="stat-icon">&#128142;</div><div class="stat-label">Commissions</div><div class="stat-val" style="color:#00A651" id="stat-commissions">0 F</div></div>
     </div>
   </div>
   <div class="section">
@@ -246,46 +214,92 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
   </div>
 </div>
 <div class="navbar">
-  <div class="nav-item active">
-    <div class="nav-icon">&#127968;</div>
-    <div class="nav-label">Accueil</div>
-  </div>
-  <div class="nav-item" onclick="window.location.href='invest.html'">
-    <div class="nav-icon">&#128200;</div>
-    <div class="nav-label">Investir</div>
-  </div>
-  <div class="nav-item" onclick="window.location.href='wallet.html'">
-    <div class="nav-icon">&#128176;</div>
-    <div class="nav-label">Wallet</div>
-  </div>
-  <div class="nav-item" onclick="window.location.href='referral.html'">
-    <div class="nav-icon">&#129309;</div>
-    <div class="nav-label">Parrainage</div>
-  </div>
-  <div class="nav-item" onclick="window.location.href='profile.html'">
-    <div class="nav-icon">&#128100;</div>
-    <div class="nav-label">Profil</div>
-  </div>
+  <div class="nav-item active"><div class="nav-icon">&#127968;</div><div class="nav-label">Accueil</div></div>
+  <div class="nav-item" onclick="window.location.href='invest.html'"><div class="nav-icon">&#128200;</div><div class="nav-label">Investir</div></div>
+  <div class="nav-item" onclick="window.location.href='wallet.html'"><div class="nav-icon">&#128176;</div><div class="nav-label">Wallet</div></div>
+  <div class="nav-item" onclick="window.location.href='referral.html'"><div class="nav-icon">&#129309;</div><div class="nav-label">Parrainage</div></div>
+  <div class="nav-item" onclick="window.location.href='profile.html'"><div class="nav-icon">&#128100;</div><div class="nav-label">Profil</div></div>
 </div>
+
+<!-- MODAL RECHARGE BKA PAY -->
 <div class="modal-overlay" id="modal-recharge">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title"><span class="green">&#128179;</span> Recharger mon compte</div>
-    <div class="info-box-green">Effectuez le paiement puis soumettez la demande</div>
-    <div class="payment-methods">
-      <div class="pay-method" onclick="selectPay('orange_money',this)"><div class="pay-method-icon">&#128992;</div><div class="pay-method-label">Orange Money</div></div>
-      <div class="pay-method" onclick="selectPay('wave',this)"><div class="pay-method-icon">&#128994;</div><div class="pay-method-label">Wave</div></div>
-      <div class="pay-method" onclick="selectPay('mtn',this)"><div class="pay-method-icon">&#129000;</div><div class="pay-method-label">MTN Money</div></div>
-      <div class="pay-method" onclick="selectPay('moov',this)"><div class="pay-method-icon">&#128995;</div><div class="pay-method-label">Moov Money</div></div>
-      <div class="pay-method" onclick="selectPay('crypto',this)" style="grid-column:1/-1"><div class="pay-method-icon">&#8383;</div><div class="pay-method-label">Crypto (USDT/BTC)</div></div>
+    <div class="modal-sub">Paiement securise via BKA Pay</div>
+    <div class="step-indicator">
+      <div class="step active" id="step1">1</div>
+      <div class="step-line" id="line1"></div>
+      <div class="step inactive" id="step2">2</div>
+      <div class="step-line"></div>
+      <div class="step inactive" id="step3">3</div>
     </div>
-    <div class="form-group"><label class="form-label">Montant (FCFA)</label><input class="form-input" type="number" id="recharge-amount" placeholder="Ex: 5000"/></div>
-    <div class="form-group"><label class="form-label">Votre numero / adresse</label><input class="form-input" type="text" id="recharge-number" placeholder="Numero ou adresse wallet"/></div>
-    <div class="form-group"><label class="form-label">Reference transaction</label><input class="form-input" type="text" id="recharge-ref" placeholder="Ex: TXN123456"/></div>
-    <button class="btn-green" id="btn-recharge-submit" onclick="submitRecharge()">Envoyer la demande</button>
-    <button class="btn-cancel" onclick="closeModal('modal-recharge')">Annuler</button>
+    <!-- ETAPE 1 : Montant -->
+    <div id="recharge-step1">
+      <div class="form-group">
+        <label class="form-label">Montant (FCFA)</label>
+        <input class="form-input" type="number" id="recharge-amount" placeholder="Ex: 5000" oninput="updatePresets(this.value)"/>
+      </div>
+      <div class="amount-presets">
+        <button class="preset-btn" onclick="setAmount(5000)">5 000</button>
+        <button class="preset-btn" onclick="setAmount(15000)">15 000</button>
+        <button class="preset-btn" onclick="setAmount(25000)">25 000</button>
+        <button class="preset-btn" onclick="setAmount(50000)">50 000</button>
+        <button class="preset-btn" onclick="setAmount(100000)">100 000</button>
+        <button class="preset-btn" onclick="setAmount(225000)">225 000</button>
+      </div>
+      <div class="bka-box">
+        <div class="bka-logo">&#128176;</div>
+        <div class="bka-info">
+          <div class="bka-name">BKA Pay</div>
+          <div class="bka-sub">Paiement mobile securise</div>
+          <div class="bka-countries">
+            <span class="country-flag">&#127788;</span>
+            <span class="country-flag">&#127726;</span>
+            <span class="country-flag">&#127787;</span>
+            <span class="country-flag">&#127463;&#127467;</span>
+            <span class="country-flag">&#127480;&#127475;</span>
+          </div>
+        </div>
+      </div>
+      <button class="btn-bka" id="btn-go-bka" onclick="goToBKAPay()">
+        &#128176; Payer maintenant
+      </button>
+      <button class="btn-cancel" onclick="closeModal('modal-recharge')">Annuler</button>
+    </div>
+    <!-- ETAPE 2 : Confirmation apres paiement -->
+    <div id="recharge-step2" style="display:none">
+      <div class="info-box-green">
+        &#10003; Vous avez effectue le paiement ? Enregistrez votre demande pour que l'admin puisse valider.
+      </div>
+      <div class="form-group">
+        <label class="form-label">Montant paye (FCFA)</label>
+        <input class="form-input" type="number" id="recharge-amount2" placeholder="Confirmez le montant" readonly/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Reference de transaction (optionnel)</label>
+        <input class="form-input" type="text" id="recharge-ref" placeholder="Ex: TXN123456"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Votre numero de paiement</label>
+        <input class="form-input" type="text" id="recharge-number" placeholder="Ex: +235 66 XX XX XX"/>
+      </div>
+      <button class="btn-bka" id="btn-submit-recharge" onclick="submitRecharge()">
+        &#10003; Soumettre la demande
+      </button>
+      <button class="btn-manual" onclick="backToStep1()">&#8592; Modifier le montant</button>
+    </div>
+    <!-- ETAPE 3 : Succes -->
+    <div id="recharge-step3" style="display:none;text-align:center;padding:20px 0;">
+      <div style="font-size:60px;margin-bottom:16px;">&#10004;</div>
+      <div style="font-size:18px;font-weight:800;color:var(--green);margin-bottom:8px;">Demande enregistree !</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:20px;">Votre recharge est en attente de validation par l'administrateur. Vous serez notifie des validation.</div>
+      <button class="btn-bka" onclick="closeModal('modal-recharge')">Fermer</button>
+    </div>
   </div>
 </div>
+
+<!-- MODAL RETRAIT -->
 <div class="modal-overlay" id="modal-withdraw">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -298,7 +312,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
       <div class="pay-method" onclick="selectWithdrawPay('moov',this)"><div class="pay-method-icon">&#128995;</div><div class="pay-method-label">Moov Money</div></div>
       <div class="pay-method" onclick="selectWithdrawPay('crypto',this)" style="grid-column:1/-1"><div class="pay-method-icon">&#8383;</div><div class="pay-method-label">Crypto (USDT/BTC)</div></div>
     </div>
-    <div class="form-group"><label class="form-label">Montant a retirer (FCFA)</label><input class="form-input" type="number" id="withdraw-amount" placeholder="Montant minimum : 1000 F"/></div>
+    <div class="form-group"><label class="form-label">Montant a retirer (FCFA)</label><input class="form-input" type="number" id="withdraw-amount" placeholder="Minimum 1000 FCFA"/></div>
     <div class="form-group"><label class="form-label">Numero / adresse reception</label><input class="form-input" type="text" id="withdraw-number" placeholder="Votre numero ou adresse"/></div>
     <button class="btn-red" id="btn-withdraw-submit" onclick="submitWithdraw()">Demander le retrait</button>
     <button class="btn-cancel" onclick="closeModal('modal-withdraw')">Annuler</button>
@@ -307,9 +321,10 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
 <div id="toast"></div>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-const sb = createClient('https://ainispvuqmuigfxzkkqh.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpbmlzcHZ1cW11aWdmeHpra3FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0ODcyMDUsImV4cCI6MjA5NjA2MzIwNX0.UOZxfyhC2_B7TtuSK4ea_x6u4GOdIsVEIMX8NUlmndc');
+const sb=createClient('https://ainispvuqmuigfxzkkqh.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpbmlzcHZ1cW11aWdmeHpra3FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0ODcyMDUsImV4cCI6MjA5NjA2MzIwNX0.UOZxfyhC2_B7TtuSK4ea_x6u4GOdIsVEIMX8NUlmndc');
 window.sb=sb;
-let profile=null,selectedPayMethod='',selectedWithdrawMethod='',withdrawMin=1000;
+const BKA_URL='https://bkapay.com/merchant/e70a1d40';
+let profile=null,selectedWithdrawMethod='',withdrawMin=1000;
 const fmt=n=>Number(n||0).toLocaleString('fr-FR');
 window.toast=(msg,type='')=>{const t=document.getElementById('toast');t.textContent=msg;t.className='show '+type;setTimeout(()=>t.className='',3000);};
 const {data:{session}}=await sb.auth.getSession();
@@ -332,7 +347,7 @@ async function loadProfile(){
 }
 async function loadInvestments(){
   const {data}=await sb.from('investments').select('*,vip_plans(name)').eq('user_id',uid).eq('status','active');
-  if(!data||data.length===0)return;
+  if(!data||!data.length)return;
   document.getElementById('stat-active').textContent=data.length+' actifs';
   let g=0;data.forEach(i=>g+=i.daily_gain);
   document.getElementById('today-gain').textContent='+'+fmt(g)+' F';
@@ -341,23 +356,65 @@ async function loadInvestments(){
 async function loadReferrals(){const {count}=await sb.from('profiles').select('*',{count:'exact',head:true}).eq('referred_by',uid);document.getElementById('stat-referrals').textContent=count||0;}
 async function loadNotifs(){const {count}=await sb.from('notifications').select('*',{count:'exact',head:true}).eq('user_id',uid).eq('is_read',false);if(count>0)document.getElementById('notif-dot').style.display='block';}
 await Promise.all([loadProfile(),loadInvestments(),loadReferrals(),loadNotifs()]);
-window.openRecharge=()=>{document.getElementById('modal-recharge').classList.add('show');};
-window.selectPay=(m,el)=>{selectedPayMethod=m;document.querySelectorAll('#modal-recharge .pay-method').forEach(e=>e.classList.remove('selected'));el.classList.add('selected');};
-window.submitRecharge=async()=>{
-  if(!selectedPayMethod){toast('Choisissez une methode','error');return;}
-  const amount=parseInt(document.getElementById('recharge-amount').value);
-  const number=document.getElementById('recharge-number').value.trim();
-  const ref=document.getElementById('recharge-ref').value.trim();
-  if(!amount||amount<1000){toast('Minimum 1000 FCFA','error');return;}
-  if(!number){toast('Entrez votre numero','error');return;}
-  const btn=document.getElementById('btn-recharge-submit');
-  btn.disabled=true;btn.innerHTML='<div class="spinner"></div>';
-  const {error}=await sb.from('recharges').insert({user_id:uid,amount,payment_method:selectedPayMethod,payment_number:number,transaction_ref:ref,status:'pending'});
-  btn.disabled=false;btn.textContent='Envoyer la demande';
-  if(error){toast('Erreur','error');return;}
-  closeModal('modal-recharge');toast('Demande envoyee !','success');
-  document.getElementById('recharge-amount').value='';document.getElementById('recharge-number').value='';document.getElementById('recharge-ref').value='';selectedPayMethod='';
+
+// RECHARGE
+window.openRecharge=()=>{
+  document.getElementById('recharge-step1').style.display='block';
+  document.getElementById('recharge-step2').style.display='none';
+  document.getElementById('recharge-step3').style.display='none';
+  document.getElementById('recharge-amount').value='';
+  document.getElementById('modal-recharge').classList.add('show');
 };
+window.setAmount=(amount)=>{
+  document.getElementById('recharge-amount').value=amount;
+  document.querySelectorAll('.preset-btn').forEach(b=>{
+    b.classList.toggle('selected',parseInt(b.textContent.replace(/\s/g,''))===amount||b.textContent.replace(/\s/g,'')===(amount+''));
+  });
+};
+window.updatePresets=(val)=>{
+  const v=parseInt(val);
+  document.querySelectorAll('.preset-btn').forEach(b=>{
+    const bval=parseInt(b.textContent.replace(/\s/g,''));
+    b.classList.toggle('selected',bval===v);
+  });
+};
+window.goToBKAPay=()=>{
+  const amount=parseInt(document.getElementById('recharge-amount').value);
+  if(!amount||amount<1000){toast('Montant minimum 1000 FCFA','error');return;}
+  // Essai pre-remplissage montant dans URL
+  const bkaUrl=BKA_URL+'?amount='+amount+'&ref=TIKA-'+uid.slice(0,8).toUpperCase();
+  // Passer a etape 2
+  document.getElementById('recharge-step1').style.display='none';
+  document.getElementById('recharge-step2').style.display='block';
+  document.getElementById('recharge-amount2').value=amount;
+  document.getElementById('step2').className='step active';
+  document.getElementById('line1').className='step-line done';
+  // Ouvrir BKA Pay
+  window.open(bkaUrl,'_blank');
+};
+window.backToStep1=()=>{
+  document.getElementById('recharge-step1').style.display='block';
+  document.getElementById('recharge-step2').style.display='none';
+  document.getElementById('step2').className='step inactive';
+  document.getElementById('line1').className='step-line';
+};
+window.submitRecharge=async()=>{
+  const amount=parseInt(document.getElementById('recharge-amount2').value);
+  const ref=document.getElementById('recharge-ref').value.trim();
+  const number=document.getElementById('recharge-number').value.trim();
+  if(!amount){toast('Montant invalide','error');return;}
+  const btn=document.getElementById('btn-submit-recharge');
+  btn.disabled=true;btn.innerHTML='<div class="spinner"></div>';
+  const {error}=await sb.from('recharges').insert({user_id:uid,amount,payment_method:'bka_pay',payment_number:number||'BKA Pay',transaction_ref:ref||('BKA-'+Date.now()),status:'pending'});
+  btn.disabled=false;btn.textContent='Soumettre la demande';
+  if(error){toast('Erreur','error');return;}
+  await sb.from('notifications').insert({user_id:uid,title:'Recharge en attente',message:'Votre recharge de '+fmt(amount)+' FCFA est en cours de verification.',type:'info'});
+  document.getElementById('recharge-step2').style.display='none';
+  document.getElementById('recharge-step3').style.display='block';
+  document.getElementById('step3').className='step active';
+};
+
+// RETRAIT
 window.openWithdraw=()=>{document.getElementById('modal-withdraw').classList.add('show');};
 window.selectWithdrawPay=(m,el)=>{selectedWithdrawMethod=m;document.querySelectorAll('#modal-withdraw .pay-method').forEach(e=>e.classList.remove('selected'));el.classList.add('selected');};
 window.submitWithdraw=async()=>{
@@ -375,10 +432,18 @@ window.submitWithdraw=async()=>{
   if(!error)await sb.from('profiles').update({balance:profile.balance-amount,total_withdrawn:(profile.total_withdrawn||0)+amount}).eq('id',uid);
   btn.disabled=false;btn.textContent='Demander le retrait';
   if(error){toast('Erreur','error');return;}
-  closeModal('modal-withdraw');toast(isAuto?'Retrait en cours !':'Demande envoyee !','success');
+  closeModal('modal-withdraw');
+  toast(isAuto?'Retrait en cours !':'Demande envoyee !','success');
   loadProfile();selectedWithdrawMethod='';
 };
-window.closeModal=id=>{document.getElementById(id).classList.remove('show');};
+window.closeModal=id=>{
+  document.getElementById(id).classList.remove('show');
+  if(id==='modal-recharge'){
+    document.getElementById('recharge-step1').style.display='block';
+    document.getElementById('recharge-step2').style.display='none';
+    document.getElementById('recharge-step3').style.display='none';
+  }
+};
 </script>
 </body>
 </html>
