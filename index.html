@@ -225,7 +225,7 @@ window.doRegister = async () => {
     referredBy = refProfile.id;
   }
   const { data, error } = await sb.auth.signUp({ email, password, options: { data: { full_name: name } } });
-  if (error) { toast(error.message.includes('already') ? 'Email déjà utilisé' : 'Erreur inscription', 'error'); setLoading('btn-register', false, 'Créer mon compte'); return; }
+  if (error) { toast(error.message, 'error'); setLoading('btn-register', false, 'Créer mon compte'); return; }
   await sb.from('profiles').update({ full_name: name, phone: phone, referred_by: referredBy }).eq('id', data.user.id);
   toast('Compte créé avec succès !', 'success');
   setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
