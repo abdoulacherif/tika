@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-:root{--green:#00A651;--green-dark:#007A3D;--green-light:#E8F7EF;--red:#E63946;--red-dark:#C0392B;--red-light:#FDECEA;--gray:#F4F6F8;--gray2:#E8ECF0;--text:#1A1A2E;--text2:#6B7280;--shadow-green:0 4px 24px rgba(0,166,81,0.25);--shadow-red:0 4px 24px rgba(230,57,70,0.25);}
+:root{--green:#00A651;--green-dark:#007A3D;--green-light:#E8F7EF;--red:#E63946;--red-dark:#C0392B;--red-light:#FDECEA;--gray:#F4F6F8;--gray2:#E8ECF0;--text:#1A1A2E;--text2:#6B7280;--shadow-green:0 4px 24px rgba(0,166,81,0.25);--shadow-red:0 4px 24px rgba(230,57,70,0.25);--airtel:#E3000F;--airtel-light:#FEE2E4;}
 html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);color:var(--text);overflow-x:hidden}
 #app{max-width:430px;margin:0 auto;min-height:100vh;padding-bottom:90px}
 .header{background:linear-gradient(135deg,rgba(0,100,50,0.88),rgba(0,60,30,0.95)),url(https://i.ibb.co/gbFL7njn/Screenshot-20260604-072208-Chrome.jpg) center/cover no-repeat;padding:50px 24px 80px;position:relative;overflow:hidden;}
@@ -99,6 +99,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
 .modal-title span{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
 .modal-title span.green{background:var(--green-light);}
 .modal-title span.red{background:var(--red-light);}
+.modal-title span.airtel{background:var(--airtel-light);}
 .modal-sub{font-size:13px;color:var(--text2);margin-bottom:16px;}
 .form-group{margin-bottom:14px;}
 .form-label{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:block;}
@@ -108,16 +109,20 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
 .preset-btn{padding:10px;border:2px solid var(--gray2);border-radius:10px;background:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;color:var(--text);cursor:pointer;transition:.2s;text-align:center;}
 .preset-btn.selected{border-color:var(--green);background:var(--green-light);color:var(--green-dark);}
 .preset-btn-red.selected{border-color:var(--red);background:var(--red-light);color:var(--red);}
-.bka-box{background:linear-gradient(135deg,#1A1A2E,#2D3748);border-radius:16px;padding:16px;margin-bottom:16px;display:flex;align-items:center;gap:14px;}
-.bka-logo{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--green),var(--red));display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
-.bka-info{flex:1;}
-.bka-name{font-size:14px;font-weight:700;color:#fff;}
-.bka-sub{font-size:11px;color:rgba(255,255,255,0.6);margin-top:2px;}
-.bka-countries{display:flex;gap:4px;margin-top:6px;font-size:16px;}
+.payment-methods{display:flex;gap:12px;margin-bottom:20px;}
+.payment-card{flex:1;background:#fff;border:2px solid var(--gray2);border-radius:16px;padding:12px;text-align:center;cursor:pointer;transition:.2s;}
+.payment-card:active{transform:scale(.97)}
+.payment-card.selected{border-color:var(--green);background:var(--green-light);}
+.payment-card.airtel.selected{border-color:var(--airtel);background:var(--airtel-light);}
+.payment-icon{font-size:28px;margin-bottom:8px;}
+.payment-name{font-size:13px;font-weight:700;color:var(--text);}
+.airtel-instructions{background:var(--airtel-light);border-radius:14px;padding:16px;margin-bottom:16px;border-left:4px solid var(--airtel);}
+.airtel-instructions p{margin-bottom:8px;font-size:13px;color:#8B0000;font-weight:500;}
+.airtel-instructions .code-box{background:#fff;padding:12px;border-radius:10px;font-family:monospace;font-size:14px;font-weight:700;color:var(--airtel);text-align:center;margin:10px 0;word-break:break-all;}
+.btn-airtel{width:100%;padding:16px;background:linear-gradient(135deg,var(--airtel),#B0000C);color:#fff;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;box-shadow:0 4px 20px rgba(227,0,15,0.3);}
 .btn-bka{width:100%;padding:16px;background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-green);display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;}
 .btn-bka:disabled{opacity:.6}
 .btn-red{width:100%;padding:16px;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-red);display:flex;align-items:center;justify-content:center;gap:8px;}
-.btn-red:disabled{opacity:.6}
 .btn-cancel{width:100%;padding:14px;background:var(--gray);color:var(--text2);border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;margin-top:10px;}
 .info-box-green{background:var(--green-light);border-radius:12px;padding:12px 16px;margin-bottom:14px;font-size:12px;color:var(--green-dark);font-weight:500;line-height:1.5;}
 .info-box-red{background:var(--red-light);border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--red);font-weight:600;}
@@ -131,10 +136,12 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
 .step-indicator{display:flex;align-items:center;gap:8px;margin-bottom:20px;}
 .step{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
 .step.active{background:var(--green);color:#fff;}
+.step.active-airtel{background:var(--airtel);color:#fff;}
 .step.active-red{background:var(--red);color:#fff;}
 .step.inactive{background:var(--gray2);color:var(--text2);}
 .step-line{flex:1;height:2px;background:var(--gray2);}
 .step-line.done{background:var(--green);}
+.step-line.done-airtel{background:var(--airtel);}
 .step-line.done-red{background:var(--red);}
 .spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -218,14 +225,16 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title"><span class="green">&#128179;</span> Recharger mon compte</div>
-    <div class="modal-sub">Paiement securise via BKA Pay</div>
-    <div class="step-indicator">
+    <div class="modal-sub">Choisissez votre mode de paiement</div>
+    <div class="step-indicator" id="recharge-steps">
       <div class="step active" id="rs1">1</div>
       <div class="step-line" id="rl1"></div>
       <div class="step inactive" id="rs2">2</div>
       <div class="step-line" id="rl2"></div>
       <div class="step inactive" id="rs3">3</div>
     </div>
+    
+    <!-- ETAPE 1 : Choix du montant + Methode -->
     <div id="recharge-step1">
       <div class="form-group">
         <label class="form-label">Montant (FCFA)</label>
@@ -239,25 +248,59 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
         <button class="preset-btn" onclick="setAmount(100000)">100 000</button>
         <button class="preset-btn" onclick="setAmount(225000)">225 000</button>
       </div>
-      <div class="bka-box">
-        <div class="bka-logo">&#128176;</div>
-        <div class="bka-info">
-          <div class="bka-name">BKA Pay</div>
-          <div class="bka-sub">Tchad · Benin · Togo · Burkina · Senegal</div>
-          <div class="bka-countries">&#127988;&#127988;&#127988;&#127988;&#127988;</div>
+      
+      <!-- SELECTION METHODE DE PAIEMENT -->
+      <div class="payment-methods">
+        <div class="payment-card" onclick="selectPaymentMethod('bka',this)">
+          <div class="payment-icon">&#128176;</div>
+          <div class="payment-name">BKA Pay</div>
+        </div>
+        <div class="payment-card airtel" onclick="selectPaymentMethod('airtel',this)">
+          <div class="payment-icon">&#128242;</div>
+          <div class="payment-name">Airtel Money</div>
         </div>
       </div>
-      <button class="btn-bka" onclick="goToBKAPay()">&#128176; Payer via BKA Pay</button>
+      
+      <div id="bka-payment-box">
+        <div class="bka-box">
+          <div class="bka-logo">&#128176;</div>
+          <div class="bka-info">
+            <div class="bka-name">BKA Pay</div>
+            <div class="bka-sub">Tchad · Benin · Togo · Burkina · Senegal</div>
+            <div class="bka-countries">&#127988;&#127988;&#127988;&#127988;&#127988;</div>
+          </div>
+        </div>
+        <button class="btn-bka" onclick="goToBKAPay()">&#128176; Payer via BKA Pay</button>
+      </div>
+      
+      <div id="airtel-payment-box" style="display:none">
+        <div class="airtel-instructions">
+          <p>&#128241; <strong>Paiement par Airtel Money</strong></p>
+          <p>Effectuez le paiement via le code USSD suivant :</p>
+          <div class="code-box">
+            *436*3*1*1* 87906204 * MONTANT * 1*1* Mot de passe #
+          </div>
+          <p><strong>Exemple :</strong> *436*3*1*1*87906204*5000*1*1*1234#</p>
+          <p style="font-size:11px;margin-top:6px;">&#9888; Remplacez MONTANT par le montant choisi et entrez votre code secret Airtel à la fin.</p>
+        </div>
+        <button class="btn-airtel" onclick="goToAirtelPay()">&#128242; J'ai effectué le paiement</button>
+      </div>
+      
       <button class="btn-cancel" onclick="closeModal('modal-recharge')">Annuler</button>
     </div>
+    
+    <!-- ETAPE 2 : Soumission manuelle -->
     <div id="recharge-step2" style="display:none">
       <div class="info-box-green">&#10003; Apres paiement, soumettez votre demande pour validation.</div>
       <div class="form-group"><label class="form-label">Montant paye (FCFA)</label><input class="form-input" type="number" id="recharge-amount2" readonly/></div>
-      <div class="form-group"><label class="form-label">Reference transaction (optionnel)</label><input class="form-input" type="text" id="recharge-ref" placeholder="Ex: TXN123456"/></div>
+      <div class="form-group"><label class="form-label">Reference transaction (optionnel)</label><input class="form-input" type="text" id="recharge-ref" placeholder="Ex: TXN123456 ou numero transaction Airtel"/></div>
       <div class="form-group"><label class="form-label">Votre numero de paiement</label><input class="form-input" type="tel" id="recharge-number" placeholder="Ex: +235 66 XX XX XX"/></div>
+      <div class="form-group"><label class="form-label">Mode de paiement</label><input class="form-input" type="text" id="recharge-method-display" readonly/></div>
       <button class="btn-bka" id="btn-submit-recharge" onclick="submitRecharge()">&#10003; Soumettre la demande</button>
       <button class="btn-cancel" onclick="backToRechargeStep1()">&#8592; Retour</button>
     </div>
+    
+    <!-- ETAPE 3 : Confirmation -->
     <div id="recharge-step3" style="display:none;text-align:center;padding:20px 0">
       <div style="font-size:60px;margin-bottom:16px">&#10004;</div>
       <div style="font-size:18px;font-weight:800;color:var(--green);margin-bottom:8px">Demande enregistree !</div>
@@ -280,7 +323,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
       <div class="step-line" id="wl2"></div>
       <div class="step inactive" id="ws3">3</div>
     </div>
-    <!-- ETAPE 1 : Montant -->
     <div id="withdraw-step1">
       <div class="info-box-red">Solde disponible : <strong id="withdraw-balance">0 FCFA</strong></div>
       <div class="form-group">
@@ -298,7 +340,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
       <button class="btn-red" onclick="goToWithdrawStep2()">Continuer &#8250;</button>
       <button class="btn-cancel" onclick="closeModal('modal-withdraw')">Annuler</button>
     </div>
-    <!-- ETAPE 2 : Operateur -->
     <div id="withdraw-step2" style="display:none">
       <div class="form-group"><label class="form-label">Choisissez votre operateur</label></div>
       <div class="operator-grid">
@@ -331,7 +372,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
       <button class="btn-red" onclick="goToWithdrawStep3()">Continuer &#8250;</button>
       <button class="btn-cancel" onclick="backToWithdrawStep1()">&#8592; Retour</button>
     </div>
-    <!-- ETAPE 3 : Infos -->
     <div id="withdraw-step3" style="display:none">
       <div class="info-box-red">Operateur : <strong id="selected-operator-label">-</strong> | Montant : <strong id="selected-amount-label">-</strong></div>
       <div class="form-group">
@@ -354,7 +394,7 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const sb=createClient('https://ainispvuqmuigfxzkkqh.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpbmlzcHZ1cW11aWdmeHpra3FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0ODcyMDUsImV4cCI6MjA5NjA2MzIwNX0.UOZxfyhC2_B7TtuSK4ea_x6u4GOdIsVEIMX8NUlmndc');
 window.sb=sb;
 const BKA_URL='https://bkapay.com/merchant/e70a1d40';
-let profile=null,selectedOperator='',withdrawMin=1000;
+let profile=null,selectedOperator='',selectedPaymentMethod='',withdrawMin=1000;
 const fmt=n=>Number(n||0).toLocaleString('fr-FR');
 const operatorLabels={orange_money:'Orange Money',wave:'Wave',mtn:'MTN Money',moov:'Moov Money',crypto:'Crypto'};
 window.toast=(msg,type='')=>{const t=document.getElementById('toast');t.textContent=msg;t.className='show '+type;setTimeout(()=>t.className='',3000);};
@@ -388,42 +428,100 @@ async function loadReferrals(){const {count}=await sb.from('profiles').select('*
 async function loadNotifs(){const {count}=await sb.from('notifications').select('*',{count:'exact',head:true}).eq('user_id',uid).eq('is_read',false);if(count>0)document.getElementById('notif-dot').style.display='block';}
 await Promise.all([loadProfile(),loadInvestments(),loadReferrals(),loadNotifs()]);
 
+// SELECTION METHODE DE PAIEMENT
+window.selectPaymentMethod=(method,el)=>{
+  selectedPaymentMethod=method;
+  document.querySelectorAll('.payment-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  
+  const bkaBox=document.getElementById('bka-payment-box');
+  const airtelBox=document.getElementById('airtel-payment-box');
+  
+  if(method==='bka'){
+    bkaBox.style.display='block';
+    airtelBox.style.display='none';
+  }else{
+    bkaBox.style.display='none';
+    airtelBox.style.display='block';
+  }
+};
+
 // RECHARGE
 window.openRecharge=()=>{
+  selectedPaymentMethod='';
+  document.querySelectorAll('.payment-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('bka-payment-box').style.display='block';
+  document.getElementById('airtel-payment-box').style.display='none';
   ['recharge-step1','recharge-step2','recharge-step3'].forEach((s,i)=>document.getElementById(s).style.display=i===0?'block':'none');
+  document.getElementById('recharge-amount').value='';
+  document.getElementById('recharge-ref').value='';
+  document.getElementById('recharge-number').value='';
   document.getElementById('modal-recharge').classList.add('show');
 };
+
 window.setAmount=v=>{
   document.getElementById('recharge-amount').value=v;
   document.querySelectorAll('#modal-recharge .preset-btn').forEach(b=>b.classList.toggle('selected',parseInt(b.textContent.replace(/\s/g,''))===v));
 };
+
 window.goToBKAPay=()=>{
   const amount=parseInt(document.getElementById('recharge-amount').value);
   if(!amount||amount<1000){toast('Minimum 1000 FCFA','error');return;}
+  if(!selectedPaymentMethod){toast('Choisissez une methode de paiement','error');return;}
   document.getElementById('recharge-step1').style.display='none';
   document.getElementById('recharge-step2').style.display='block';
   document.getElementById('recharge-amount2').value=amount;
+  document.getElementById('recharge-method-display').value='BKA Pay';
   document.getElementById('rs2').className='step active';
   document.getElementById('rl1').className='step-line done';
   window.open(BKA_URL+'?amount='+amount,'_blank');
 };
+
+window.goToAirtelPay=()=>{
+  const amount=parseInt(document.getElementById('recharge-amount').value);
+  if(!amount||amount<1000){toast('Minimum 1000 FCFA','error');return;}
+  if(!selectedPaymentMethod){toast('Choisissez une methode de paiement','error');return;}
+  document.getElementById('recharge-step1').style.display='none';
+  document.getElementById('recharge-step2').style.display='block';
+  document.getElementById('recharge-amount2').value=amount;
+  document.getElementById('recharge-method-display').value='Airtel Money';
+  document.getElementById('rs2').className='step active';
+  document.getElementById('rl1').className='step-line done';
+  toast('Veuillez confirmer votre paiement en soumettant le formulaire','success');
+};
+
 window.backToRechargeStep1=()=>{
   document.getElementById('recharge-step1').style.display='block';
   document.getElementById('recharge-step2').style.display='none';
   document.getElementById('rs2').className='step inactive';
   document.getElementById('rl1').className='step-line';
 };
+
 window.submitRecharge=async()=>{
   const amount=parseInt(document.getElementById('recharge-amount2').value);
   const ref=document.getElementById('recharge-ref').value.trim();
   const number=document.getElementById('recharge-number').value.trim();
+  const method=document.getElementById('recharge-method-display').value;
   if(!amount){toast('Montant invalide','error');return;}
+  if(!number){toast('Entrez votre numero de paiement','error');return;}
   const btn=document.getElementById('btn-submit-recharge');
   btn.disabled=true;btn.innerHTML='<div class="spinner"></div>';
-  const {error}=await sb.from('recharges').insert({user_id:uid,amount,payment_method:'bka_pay',payment_number:number||'BKA Pay',transaction_ref:ref||'BKA-'+Date.now(),status:'pending'});
+  const {error}=await sb.from('recharges').insert({
+    user_id:uid,
+    amount,
+    payment_method:method.toLowerCase().replace(' ','_'),
+    payment_number:number||'Non renseigne',
+    transaction_ref:ref||method+'-'+Date.now(),
+    status:'pending'
+  });
   btn.disabled=false;btn.textContent='Soumettre la demande';
-  if(error){toast('Erreur','error');return;}
-  await sb.from('notifications').insert({user_id:uid,title:'Recharge en attente',message:'Votre recharge de '+fmt(amount)+' FCFA est en cours de verification.',type:'info'});
+  if(error){toast('Erreur lors de l\'enregistrement','error');console.error(error);return;}
+  await sb.from('notifications').insert({
+    user_id:uid,
+    title:'Recharge en attente',
+    message:'Votre recharge de '+fmt(amount)+' FCFA via '+method+' est en cours de verification.',
+    type:'info'
+  });
   document.getElementById('recharge-step2').style.display='none';
   document.getElementById('recharge-step3').style.display='block';
   document.getElementById('rs3').className='step active';
@@ -440,16 +538,19 @@ window.openWithdraw=()=>{
   selectedOperator='';
   document.getElementById('modal-withdraw').classList.add('show');
 };
+
 window.setWithdrawAmount=v=>{
   document.getElementById('withdraw-amount').value=v;
   document.querySelectorAll('#withdraw-step1 .preset-btn').forEach(b=>b.classList.toggle('selected',parseInt(b.textContent.replace(/\s/g,''))===v));
 };
+
 window.setWithdrawAmountMax=()=>{
   if(!profile)return;
   document.getElementById('withdraw-amount').value=profile.balance;
   document.querySelectorAll('#withdraw-step1 .preset-btn').forEach(b=>b.classList.remove('selected'));
   document.querySelectorAll('#withdraw-step1 .preset-btn')[5].classList.add('selected');
 };
+
 window.goToWithdrawStep2=()=>{
   const amount=parseInt(document.getElementById('withdraw-amount').value);
   if(!amount||amount<withdrawMin){toast('Minimum '+fmt(withdrawMin)+' FCFA','error');return;}
@@ -459,17 +560,20 @@ window.goToWithdrawStep2=()=>{
   document.getElementById('ws2').className='step active-red';
   document.getElementById('wl1').className='step-line done-red';
 };
+
 window.backToWithdrawStep1=()=>{
   document.getElementById('withdraw-step1').style.display='block';
   document.getElementById('withdraw-step2').style.display='none';
   document.getElementById('ws2').className='step inactive';
   document.getElementById('wl1').className='step-line';
 };
+
 window.selectOperator=(op,el)=>{
   selectedOperator=op;
   document.querySelectorAll('.operator-card').forEach(c=>c.classList.remove('selected'));
   el.classList.add('selected');
 };
+
 window.goToWithdrawStep3=()=>{
   if(!selectedOperator){toast('Choisissez un operateur','error');return;}
   const amount=parseInt(document.getElementById('withdraw-amount').value);
@@ -482,12 +586,14 @@ window.goToWithdrawStep3=()=>{
   document.getElementById('withdraw-number-label').textContent=selectedOperator==='crypto'?'Adresse wallet':'Votre numero';
   document.getElementById('withdraw-number').placeholder=selectedOperator==='crypto'?'Adresse USDT/BTC':'Ex: +235 66 XX XX XX';
 };
+
 window.backToWithdrawStep2=()=>{
   document.getElementById('withdraw-step2').style.display='block';
   document.getElementById('withdraw-step3').style.display='none';
   document.getElementById('ws3').className='step inactive';
   document.getElementById('wl2').className='step-line';
 };
+
 window.submitWithdraw=async()=>{
   const amount=parseInt(document.getElementById('withdraw-amount').value);
   const name=document.getElementById('withdraw-name').value.trim();
@@ -517,6 +623,7 @@ window.submitWithdraw=async()=>{
   toast(isAuto?'Retrait en cours !':'Demande envoyee !','success');
   loadProfile();selectedOperator='';
 };
+
 window.closeModal=id=>{
   document.getElementById(id).classList.remove('show');
   if(id==='modal-recharge'){['recharge-step1','recharge-step2','recharge-step3'].forEach((s,i)=>document.getElementById(s).style.display=i===0?'block':'none');}
