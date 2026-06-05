@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>TIKA — Support</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--green:#00A651;--green-dark:#007A3D;--green-light:#E8F7EF;--red:#E63946;--red-dark:#C0392B;--red-light:#FDECEA;--gray:#F4F6F8;--gray2:#E8ECF0;--text:#1A1A2E;--text2:#6B7280;--shadow-green:0 4px 24px rgba(0,166,81,0.25);--shadow-red:0 4px 24px rgba(230,57,70,0.25);}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);color:var(--text);overflow-x:hidden}
+#app{max-width:430px;margin:0 auto;min-height:100vh;padding-bottom:40px}
+.header{background:linear-gradient(135deg,var(--green-dark),var(--green));padding:50px 24px 24px;position:relative;overflow:hidden;}
+.header-stripe{position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--red),#fff,var(--green));}
+.header-circle{position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.08);}
+.header-top{display:flex;align-items:center;gap:14px;position:relative;z-index:1;}
+.back-btn{width:40px;height:40px;background:rgba(255,255,255,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:#fff;border:1px solid rgba(255,255,255,0.2);}
+.header-title{font-size:20px;font-weight:700;color:#fff;}
+.header-sub{font-size:12px;color:rgba(255,255,255,0.7);margin-top:2px;}
+.section{padding:16px;}
+.contact-card{border-radius:20px;padding:20px;margin-bottom:14px;position:relative;overflow:hidden;cursor:pointer;transition:.2s;}
+.contact-card:active{transform:scale(.98)}
+.contact-card.telegram{background:linear-gradient(135deg,#0088CC,#006699);}
+.contact-card.whatsapp{background:linear-gradient(135deg,#25D366,#128C7E);}
+.contact-card.message{background:linear-gradient(135deg,var(--text),#2D3748);}
+.contact-card::before{content:'';position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.08);}
+.contact-card-top{display:flex;align-items:center;gap:14px;margin-bottom:12px;}
+.contact-icon{width:50px;height:50px;border-radius:14px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:24px;}
+.contact-name{font-size:16px;font-weight:700;color:#fff;}
+.contact-desc{font-size:12px;color:rgba(255,255,255,0.7);margin-top:2px;}
+.contact-btn{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:10px;padding:10px 20px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px;}
+.faq-card{background:#fff;border-radius:16px;margin-bottom:10px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.05);}
+.faq-header{padding:16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
+.faq-question{font-size:14px;font-weight:600;color:var(--text);flex:1;}
+.faq-arrow{font-size:16px;color:var(--text2);transition:.2s;}
+.faq-answer{padding:0 16px 16px;font-size:13px;color:var(--text2);line-height:1.6;display:none;}
+.faq-answer.open{display:block;}
+.section-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.message-form{background:#fff;border-radius:20px;padding:20px;box-shadow:0 2px 16px rgba(0,0,0,0.06);}
+.form-group{margin-bottom:14px;}
+.form-label{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:block;}
+.form-input{width:100%;padding:14px 16px;border:2px solid var(--gray2);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);background:#fff;outline:none;transition:.2s;}
+.form-input:focus{border-color:var(--green);box-shadow:0 0 0 4px rgba(0,166,81,0.08)}
+.form-textarea{width:100%;padding:14px 16px;border:2px solid var(--gray2);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);background:#fff;outline:none;transition:.2s;resize:none;height:120px;}
+.form-textarea:focus{border-color:var(--green);box-shadow:0 0 0 4px rgba(0,166,81,0.08)}
+.btn-send{width:100%;padding:15px;background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-green);display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-send:disabled{opacity:.6}
+.msg-history{margin-top:16px;}
+.msg-card{background:var(--gray);border-radius:14px;padding:14px;margin-bottom:10px;}
+.msg-subject{font-size:13px;font-weight:700;color:var(--text);}
+.msg-text{font-size:12px;color:var(--text2);margin-top:4px;line-height:1.5;}
+.msg-reply{background:var(--green-light);border-radius:10px;padding:10px;margin-top:8px;font-size:12px;color:var(--green-dark);}
+.msg-reply-label{font-size:10px;font-weight:700;color:var(--green-dark);margin-bottom:4px;}
+.msg-status{font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;display:inline-block;margin-top:6px;}
+.msg-status.open{background:#FFF8E1;color:#F59E0B;}
+.msg-status.replied{background:var(--green-light);color:var(--green-dark);}
+.msg-status.closed{background:var(--gray2);color:var(--text2);}
+#toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:500;opacity:0;transition:.3s;z-index:9999;pointer-events:none;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.success{background:var(--green)}
+#toast.error{background:var(--red)}
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <div class="header-stripe"></div>
+    <div class="header-circle"></div>
+    <div class="header-top">
+      <div class="back-btn" onclick="window.location.href='dashboard.html'">&#8592;</div>
+      <div>
+        <div class="header-title">Support TIKA</div>
+        <div class="header-sub">Nous sommes la pour vous aider</div>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">&#128172; Nous contacter</div>
+    <div class="contact-card telegram" onclick="openTelegram()">
+      <div class="contact-card-top">
+        <div class="contact-icon">&#9992;</div>
+        <div>
+          <div class="contact-name">Canal Telegram TIKA</div>
+          <div class="contact-desc">Rejoignez notre communaute officielle</div>
+        </div>
+      </div>
+      <button class="contact-btn">&#9992; Rejoindre le canal</button>
+    </div>
+    <div class="contact-card whatsapp" onclick="openWhatsApp()">
+      <div class="contact-card-top">
+        <div class="contact-icon">&#128241;</div>
+        <div>
+          <div class="contact-name">WhatsApp Support</div>
+          <div class="contact-desc">Discutez avec notre equipe 24h/7j</div>
+        </div>
+      </div>
+      <button class="contact-btn">&#128241; Contacter le support</button>
+    </div>
+    <div class="section-title" style="margin-top:8px">&#128393; Envoyer un message</div>
+    <div class="message-form">
+      <div class="form-group">
+        <label class="form-label">Sujet</label>
+        <input class="form-input" type="text" id="msg-subject" placeholder="Ex: Probleme de recharge"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Message</label>
+        <textarea class="form-textarea" id="msg-body" placeholder="Decrivez votre probleme en detail..."></textarea>
+      </div>
+      <button class="btn-send" id="btn-send" onclick="sendMessage()">&#128640; Envoyer le message</button>
+    </div>
+    <div class="section-title" style="margin-top:20px">&#128218; Mes messages</div>
+    <div id="msg-history">
+      <div style="text-align:center;padding:20px;color:var(--text2);font-size:13px;">Chargement...</div>
+    </div>
+    <div class="section-title" style="margin-top:8px">&#10067; FAQ</div>
+    <div class="faq-card">
+      <div class="faq-header" onclick="toggleFaq(this)">
+        <div class="faq-question">Comment recharger mon compte ?</div>
+        <div class="faq-arrow">&#8250;</div>
+      </div>
+      <div class="faq-answer">Cliquez sur Recharger dans le tableau de bord, entrez le montant, payez via BKA Pay et soumettez votre demande. L'admin validera sous 24h.</div>
+    </div>
+    <div class="faq-card">
+      <div class="faq-header" onclick="toggleFaq(this)">
+        <div class="faq-question">Comment retirer mes gains ?</div>
+        <div class="faq-arrow">&#8250;</div>
+      </div>
+      <div class="faq-answer">Allez dans Retirer, choisissez votre operateur (Orange Money, Wave, MTN, Moov ou Crypto), entrez votre nom et numero. Le retrait est traite sous 24-48h.</div>
+    </div>
+    <div class="faq-card">
+      <div class="faq-header" onclick="toggleFaq(this)">
+        <div class="faq-question">Quand est-ce que mes gains sont credites ?</div>
+        <div class="faq-arrow">&#8250;</div>
+      </div>
+      <div class="faq-answer">Vos gains quotidiens sont credites chaque jour automatiquement selon votre plan VIP actif. Le pourcentage est de 6% par jour sur le montant investi.</div>
+    </div>
+    <div class="faq-card">
+      <div class="faq-header" onclick="toggleFaq(this)">
+        <div class="faq-question">Comment fonctionne le parrainage ?</div>
+        <div class="faq-arrow">&#8250;</div>
+      </div>
+      <div class="faq-answer">Partagez votre code de parrainage. Quand quelqu'un s'inscrit et recharge, vous recevez une commission sur son depot : 20% (N1), 8% (N2), 2% (N3).</div>
+    </div>
+    <div class="faq-card">
+      <div class="faq-header" onclick="toggleFaq(this)">
+        <div class="faq-question">Quels pays sont supportes ?</div>
+        <div class="faq-arrow">&#8250;</div>
+      </div>
+      <div class="faq-answer">TIKA est disponible au Tchad, Benin, Togo, Burkina Faso et Senegal. Les paiements sont acceptes via Orange Money, Wave, MTN, Moov Money et Crypto.</div>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+const sb=createClient('https://ainispvuqmuigfxzkkqh.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpbmlzcHZ1cW11aWdmeHpra3FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0ODcyMDUsImV4cCI6MjA5NjA2MzIwNX0.UOZxfyhC2_B7TtuSK4ea_x6u4GOdIsVEIMX8NUlmndc');
+const TELEGRAM_URL='https://t.me/+_FHah9icGJ9kZmM0';
+const WA_NUMBER='22891941650';
+window.toast=(msg,type='')=>{const t=document.getElementById('toast');t.textContent=msg;t.className='show '+type;setTimeout(()=>t.className='',3000);};
+const {data:{session}}=await sb.auth.getSession();
+if(!session){window.location.href='index.html';}
+const uid=session.user.id;
+window.openTelegram=()=>window.open(TELEGRAM_URL,'_blank');
+window.openWhatsApp=()=>window.open('https://wa.me/'+WA_NUMBER+'?text=Bonjour+TIKA+Support','_blank');
+window.toggleFaq=(header)=>{
+  const answer=header.nextElementSibling;
+  const arrow=header.querySelector('.faq-arrow');
+  const isOpen=answer.classList.contains('open');
+  document.querySelectorAll('.faq-answer').forEach(a=>a.classList.remove('open'));
+  document.querySelectorAll('.faq-arrow').forEach(a=>a.style.transform='');
+  if(!isOpen){answer.classList.add('open');arrow.style.transform='rotate(90deg)';}
+};
+async function loadMessages(){
+  const {data}=await sb.from('support_messages').select('*').eq('user_id',uid).order('created_at',{ascending:false});
+  const c=document.getElementById('msg-history');
+  if(!data||!data.length){c.innerHTML='<div style="text-align:center;padding:20px;color:var(--text2);font-size:13px;background:#fff;border-radius:14px;">Aucun message envoye</div>';return;}
+  c.innerHTML=data.map(m=>'<div class="msg-card"><div class="msg-subject">'+m.subject+'</div><div class="msg-text">'+m.message+'</div>'+(m.reply?'<div class="msg-reply"><div class="msg-reply-label">&#10003; Reponse de l\'equipe</div>'+m.reply+'</div>':'')+'<div class="msg-status '+(m.status||'open')+'">'+(m.status==='replied'?'Repondu':m.status==='closed'?'Ferme':'En attente')+'</div></div>').join('');
+}
+window.sendMessage=async()=>{
+  const subject=document.getElementById('msg-subject').value.trim();
+  const message=document.getElementById('msg-body').value.trim();
+  if(!subject){toast('Entrez un sujet','error');return;}
+  if(!message||message.length<10){toast('Message trop court','error');return;}
+  const btn=document.getElementById('btn-send');
+  btn.disabled=true;btn.innerHTML='<div class="spinner"></div>';
+  const {error}=await sb.from('support_messages').insert({user_id:uid,subject,message,status:'open'});
+  btn.disabled=false;btn.textContent='Envoyer le message';
+  if(error){toast('Erreur envoi','error');return;}
+  document.getElementById('msg-subject').value='';
+  document.getElementById('msg-body').value='';
+  toast('Message envoye !','success');
+  loadMessages();
+};
+await loadMessages();
+</script>
+</body>
+</html>
