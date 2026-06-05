@@ -331,7 +331,7 @@ window.saveSettings=async()=>{
   }
   toast('Parametres sauvegardes !','success');
 };
-window.closeModal=id=>{document.getElementById(id).classList.remove('show');};
+window.resetPassword=async(email)=>{const {error}=await sb.auth.resetPasswordForEmail(email);if(error){toast('Erreur','error');return;}toast('Email reset envoye a '+email,'success');};window.closeModal=id=>{document.getElementById(id).classList.remove('show');};
 window.doLogout=async()=>{await sb.auth.signOut();window.location.href='index.html';};
 switchTab('recharges',document.querySelector('.tab'),'tg');
 </script>
