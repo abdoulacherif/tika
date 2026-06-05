@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-:root{--green:#00A651;--green-dark:#007A3D;--green-light:#E8F7EF;--red:#E63946;--red-dark:#C0392B;--red-light:#FDECEA;--gray:#F4F6F8;--gray2:#E8ECF0;--text:#1A1A2E;--text2:#6B7280;--shadow-green:0 4px 24px rgba(0,166,81,0.25);--shadow-red:0 4px 24px rgba(230,57,70,0.25);--airtel:#E3000F;--airtel-light:#FEE2E4;}
+:root{--green:#00A651;--green-dark:#007A3D;--green-light:#E8F7EF;--red:#E63946;--red-dark:#C0392B;--red-light:#FDECEA;--yellow:#F5A623;--yellow-light:#FFF8E7;--blue:#2E7EB8;--blue-light:#E8F0F8;--gray:#F4F6F8;--gray2:#E8ECF0;--text:#1A1A2E;--text2:#6B7280;--shadow-green:0 4px 24px rgba(0,166,81,0.25);--shadow-red:0 4px 24px rgba(230,57,70,0.25);--shadow-yellow:0 4px 24px rgba(245,166,35,0.25);}
 html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);color:var(--text);overflow-x:hidden}
 #app{max-width:430px;margin:0 auto;min-height:100vh;padding-bottom:90px}
 .header{background:linear-gradient(135deg,rgba(0,100,50,0.88),rgba(0,60,30,0.95)),url(https://i.ibb.co/gbFL7njn/Screenshot-20260604-072208-Chrome.jpg) center/cover no-repeat;padding:50px 24px 80px;position:relative;overflow:hidden;}
@@ -99,7 +99,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
 .modal-title span{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
 .modal-title span.green{background:var(--green-light);}
 .modal-title span.red{background:var(--red-light);}
-.modal-title span.airtel{background:var(--airtel-light);}
+.modal-title span.yellow{background:var(--yellow-light);}
 .modal-sub{font-size:13px;color:var(--text2);margin-bottom:16px;}
 .form-group{margin-bottom:14px;}
 .form-label{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:block;}
@@ -109,23 +109,33 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
 .preset-btn{padding:10px;border:2px solid var(--gray2);border-radius:10px;background:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;color:var(--text);cursor:pointer;transition:.2s;text-align:center;}
 .preset-btn.selected{border-color:var(--green);background:var(--green-light);color:var(--green-dark);}
 .preset-btn-red.selected{border-color:var(--red);background:var(--red-light);color:var(--red);}
-.payment-methods{display:flex;gap:12px;margin-bottom:20px;}
-.payment-card{flex:1;background:#fff;border:2px solid var(--gray2);border-radius:16px;padding:12px;text-align:center;cursor:pointer;transition:.2s;}
-.payment-card:active{transform:scale(.97)}
+.payment-methods{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.payment-card{border:2px solid var(--gray2);border-radius:16px;padding:16px;cursor:pointer;text-align:center;transition:.2s;}
 .payment-card.selected{border-color:var(--green);background:var(--green-light);}
-.payment-card.airtel.selected{border-color:var(--airtel);background:var(--airtel-light);}
 .payment-icon{font-size:28px;margin-bottom:8px;}
-.payment-name{font-size:13px;font-weight:700;color:var(--text);}
-.airtel-instructions{background:var(--airtel-light);border-radius:14px;padding:16px;margin-bottom:16px;border-left:4px solid var(--airtel);}
-.airtel-instructions p{margin-bottom:8px;font-size:13px;color:#8B0000;font-weight:500;}
-.airtel-instructions .code-box{background:#fff;padding:12px;border-radius:10px;font-family:monospace;font-size:14px;font-weight:700;color:var(--airtel);text-align:center;margin:10px 0;word-break:break-all;}
-.btn-airtel{width:100%;padding:16px;background:linear-gradient(135deg,var(--airtel),#B0000C);color:#fff;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;box-shadow:0 4px 20px rgba(227,0,15,0.3);}
+.payment-name{font-size:14px;font-weight:700;color:var(--text);}
+.payment-desc{font-size:10px;color:var(--text2);margin-top:4px;}
+.bka-box{background:linear-gradient(135deg,#1A1A2E,#2D3748);border-radius:16px;padding:16px;margin-bottom:16px;display:flex;align-items:center;gap:14px;}
+.bka-logo{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--green),var(--red));display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.bka-info{flex:1;}
+.bka-name{font-size:14px;font-weight:700;color:#fff;}
+.bka-sub{font-size:11px;color:rgba(255,255,255,0.6);margin-top:2px;}
+.bka-countries{display:flex;gap:4px;margin-top:6px;font-size:16px;}
+.manual-box{background:var(--yellow-light);border-radius:16px;padding:16px;margin-bottom:16px;border:2px solid var(--yellow);}
+.manual-title{font-size:15px;font-weight:800;color:var(--yellow);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.manual-number{background:var(--yellow);color:#fff;padding:4px 12px;border-radius:20px;font-size:16px;font-weight:800;letter-spacing:1px;text-align:center;margin:8px 0;font-family:monospace;}
+.code-example{background:#fff;border-radius:12px;padding:12px;margin-top:10px;font-family:monospace;font-size:12px;color:var(--text);border:1px solid var(--gray2);}
+.code-example.airtel-blue{background:var(--blue-light);border-color:var(--blue);}
+.code-blue{background:var(--blue);color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;display:inline-block;margin-top:5px;}
 .btn-bka{width:100%;padding:16px;background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-green);display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;}
-.btn-bka:disabled{opacity:.6}
+.btn-yellow{width:100%;padding:16px;background:linear-gradient(135deg,var(--yellow),#D4890F);color:#fff;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-yellow);display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;}
+.btn-bka:disabled,.btn-yellow:disabled{opacity:.6}
 .btn-red{width:100%;padding:16px;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-red);display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-red:disabled{opacity:.6}
 .btn-cancel{width:100%;padding:14px;background:var(--gray);color:var(--text2);border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;margin-top:10px;}
 .info-box-green{background:var(--green-light);border-radius:12px;padding:12px 16px;margin-bottom:14px;font-size:12px;color:var(--green-dark);font-weight:500;line-height:1.5;}
 .info-box-red{background:var(--red-light);border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--red);font-weight:600;}
+.info-box-yellow{background:var(--yellow-light);border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#D4890F;font-weight:600;}
 .operator-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
 .operator-card{border:2px solid var(--gray2);border-radius:14px;padding:14px;cursor:pointer;text-align:center;transition:.2s;}
 .operator-card:active{transform:scale(.97)}
@@ -136,13 +146,13 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
 .step-indicator{display:flex;align-items:center;gap:8px;margin-bottom:20px;}
 .step{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
 .step.active{background:var(--green);color:#fff;}
-.step.active-airtel{background:var(--airtel);color:#fff;}
 .step.active-red{background:var(--red);color:#fff;}
+.step.active-yellow{background:var(--yellow);color:#fff;}
 .step.inactive{background:var(--gray2);color:var(--text2);}
 .step-line{flex:1;height:2px;background:var(--gray2);}
 .step-line.done{background:var(--green);}
-.step-line.done-airtel{background:var(--airtel);}
 .step-line.done-red{background:var(--red);}
+.step-line.done-yellow{background:var(--yellow);}
 .spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
@@ -226,42 +236,43 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
     <div class="modal-handle"></div>
     <div class="modal-title"><span class="green">&#128179;</span> Recharger mon compte</div>
     <div class="modal-sub">Choisissez votre mode de paiement</div>
-    <div class="step-indicator" id="recharge-steps">
-      <div class="step active" id="rs1">1</div>
-      <div class="step-line" id="rl1"></div>
-      <div class="step inactive" id="rs2">2</div>
-      <div class="step-line" id="rl2"></div>
-      <div class="step inactive" id="rs3">3</div>
-    </div>
     
-    <!-- ETAPE 1 : Choix du montant + Methode -->
-    <div id="recharge-step1">
-      <div class="form-group">
-        <label class="form-label">Montant (FCFA)</label>
-        <input class="form-input" type="number" id="recharge-amount" placeholder="Ex: 5000"/>
-      </div>
-      <div class="amount-presets">
-        <button class="preset-btn" onclick="setAmount(5000)">5 000</button>
-        <button class="preset-btn" onclick="setAmount(15000)">15 000</button>
-        <button class="preset-btn" onclick="setAmount(25000)">25 000</button>
-        <button class="preset-btn" onclick="setAmount(50000)">50 000</button>
-        <button class="preset-btn" onclick="setAmount(100000)">100 000</button>
-        <button class="preset-btn" onclick="setAmount(225000)">225 000</button>
-      </div>
-      
-      <!-- SELECTION METHODE DE PAIEMENT -->
+    <div id="recharge-method" style="margin-bottom:20px">
       <div class="payment-methods">
-        <div class="payment-card" onclick="selectPaymentMethod('bka',this)">
+        <div class="payment-card" onclick="selectPaymentMethod('bka')" id="method-bka">
           <div class="payment-icon">&#128176;</div>
           <div class="payment-name">BKA Pay</div>
+          <div class="payment-desc">Paiement securise</div>
         </div>
-        <div class="payment-card airtel" onclick="selectPaymentMethod('airtel',this)">
-          <div class="payment-icon">&#128242;</div>
-          <div class="payment-name">Airtel Money</div>
+        <div class="payment-card" onclick="selectPaymentMethod('manual')" id="method-manual">
+          <div class="payment-icon">&#128241;</div>
+          <div class="payment-name">Manuel Tchad</div>
+          <div class="payment-desc">Airtel Money / Tigo</div>
         </div>
       </div>
-      
-      <div id="bka-payment-box">
+    </div>
+    
+    <div id="recharge-bka" style="display:none">
+      <div class="step-indicator">
+        <div class="step active" id="rs1">1</div>
+        <div class="step-line" id="rl1"></div>
+        <div class="step inactive" id="rs2">2</div>
+        <div class="step-line" id="rl2"></div>
+        <div class="step inactive" id="rs3">3</div>
+      </div>
+      <div id="recharge-step1">
+        <div class="form-group">
+          <label class="form-label">Montant (FCFA)</label>
+          <input class="form-input" type="number" id="recharge-amount" placeholder="Ex: 5000"/>
+        </div>
+        <div class="amount-presets">
+          <button class="preset-btn" onclick="setAmount(5000)">5 000</button>
+          <button class="preset-btn" onclick="setAmount(15000)">15 000</button>
+          <button class="preset-btn" onclick="setAmount(25000)">25 000</button>
+          <button class="preset-btn" onclick="setAmount(50000)">50 000</button>
+          <button class="preset-btn" onclick="setAmount(100000)">100 000</button>
+          <button class="preset-btn" onclick="setAmount(225000)">225 000</button>
+        </div>
         <div class="bka-box">
           <div class="bka-logo">&#128176;</div>
           <div class="bka-info">
@@ -271,36 +282,99 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
           </div>
         </div>
         <button class="btn-bka" onclick="goToBKAPay()">&#128176; Payer via BKA Pay</button>
+        <button class="btn-cancel" onclick="closeModal('modal-recharge')">Annuler</button>
       </div>
-      
-      <div id="airtel-payment-box" style="display:none">
-        <div class="airtel-instructions">
-          <p>&#128241; <strong>Paiement par Airtel Money</strong></p>
-          <p>Effectuez le paiement via le code USSD suivant :</p>
-          <div class="code-box">
-            *436*3*1*1* 87906204 * MONTANT * 1*1* Mot de passe #
-          </div>
-          <p><strong>Exemple :</strong> *436*3*1*1*87906204*5000*1*1*1234#</p>
-          <p style="font-size:11px;margin-top:6px;">&#9888; Remplacez MONTANT par le montant choisi et entrez votre code secret Airtel à la fin.</p>
+      <div id="recharge-step2" style="display:none">
+        <div class="info-box-green">&#10003; Apres paiement, soumettez votre demande pour validation.</div>
+        <div class="form-group"><label class="form-label">Montant paye (FCFA)</label><input class="form-input" type="number" id="recharge-amount2" readonly/></div>
+        <div class="form-group"><label class="form-label">Reference transaction (optionnel)</label><input class="form-input" type="text" id="recharge-ref" placeholder="Ex: TXN123456"/></div>
+        <div class="form-group"><label class="form-label">Votre numero de paiement</label><input class="form-input" type="tel" id="recharge-number" placeholder="Ex: +235 66 XX XX XX"/></div>
+        <button class="btn-bka" id="btn-submit-recharge" onclick="submitRecharge()">&#10003; Soumettre la demande</button>
+        <button class="btn-cancel" onclick="backToRechargeStep1()">&#8592; Retour</button>
+      </div>
+    </div>
+    
+    <div id="recharge-manual" style="display:none">
+      <div class="step-indicator">
+        <div class="step active-yellow" id="ms1">1</div>
+        <div class="step-line" id="ml1"></div>
+        <div class="step inactive" id="ms2">2</div>
+        <div class="step-line" id="ml2"></div>
+        <div class="step inactive" id="ms3">3</div>
+      </div>
+      <div id="manual-step1">
+        <div class="form-group">
+          <label class="form-label">Montant (FCFA)</label>
+          <input class="form-input" type="number" id="manual-amount" placeholder="Ex: 5000"/>
         </div>
-        <button class="btn-airtel" onclick="goToAirtelPay()">&#128242; J'ai effectué le paiement</button>
+        <div class="amount-presets">
+          <button class="preset-btn" onclick="setManualAmount(5000)">5 000</button>
+          <button class="preset-btn" onclick="setManualAmount(10000)">10 000</button>
+          <button class="preset-btn" onclick="setManualAmount(25000)">25 000</button>
+          <button class="preset-btn" onclick="setManualAmount(50000)">50 000</button>
+          <button class="preset-btn" onclick="setManualAmount(100000)">100 000</button>
+        </div>
+        
+        <!-- Nouveau numero Airtel 87906204 -->
+        <div class="manual-box" style="border-color:var(--blue);background:var(--blue-light)">
+          <div class="manual-title">&#128241; Airtel Money Tchad</div>
+          <div>Envoyez l'argent a ce numero :</div>
+          <div class="manual-number" style="background:var(--blue);">87906204</div>
+          <div class="code-example airtel-blue">
+            <strong>Code USSD Airtel :</strong><br/>
+            *436*3*1*1*87906204*MONTANT*1*1*CODE#<br/>
+            <span class="code-blue">Ex: *436*3*1*1*87906204*5000*1*1*1234#</span>
+          </div>
+        </div>
+        
+        <!-- Ancien numero Airtel 98607683 -->
+        <div class="manual-box">
+          <div class="manual-title">&#128241; Airtel Money Tchad (Secondaire)</div>
+          <div>Envoyez l'argent a ce numero :</div>
+          <div class="manual-number">98607683</div>
+          <div class="code-example">
+            <strong>Code USSD Airtel :</strong><br/>
+            *800*1*98607683*MONTANT*CODE#<br/>
+            <span style="font-size:10px;color:#666;">(CODE = votre code secret)</span>
+          </div>
+          <div class="code-example" style="margin-top:8px">
+            <strong>Code USSD Tigo :</strong><br/>
+            *150*2*1*98607683*MONTANT*CODE#
+          </div>
+        </div>
+        
+        <button class="btn-yellow" onclick="goToManualStep2()">&#10003; J'ai paye, continuer</button>
+        <button class="btn-cancel" onclick="closeModal('modal-recharge')">Annuler</button>
       </div>
-      
-      <button class="btn-cancel" onclick="closeModal('modal-recharge')">Annuler</button>
+      <div id="manual-step2" style="display:none">
+        <div class="info-box-yellow">&#128241; Veuillez confirmer les informations ci-dessous</div>
+        <div class="form-group"><label class="form-label">Montant envoye (FCFA)</label><input class="form-input" type="number" id="manual-amount2" readonly/></div>
+        <div class="form-group"><label class="form-label">Reference transaction (Transaction ID)</label><input class="form-input" type="text" id="manual-ref" placeholder="Ex: TXN123456789"/></div>
+        <div class="form-group"><label class="form-label">Votre numero de telephone</label><input class="form-input" type="tel" id="manual-phone" placeholder="Ex: 66 XX XX XX"/></div>
+        <div class="form-group"><label class="form-label">Operateur</label>
+          <select class="form-input" id="manual-operator">
+            <option value="airtel_87906204">Airtel Money (87906204)</option>
+            <option value="airtel_98607683">Airtel Money (98607683)</option>
+            <option value="tigo">Tigo Cash</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Numero recipient</label>
+          <select class="form-input" id="manual-recipient">
+            <option value="87906204">87906204 (Principal Airtel)</option>
+            <option value="98607683">98607683 (Secondaire Airtel/Tigo)</option>
+          </select>
+        </div>
+        <button class="btn-yellow" id="btn-submit-manual" onclick="submitManualRecharge()">&#10003; Soumettre la demande</button>
+        <button class="btn-cancel" onclick="backToManualStep1()">&#8592; Retour</button>
+      </div>
+      <div id="manual-step3" style="display:none;text-align:center;padding:20px 0">
+        <div style="font-size:60px;margin-bottom:16px">&#10004;</div>
+        <div style="font-size:18px;font-weight:800;color:var(--yellow);margin-bottom:8px">Demande enregistree !</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:24px">Votre recharge manuelle est en attente de validation.</div>
+        <button class="btn-yellow" onclick="closeModal('modal-recharge')">Fermer</button>
+      </div>
     </div>
     
-    <!-- ETAPE 2 : Soumission manuelle -->
-    <div id="recharge-step2" style="display:none">
-      <div class="info-box-green">&#10003; Apres paiement, soumettez votre demande pour validation.</div>
-      <div class="form-group"><label class="form-label">Montant paye (FCFA)</label><input class="form-input" type="number" id="recharge-amount2" readonly/></div>
-      <div class="form-group"><label class="form-label">Reference transaction (optionnel)</label><input class="form-input" type="text" id="recharge-ref" placeholder="Ex: TXN123456 ou numero transaction Airtel"/></div>
-      <div class="form-group"><label class="form-label">Votre numero de paiement</label><input class="form-input" type="tel" id="recharge-number" placeholder="Ex: +235 66 XX XX XX"/></div>
-      <div class="form-group"><label class="form-label">Mode de paiement</label><input class="form-input" type="text" id="recharge-method-display" readonly/></div>
-      <button class="btn-bka" id="btn-submit-recharge" onclick="submitRecharge()">&#10003; Soumettre la demande</button>
-      <button class="btn-cancel" onclick="backToRechargeStep1()">&#8592; Retour</button>
-    </div>
-    
-    <!-- ETAPE 3 : Confirmation -->
     <div id="recharge-step3" style="display:none;text-align:center;padding:20px 0">
       <div style="font-size:60px;margin-bottom:16px">&#10004;</div>
       <div style="font-size:18px;font-weight:800;color:var(--green);margin-bottom:8px">Demande enregistree !</div>
@@ -315,75 +389,147 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title"><span class="red">&#128184;</span> Retirer mes gains</div>
-    <div class="modal-sub">Choisissez votre operateur de retrait</div>
-    <div class="step-indicator">
-      <div class="step active-red" id="ws1">1</div>
-      <div class="step-line" id="wl1"></div>
-      <div class="step inactive" id="ws2">2</div>
-      <div class="step-line" id="wl2"></div>
-      <div class="step inactive" id="ws3">3</div>
+    <div class="modal-sub">Choisissez votre methode de retrait</div>
+    
+    <div id="withdraw-method" style="margin-bottom:20px">
+      <div class="payment-methods">
+        <div class="payment-card" onclick="selectWithdrawMethod('mobile')" id="method-mobile">
+          <div class="payment-icon">&#128241;</div>
+          <div class="payment-name">Mobile Money</div>
+          <div class="payment-desc">Airtel / Tigo / Orange / Moov / MTN</div>
+        </div>
+        <div class="payment-card" onclick="selectWithdrawMethod('crypto')" id="method-crypto">
+          <div class="payment-icon">&#8383;</div>
+          <div class="payment-name">Crypto</div>
+          <div class="payment-desc">USDT / BTC</div>
+        </div>
+      </div>
     </div>
-    <div id="withdraw-step1">
-      <div class="info-box-red">Solde disponible : <strong id="withdraw-balance">0 FCFA</strong></div>
-      <div class="form-group">
-        <label class="form-label">Montant a retirer (FCFA)</label>
-        <input class="form-input" type="number" id="withdraw-amount" placeholder="Minimum 1000 FCFA"/>
+    
+    <div id="withdraw-mobile" style="display:none">
+      <div class="step-indicator">
+        <div class="step active-red" id="ws1">1</div>
+        <div class="step-line" id="wl1"></div>
+        <div class="step inactive" id="ws2">2</div>
+        <div class="step-line" id="wl2"></div>
+        <div class="step inactive" id="ws3">3</div>
       </div>
-      <div class="amount-presets">
-        <button class="preset-btn" onclick="setWithdrawAmount(1000)">1 000</button>
-        <button class="preset-btn" onclick="setWithdrawAmount(5000)">5 000</button>
-        <button class="preset-btn" onclick="setWithdrawAmount(10000)">10 000</button>
-        <button class="preset-btn" onclick="setWithdrawAmount(25000)">25 000</button>
-        <button class="preset-btn" onclick="setWithdrawAmount(50000)">50 000</button>
-        <button class="preset-btn" onclick="setWithdrawAmountMax()">Max</button>
+      <div id="withdraw-step1">
+        <div class="info-box-red">Solde disponible : <strong id="withdraw-balance">0 FCFA</strong></div>
+        <div class="form-group">
+          <label class="form-label">Montant a retirer (FCFA)</label>
+          <input class="form-input" type="number" id="withdraw-amount" placeholder="Minimum 1000 FCFA"/>
+        </div>
+        <div class="amount-presets">
+          <button class="preset-btn" onclick="setWithdrawAmount(1000)">1 000</button>
+          <button class="preset-btn" onclick="setWithdrawAmount(5000)">5 000</button>
+          <button class="preset-btn" onclick="setWithdrawAmount(10000)">10 000</button>
+          <button class="preset-btn" onclick="setWithdrawAmount(25000)">25 000</button>
+          <button class="preset-btn" onclick="setWithdrawAmount(50000)">50 000</button>
+          <button class="preset-btn" onclick="setWithdrawAmountMax()">Max</button>
+        </div>
+        <button class="btn-red" onclick="goToWithdrawStep2()">Continuer &#8250;</button>
+        <button class="btn-cancel" onclick="closeModal('modal-withdraw')">Annuler</button>
       </div>
-      <button class="btn-red" onclick="goToWithdrawStep2()">Continuer &#8250;</button>
-      <button class="btn-cancel" onclick="closeModal('modal-withdraw')">Annuler</button>
+      <div id="withdraw-step2" style="display:none">
+        <div class="form-group"><label class="form-label">Choisissez votre operateur</label></div>
+        <div class="operator-grid">
+          <div class="operator-card" onclick="selectOperator('airtel_money',this)">
+            <div class="operator-icon">&#128992;</div>
+            <div class="operator-name">Airtel Money</div>
+            <div class="operator-countries">Tchad, Burkina</div>
+          </div>
+          <div class="operator-card" onclick="selectOperator('tigo_cash',this)">
+            <div class="operator-icon">&#128994;</div>
+            <div class="operator-name">Tigo Cash</div>
+            <div class="operator-countries">Tchad, Senegal</div>
+          </div>
+          <div class="operator-card" onclick="selectOperator('orange_money',this)">
+            <div class="operator-icon">&#128992;</div>
+            <div class="operator-name">Orange Money</div>
+            <div class="operator-countries">Tchad, Senegal, Burkina</div>
+          </div>
+          <div class="operator-card" onclick="selectOperator('wave',this)">
+            <div class="operator-icon">&#128994;</div>
+            <div class="operator-name">Wave</div>
+            <div class="operator-countries">Senegal, Cote d'Ivoire</div>
+          </div>
+          <div class="operator-card" onclick="selectOperator('mtn_money',this)">
+            <div class="operator-icon">&#129000;</div>
+            <div class="operator-name">MTN Money</div>
+            <div class="operator-countries">Benin, Togo</div>
+          </div>
+          <div class="operator-card" onclick="selectOperator('moov_money',this)">
+            <div class="operator-icon">&#128995;</div>
+            <div class="operator-name">Moov Money</div>
+            <div class="operator-countries">Togo, Burkina, Benin</div>
+          </div>
+        </div>
+        <button class="btn-red" onclick="goToWithdrawStep3()">Continuer &#8250;</button>
+        <button class="btn-cancel" onclick="backToWithdrawStep1()">&#8592; Retour</button>
+      </div>
+      <div id="withdraw-step3" style="display:none">
+        <div class="info-box-red">Operateur : <strong id="selected-operator-label">-</strong> | Montant : <strong id="selected-amount-label">-</strong></div>
+        <div class="form-group">
+          <label class="form-label">Nom complet</label>
+          <input class="form-input" type="text" id="withdraw-name" placeholder="Ex: Moussa Diallo"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Numero de telephone</label>
+          <input class="form-input" type="tel" id="withdraw-number" placeholder="Ex: 66 XX XX XX"/>
+        </div>
+        <button class="btn-red" id="btn-withdraw-submit" onclick="submitWithdraw('mobile')">&#128184; Confirmer le retrait</button>
+        <button class="btn-cancel" onclick="backToWithdrawStep2()">&#8592; Retour</button>
+      </div>
     </div>
-    <div id="withdraw-step2" style="display:none">
-      <div class="form-group"><label class="form-label">Choisissez votre operateur</label></div>
-      <div class="operator-grid">
-        <div class="operator-card" onclick="selectOperator('orange_money',this)">
-          <div class="operator-icon">&#128992;</div>
-          <div class="operator-name">Orange Money</div>
-          <div class="operator-countries">Tchad, Senegal, Burkina</div>
-        </div>
-        <div class="operator-card" onclick="selectOperator('wave',this)">
-          <div class="operator-icon">&#128994;</div>
-          <div class="operator-name">Wave</div>
-          <div class="operator-countries">Senegal, Cote d'Ivoire</div>
-        </div>
-        <div class="operator-card" onclick="selectOperator('mtn',this)">
-          <div class="operator-icon">&#129000;</div>
-          <div class="operator-name">MTN Money</div>
-          <div class="operator-countries">Benin, Togo</div>
-        </div>
-        <div class="operator-card" onclick="selectOperator('moov',this)">
-          <div class="operator-icon">&#128995;</div>
-          <div class="operator-name">Moov Money</div>
-          <div class="operator-countries">Togo, Burkina, Benin</div>
-        </div>
-        <div class="operator-card" onclick="selectOperator('crypto',this)" style="grid-column:1/-1">
-          <div class="operator-icon">&#8383;</div>
-          <div class="operator-name">Crypto (USDT/BTC)</div>
-          <div class="operator-countries">Tous pays</div>
-        </div>
+    
+    <div id="withdraw-crypto" style="display:none">
+      <div class="step-indicator">
+        <div class="step active-red" id="cs1">1</div>
+        <div class="step-line" id="cl1"></div>
+        <div class="step inactive" id="cs2">2</div>
+        <div class="step-line" id="cl2"></div>
+        <div class="step inactive" id="cs3">3</div>
       </div>
-      <button class="btn-red" onclick="goToWithdrawStep3()">Continuer &#8250;</button>
-      <button class="btn-cancel" onclick="backToWithdrawStep1()">&#8592; Retour</button>
-    </div>
-    <div id="withdraw-step3" style="display:none">
-      <div class="info-box-red">Operateur : <strong id="selected-operator-label">-</strong> | Montant : <strong id="selected-amount-label">-</strong></div>
-      <div class="form-group">
-        <label class="form-label">Votre nom complet</label>
-        <input class="form-input" type="text" id="withdraw-name" placeholder="Ex: Moussa Diallo"/>
+      <div id="crypto-step1">
+        <div class="info-box-red">Solde disponible : <strong id="crypto-balance">0 FCFA</strong></div>
+        <div class="form-group">
+          <label class="form-label">Montant a retirer (FCFA)</label>
+          <input class="form-input" type="number" id="crypto-amount" placeholder="Minimum 5000 FCFA"/>
+        </div>
+        <button class="btn-red" onclick="goToCryptoStep2()">Continuer &#8250;</button>
+        <button class="btn-cancel" onclick="closeModal('modal-withdraw')">Annuler</button>
       </div>
-      <div class="form-group">
-        <label class="form-label" id="withdraw-number-label">Votre numero</label>
-        <input class="form-input" type="text" id="withdraw-number" placeholder="Ex: +235 66 XX XX XX"/>
+      <div id="crypto-step2" style="display:none">
+        <div class="form-group"><label class="form-label">Choisissez votre crypto</label></div>
+        <div class="operator-grid">
+          <div class="operator-card" onclick="selectCrypto('USDT',this)">
+            <div class="operator-icon">&#8383;</div>
+            <div class="operator-name">USDT (TRC20)</div>
+            <div class="operator-countries">Frais: 1%</div>
+          </div>
+          <div class="operator-card" onclick="selectCrypto('BTC',this)">
+            <div class="operator-icon">&#8383;</div>
+            <div class="operator-name">Bitcoin (BTC)</div>
+            <div class="operator-countries">Frais: 1.5%</div>
+          </div>
+        </div>
+        <button class="btn-red" onclick="goToCryptoStep3()">Continuer &#8250;</button>
+        <button class="btn-cancel" onclick="backToCryptoStep1()">&#8592; Retour</button>
       </div>
-      <button class="btn-red" id="btn-withdraw-submit" onclick="submitWithdraw()">&#128184; Confirmer le retrait</button>
-      <button class="btn-cancel" onclick="backToWithdrawStep2()">&#8592; Retour</button>
+      <div id="crypto-step3" style="display:none">
+        <div class="info-box-red">Crypto : <strong id="selected-crypto-label">-</strong> | Montant : <strong id="crypto-amount-label">-</strong></div>
+        <div class="form-group">
+          <label class="form-label">Nom complet</label>
+          <input class="form-input" type="text" id="crypto-name" placeholder="Ex: Moussa Diallo"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Adresse wallet</label>
+          <input class="form-input" type="text" id="crypto-address" placeholder="Adresse USDT ou BTC"/>
+        </div>
+        <button class="btn-red" id="btn-crypto-submit" onclick="submitWithdraw('crypto')">&#128184; Confirmer le retrait</button>
+        <button class="btn-cancel" onclick="backToCryptoStep2()">&#8592; Retour</button>
+      </div>
     </div>
   </div>
 </div>
@@ -394,9 +540,9 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 const sb=createClient('https://ainispvuqmuigfxzkkqh.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpbmlzcHZ1cW11aWdmeHpra3FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0ODcyMDUsImV4cCI6MjA5NjA2MzIwNX0.UOZxfyhC2_B7TtuSK4ea_x6u4GOdIsVEIMX8NUlmndc');
 window.sb=sb;
 const BKA_URL='https://bkapay.com/merchant/e70a1d40';
-let profile=null,selectedOperator='',selectedPaymentMethod='',withdrawMin=1000;
+let profile=null,selectedOperator='',selectedCrypto='',selectedPaymentMethod='',selectedWithdrawType='',withdrawMin=1000;
 const fmt=n=>Number(n||0).toLocaleString('fr-FR');
-const operatorLabels={orange_money:'Orange Money',wave:'Wave',mtn:'MTN Money',moov:'Moov Money',crypto:'Crypto'};
+const operatorLabels={airtel_money:'Airtel Money',tigo_cash:'Tigo Cash',orange_money:'Orange Money',wave:'Wave',mtn_money:'MTN Money',moov_money:'Moov Money'};
 window.toast=(msg,type='')=>{const t=document.getElementById('toast');t.textContent=msg;t.className='show '+type;setTimeout(()=>t.className='',3000);};
 const {data:{session}}=await sb.auth.getSession();
 if(!session){window.location.href='index.html';}
@@ -415,6 +561,7 @@ async function loadProfile(){
   document.getElementById('stat-total-gains').textContent=fmt(data.total_gains)+' F';
   document.getElementById('stat-commissions').textContent=fmt((data.commission_n1||0)+(data.commission_n2||0)+(data.commission_n3||0))+' F';
   document.getElementById('withdraw-balance').textContent=fmt(data.balance)+' FCFA';
+  document.getElementById('crypto-balance').textContent=fmt(data.balance)+' FCFA';
 }
 async function loadInvestments(){
   const {data}=await sb.from('investments').select('*,vip_plans(name)').eq('user_id',uid).eq('status','active');
@@ -428,129 +575,169 @@ async function loadReferrals(){const {count}=await sb.from('profiles').select('*
 async function loadNotifs(){const {count}=await sb.from('notifications').select('*',{count:'exact',head:true}).eq('user_id',uid).eq('is_read',false);if(count>0)document.getElementById('notif-dot').style.display='block';}
 await Promise.all([loadProfile(),loadInvestments(),loadReferrals(),loadNotifs()]);
 
-// SELECTION METHODE DE PAIEMENT
-window.selectPaymentMethod=(method,el)=>{
+// RECHARGE METHODS
+window.selectPaymentMethod=(method)=>{
   selectedPaymentMethod=method;
   document.querySelectorAll('.payment-card').forEach(c=>c.classList.remove('selected'));
-  el.classList.add('selected');
-  
-  const bkaBox=document.getElementById('bka-payment-box');
-  const airtelBox=document.getElementById('airtel-payment-box');
-  
-  if(method==='bka'){
-    bkaBox.style.display='block';
-    airtelBox.style.display='none';
-  }else{
-    bkaBox.style.display='none';
-    airtelBox.style.display='block';
-  }
+  document.getElementById(`method-${method}`).classList.add('selected');
+  document.getElementById('recharge-bka').style.display=method==='bka'?'block':'none';
+  document.getElementById('recharge-manual').style.display=method==='manual'?'block':'none';
+  if(method==='bka') resetRechargeBKA();
+  if(method==='manual') resetRechargeManual();
 };
-
-// RECHARGE
+function resetRechargeBKA(){
+  document.getElementById('recharge-step1').style.display='block';
+  document.getElementById('recharge-step2').style.display='none';
+  document.getElementById('recharge-step3').style.display='none';
+  document.getElementById('rs2').className='step inactive';
+  document.getElementById('rs3').className='step inactive';
+  document.getElementById('rl1').className='step-line';
+  document.getElementById('rl2').className='step-line';
+}
+function resetRechargeManual(){
+  document.getElementById('manual-step1').style.display='block';
+  document.getElementById('manual-step2').style.display='none';
+  document.getElementById('manual-step3').style.display='none';
+  document.getElementById('ms2').className='step inactive';
+  document.getElementById('ms3').className='step inactive';
+  document.getElementById('ml1').className='step-line';
+  document.getElementById('ml2').className='step-line';
+}
 window.openRecharge=()=>{
   selectedPaymentMethod='';
+  document.getElementById('recharge-bka').style.display='none';
+  document.getElementById('recharge-manual').style.display='none';
   document.querySelectorAll('.payment-card').forEach(c=>c.classList.remove('selected'));
-  document.getElementById('bka-payment-box').style.display='block';
-  document.getElementById('airtel-payment-box').style.display='none';
-  ['recharge-step1','recharge-step2','recharge-step3'].forEach((s,i)=>document.getElementById(s).style.display=i===0?'block':'none');
-  document.getElementById('recharge-amount').value='';
-  document.getElementById('recharge-ref').value='';
-  document.getElementById('recharge-number').value='';
   document.getElementById('modal-recharge').classList.add('show');
+  document.getElementById('recharge-method').style.display='block';
 };
-
 window.setAmount=v=>{
   document.getElementById('recharge-amount').value=v;
-  document.querySelectorAll('#modal-recharge .preset-btn').forEach(b=>b.classList.toggle('selected',parseInt(b.textContent.replace(/\s/g,''))===v));
+  document.querySelectorAll('#recharge-step1 .preset-btn').forEach(b=>b.classList.toggle('selected',parseInt(b.textContent.replace(/\s/g,''))===v));
 };
-
+window.setManualAmount=v=>{
+  document.getElementById('manual-amount').value=v;
+  document.querySelectorAll('#manual-step1 .preset-btn').forEach(b=>b.classList.toggle('selected',parseInt(b.textContent.replace(/\s/g,''))===v));
+};
 window.goToBKAPay=()=>{
   const amount=parseInt(document.getElementById('recharge-amount').value);
   if(!amount||amount<1000){toast('Minimum 1000 FCFA','error');return;}
-  if(!selectedPaymentMethod){toast('Choisissez une methode de paiement','error');return;}
   document.getElementById('recharge-step1').style.display='none';
   document.getElementById('recharge-step2').style.display='block';
   document.getElementById('recharge-amount2').value=amount;
-  document.getElementById('recharge-method-display').value='BKA Pay';
   document.getElementById('rs2').className='step active';
   document.getElementById('rl1').className='step-line done';
   window.open(BKA_URL+'?amount='+amount,'_blank');
 };
-
-window.goToAirtelPay=()=>{
-  const amount=parseInt(document.getElementById('recharge-amount').value);
-  if(!amount||amount<1000){toast('Minimum 1000 FCFA','error');return;}
-  if(!selectedPaymentMethod){toast('Choisissez une methode de paiement','error');return;}
-  document.getElementById('recharge-step1').style.display='none';
-  document.getElementById('recharge-step2').style.display='block';
-  document.getElementById('recharge-amount2').value=amount;
-  document.getElementById('recharge-method-display').value='Airtel Money';
-  document.getElementById('rs2').className='step active';
-  document.getElementById('rl1').className='step-line done';
-  toast('Veuillez confirmer votre paiement en soumettant le formulaire','success');
-};
-
 window.backToRechargeStep1=()=>{
   document.getElementById('recharge-step1').style.display='block';
   document.getElementById('recharge-step2').style.display='none';
   document.getElementById('rs2').className='step inactive';
   document.getElementById('rl1').className='step-line';
 };
-
 window.submitRecharge=async()=>{
   const amount=parseInt(document.getElementById('recharge-amount2').value);
   const ref=document.getElementById('recharge-ref').value.trim();
   const number=document.getElementById('recharge-number').value.trim();
-  const method=document.getElementById('recharge-method-display').value;
   if(!amount){toast('Montant invalide','error');return;}
-  if(!number){toast('Entrez votre numero de paiement','error');return;}
   const btn=document.getElementById('btn-submit-recharge');
   btn.disabled=true;btn.innerHTML='<div class="spinner"></div>';
-  const {error}=await sb.from('recharges').insert({
-    user_id:uid,
-    amount,
-    payment_method:method.toLowerCase().replace(' ','_'),
-    payment_number:number||'Non renseigne',
-    transaction_ref:ref||method+'-'+Date.now(),
-    status:'pending'
-  });
+  const {error}=await sb.from('recharges').insert({user_id:uid,amount,payment_method:'bka_pay',payment_number:number||'BKA Pay',transaction_ref:ref||'BKA-'+Date.now(),status:'pending'});
   btn.disabled=false;btn.textContent='Soumettre la demande';
-  if(error){toast('Erreur lors de l\'enregistrement','error');console.error(error);return;}
-  await sb.from('notifications').insert({
-    user_id:uid,
-    title:'Recharge en attente',
-    message:'Votre recharge de '+fmt(amount)+' FCFA via '+method+' est en cours de verification.',
-    type:'info'
-  });
+  if(error){toast('Erreur','error');return;}
+  await sb.from('notifications').insert({user_id:uid,title:'Recharge en attente',message:'Votre recharge de '+fmt(amount)+' FCFA est en cours de verification.',type:'info'});
   document.getElementById('recharge-step2').style.display='none';
   document.getElementById('recharge-step3').style.display='block';
   document.getElementById('rs3').className='step active';
   document.getElementById('rl2').className='step-line done';
 };
+window.goToManualStep2=()=>{
+  const amount=parseInt(document.getElementById('manual-amount').value);
+  if(!amount||amount<500){toast('Minimum 500 FCFA','error');return;}
+  document.getElementById('manual-step1').style.display='none';
+  document.getElementById('manual-step2').style.display='block';
+  document.getElementById('manual-amount2').value=amount;
+  document.getElementById('ms2').className='step active-yellow';
+  document.getElementById('ml1').className='step-line done-yellow';
+};
+window.backToManualStep1=()=>{
+  document.getElementById('manual-step1').style.display='block';
+  document.getElementById('manual-step2').style.display='none';
+  document.getElementById('ms2').className='step inactive';
+  document.getElementById('ml1').className='step-line';
+};
+window.submitManualRecharge=async()=>{
+  const amount=parseInt(document.getElementById('manual-amount2').value);
+  const ref=document.getElementById('manual-ref').value.trim();
+  const phone=document.getElementById('manual-phone').value.trim();
+  const operator=document.getElementById('manual-operator').value;
+  const recipient=document.getElementById('manual-recipient').value;
+  if(!amount){toast('Montant invalide','error');return;}
+  if(!ref){toast('Entrez la reference transaction','error');return;}
+  if(!phone){toast('Entrez votre numero','error');return;}
+  const btn=document.getElementById('btn-submit-manual');
+  btn.disabled=true;btn.innerHTML='<div class="spinner"></div>';
+  const {error}=await sb.from('recharges').insert({
+    user_id:uid,amount,
+    payment_method:'manual_tchad',
+    payment_number:phone,
+    transaction_ref:ref,
+    status:'pending',
+    admin_note:`Operateur: ${operator} | Recipient: ${recipient}`
+  });
+  btn.disabled=false;btn.textContent='Soumettre la demande';
+  if(error){toast('Erreur','error');return;}
+  await sb.from('notifications').insert({user_id:uid,title:'Recharge manuelle en attente',message:'Votre recharge manuelle de '+fmt(amount)+' FCFA est en cours de verification.',type:'info'});
+  document.getElementById('manual-step2').style.display='none';
+  document.getElementById('manual-step3').style.display='block';
+  document.getElementById('ms3').className='step active-yellow';
+  document.getElementById('ml2').className='step-line done-yellow';
+};
 
-// RETRAIT
-window.openWithdraw=()=>{
-  ['withdraw-step1','withdraw-step2','withdraw-step3'].forEach((s,i)=>document.getElementById(s).style.display=i===0?'block':'none');
+// RETRAIT METHODS
+window.selectWithdrawMethod=(method)=>{
+  selectedWithdrawType=method;
+  document.querySelectorAll('#withdraw-method .payment-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById(`method-${method}`).classList.add('selected');
+  document.getElementById('withdraw-mobile').style.display=method==='mobile'?'block':'none';
+  document.getElementById('withdraw-crypto').style.display=method==='crypto'?'block':'none';
+  if(method==='mobile') resetWithdrawMobile();
+  if(method==='crypto') resetWithdrawCrypto();
+};
+function resetWithdrawMobile(){
+  document.getElementById('withdraw-step1').style.display='block';
+  document.getElementById('withdraw-step2').style.display='none';
+  document.getElementById('withdraw-step3').style.display='none';
   document.getElementById('ws2').className='step inactive';
   document.getElementById('ws3').className='step inactive';
   document.getElementById('wl1').className='step-line';
   document.getElementById('wl2').className='step-line';
-  selectedOperator='';
+}
+function resetWithdrawCrypto(){
+  document.getElementById('crypto-step1').style.display='block';
+  document.getElementById('crypto-step2').style.display='none';
+  document.getElementById('crypto-step3').style.display='none';
+  document.getElementById('cs2').className='step inactive';
+  document.getElementById('cs3').className='step inactive';
+  document.getElementById('cl1').className='step-line';
+  document.getElementById('cl2').className='step-line';
+}
+window.openWithdraw=()=>{
+  selectedWithdrawType='';
+  document.getElementById('withdraw-mobile').style.display='none';
+  document.getElementById('withdraw-crypto').style.display='none';
+  document.querySelectorAll('#withdraw-method .payment-card').forEach(c=>c.classList.remove('selected'));
   document.getElementById('modal-withdraw').classList.add('show');
 };
-
 window.setWithdrawAmount=v=>{
   document.getElementById('withdraw-amount').value=v;
   document.querySelectorAll('#withdraw-step1 .preset-btn').forEach(b=>b.classList.toggle('selected',parseInt(b.textContent.replace(/\s/g,''))===v));
 };
-
 window.setWithdrawAmountMax=()=>{
   if(!profile)return;
   document.getElementById('withdraw-amount').value=profile.balance;
   document.querySelectorAll('#withdraw-step1 .preset-btn').forEach(b=>b.classList.remove('selected'));
-  document.querySelectorAll('#withdraw-step1 .preset-btn')[5].classList.add('selected');
 };
-
 window.goToWithdrawStep2=()=>{
   const amount=parseInt(document.getElementById('withdraw-amount').value);
   if(!amount||amount<withdrawMin){toast('Minimum '+fmt(withdrawMin)+' FCFA','error');return;}
@@ -560,20 +747,17 @@ window.goToWithdrawStep2=()=>{
   document.getElementById('ws2').className='step active-red';
   document.getElementById('wl1').className='step-line done-red';
 };
-
 window.backToWithdrawStep1=()=>{
   document.getElementById('withdraw-step1').style.display='block';
   document.getElementById('withdraw-step2').style.display='none';
   document.getElementById('ws2').className='step inactive';
   document.getElementById('wl1').className='step-line';
 };
-
 window.selectOperator=(op,el)=>{
   selectedOperator=op;
   document.querySelectorAll('.operator-card').forEach(c=>c.classList.remove('selected'));
   el.classList.add('selected');
 };
-
 window.goToWithdrawStep3=()=>{
   if(!selectedOperator){toast('Choisissez un operateur','error');return;}
   const amount=parseInt(document.getElementById('withdraw-amount').value);
@@ -581,53 +765,94 @@ window.goToWithdrawStep3=()=>{
   document.getElementById('withdraw-step3').style.display='block';
   document.getElementById('ws3').className='step active-red';
   document.getElementById('wl2').className='step-line done-red';
-  document.getElementById('selected-operator-label').textContent=operatorLabels[selectedOperator];
+  document.getElementById('selected-operator-label').textContent=operatorLabels[selectedOperator]||selectedOperator;
   document.getElementById('selected-amount-label').textContent=fmt(amount)+' FCFA';
-  document.getElementById('withdraw-number-label').textContent=selectedOperator==='crypto'?'Adresse wallet':'Votre numero';
-  document.getElementById('withdraw-number').placeholder=selectedOperator==='crypto'?'Adresse USDT/BTC':'Ex: +235 66 XX XX XX';
 };
-
 window.backToWithdrawStep2=()=>{
   document.getElementById('withdraw-step2').style.display='block';
   document.getElementById('withdraw-step3').style.display='none';
   document.getElementById('ws3').className='step inactive';
   document.getElementById('wl2').className='step-line';
 };
-
-window.submitWithdraw=async()=>{
-  const amount=parseInt(document.getElementById('withdraw-amount').value);
-  const name=document.getElementById('withdraw-name').value.trim();
-  const number=document.getElementById('withdraw-number').value.trim();
-  if(!name){toast('Entrez votre nom','error');return;}
-  if(!number){toast('Entrez votre numero','error');return;}
+window.goToCryptoStep2=()=>{
+  const amount=parseInt(document.getElementById('crypto-amount').value);
+  if(!amount||amount<5000){toast('Minimum 5000 FCFA','error');return;}
   if(!profile||amount>profile.balance){toast('Solde insuffisant','error');return;}
-  const btn=document.getElementById('btn-withdraw-submit');
+  document.getElementById('crypto-step1').style.display='none';
+  document.getElementById('crypto-step2').style.display='block';
+  document.getElementById('cs2').className='step active-red';
+  document.getElementById('cl1').className='step-line done-red';
+};
+window.backToCryptoStep1=()=>{
+  document.getElementById('crypto-step1').style.display='block';
+  document.getElementById('crypto-step2').style.display='none';
+  document.getElementById('cs2').className='step inactive';
+  document.getElementById('cl1').className='step-line';
+};
+window.selectCrypto=(crypto,el)=>{
+  selectedCrypto=crypto;
+  document.querySelectorAll('#crypto-step2 .operator-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+};
+window.goToCryptoStep3=()=>{
+  if(!selectedCrypto){toast('Choisissez votre crypto','error');return;}
+  const amount=parseInt(document.getElementById('crypto-amount').value);
+  document.getElementById('crypto-step2').style.display='none';
+  document.getElementById('crypto-step3').style.display='block';
+  document.getElementById('cs3').className='step active-red';
+  document.getElementById('cl2').className='step-line done-red';
+  document.getElementById('selected-crypto-label').textContent=selectedCrypto;
+  document.getElementById('crypto-amount-label').textContent=fmt(amount)+' FCFA';
+};
+window.backToCryptoStep2=()=>{
+  document.getElementById('crypto-step2').style.display='block';
+  document.getElementById('crypto-step3').style.display='none';
+  document.getElementById('cs3').className='step inactive';
+  document.getElementById('cl2').className='step-line';
+};
+window.submitWithdraw=async(type)=>{
+  const amount=type==='mobile'?parseInt(document.getElementById('withdraw-amount').value):parseInt(document.getElementById('crypto-amount').value);
+  const name=type==='mobile'?document.getElementById('withdraw-name').value.trim():document.getElementById('crypto-name').value.trim();
+  const number=type==='mobile'?document.getElementById('withdraw-number').value.trim():document.getElementById('crypto-address').value.trim();
+  if(!name){toast('Entrez votre nom','error');return;}
+  if(!number){toast(type==='mobile'?'Entrez votre numero':'Entrez votre adresse wallet','error');return;}
+  if(!profile||amount>profile.balance){toast('Solde insuffisant','error');return;}
+  const btn=type==='mobile'?document.getElementById('btn-withdraw-submit'):document.getElementById('btn-crypto-submit');
   btn.disabled=true;btn.innerHTML='<div class="spinner"></div>';
+  const paymentMethod=type==='mobile'?selectedOperator:selectedCrypto;
   const {data:ws}=await sb.from('settings').select('value').eq('key','withdrawal_auto_limit').single();
   const isAuto=amount<=parseInt(ws?.value||50000);
   const {error}=await sb.from('withdrawals').insert({
     user_id:uid,amount,
-    payment_method:selectedOperator,
+    payment_method:paymentMethod,
     payment_number:number,
     status:isAuto?'processing':'pending',
     is_auto:isAuto,
-    admin_note:name
+    admin_note:`${name} | ${type==='mobile'?'Mobile Money':'Crypto'}`
   });
   if(!error){
     await sb.from('profiles').update({balance:profile.balance-amount,total_withdrawn:(profile.total_withdrawn||0)+amount}).eq('id',uid);
-    await sb.from('notifications').insert({user_id:uid,title:'Retrait en cours',message:'Votre retrait de '+fmt(amount)+' FCFA via '+operatorLabels[selectedOperator]+' est en cours.',type:'info'});
+    await sb.from('notifications').insert({user_id:uid,title:'Retrait en cours',message:'Votre retrait de '+fmt(amount)+' FCFA est en cours.',type:'info'});
   }
-  btn.disabled=false;btn.textContent='Confirmer le retrait';
+  btn.disabled=false;btn.textContent=type==='mobile'?'Confirmer le retrait':'Confirmer le retrait';
   if(error){toast('Erreur','error');return;}
   closeModal('modal-withdraw');
   toast(isAuto?'Retrait en cours !':'Demande envoyee !','success');
-  loadProfile();selectedOperator='';
+  loadProfile();
+  selectedOperator='';
+  selectedCrypto='';
 };
-
 window.closeModal=id=>{
   document.getElementById(id).classList.remove('show');
-  if(id==='modal-recharge'){['recharge-step1','recharge-step2','recharge-step3'].forEach((s,i)=>document.getElementById(s).style.display=i===0?'block':'none');}
-  if(id==='modal-withdraw'){['withdraw-step1','withdraw-step2','withdraw-step3'].forEach((s,i)=>document.getElementById(s).style.display=i===0?'block':'none');}
+  if(id==='modal-recharge'){
+    document.getElementById('recharge-method').style.display='block';
+    selectedPaymentMethod='';
+  }
+  if(id==='modal-withdraw'){
+    selectedWithdrawType='';
+    selectedOperator='';
+    selectedCrypto='';
+  }
 };
 </script>
 </body>
