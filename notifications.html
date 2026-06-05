@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>TIKA — Notifications</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--green:#00A651;--green-dark:#007A3D;--green-light:#E8F7EF;--red:#E63946;--red-dark:#C0392B;--red-light:#FDECEA;--gray:#F4F6F8;--gray2:#E8ECF0;--text:#1A1A2E;--text2:#6B7280;--shadow-green:0 4px 24px rgba(0,166,81,0.25);--shadow-red:0 4px 24px rgba(230,57,70,0.25);}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);color:var(--text);overflow-x:hidden}
+#app{max-width:430px;margin:0 auto;min-height:100vh;padding-bottom:40px}
+.header{background:linear-gradient(135deg,#1A1A2E,#2D3748);padding:50px 24px 24px;position:relative;overflow:hidden;}
+.header-stripe{position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--green),var(--red));}
+.header-top{display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1;}
+.back-btn{width:40px;height:40px;background:rgba(255,255,255,0.1);border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:#fff;border:1px solid rgba(255,255,255,0.15);}
+.header-title{font-size:20px;font-weight:700;color:#fff;}
+.mark-all-btn{background:rgba(0,166,81,0.2);color:var(--green-light);border:1px solid rgba(0,166,81,0.3);border-radius:10px;padding:8px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.section{padding:16px;}
+.notif-card{background:#fff;border-radius:16px;padding:16px;margin-bottom:10px;display:flex;align-items:flex-start;gap:14px;box-shadow:0 2px 10px rgba(0,0,0,0.05);position:relative;overflow:hidden;cursor:pointer;transition:.2s;}
+.notif-card:active{transform:scale(.99)}
+.notif-card.unread{border-left:4px solid var(--green);}
+.notif-card.unread.type-error{border-left-color:var(--red);}
+.notif-card.unread.type-warning{border-left-color:#F59E0B;}
+.notif-card.read{border-left:4px solid var(--gray2);opacity:.75;}
+.notif-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.notif-icon.success{background:var(--green-light);}
+.notif-icon.error{background:var(--red-light);}
+.notif-icon.info{background:#EEF2FF;}
+.notif-icon.warning{background:#FFFBEB;}
+.notif-content{flex:1;}
+.notif-title{font-size:14px;font-weight:700;color:var(--text);}
+.notif-msg{font-size:12px;color:var(--text2);margin-top:4px;line-height:1.5;}
+.notif-date{font-size:10px;color:var(--text2);margin-top:6px;}
+.notif-dot{width:8px;height:8px;background:var(--green);border-radius:50%;flex-shrink:0;margin-top:6px;}
+.notif-dot.red{background:var(--red);}
+.empty-state{text-align:center;padding:60px 20px;}
+.empty-icon{font-size:60px;margin-bottom:16px;}
+.empty-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px;}
+.empty-sub{font-size:13px;color:var(--text2);}
+.section-label{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;margin-top:6px;}
+#toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:500;opacity:0;transition:.3s;z-index:9999;pointer-events:none;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.success{background:var(--green)}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <div class="header-stripe"></div>
+    <div class="header-top">
+      <div class="back-btn" onclick="window.location.href='dashboard.html'">&#8592;</div>
+      <div class="header-title">Notifications</div>
+      <button class="mark-all-btn" onclick="markAllRead()">Tout lire</button>
+    </div>
+  </div>
+  <div class="section" id="notif-container">
+    <div class="empty-state">
+      <div class="empty-icon">&#9203;</div>
+      <div class="empty-title">Chargement...</div>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+const sb=createClient('https://ainispvuqmuigfxzkkqh.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpbmlzcHZ1cW11aWdmeHpra3FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0ODcyMDUsImV4cCI6MjA5NjA2MzIwNX0.UOZxfyhC2_B7TtuSK4ea_x6u4GOdIsVEIMX8NUlmndc');
+const fmtDate=d=>{
+  const now=new Date(),date=new Date(d),diff=Math.floor((now-date)/1000);
+  if(diff<60)return 'Il y a '+diff+'s';
+  if(diff<3600)return 'Il y a '+Math.floor(diff/60)+'min';
+  if(diff<86400)return 'Il y a '+Math.floor(diff/3600)+'h';
+  return date.toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+};
+const typeIcon={success:'&#9989;',error:'&#10060;',info:'&#128276;',warning:'&#9888;'};
+window.toast=(msg,type='')=>{const t=document.getElementById('toast');t.textContent=msg;t.className='show '+type;setTimeout(()=>t.className='',3000);};
+const {data:{session}}=await sb.auth.getSession();
+if(!session){window.location.href='index.html';}
+const uid=session.user.id;
+async function loadNotifs(){
+  const {data}=await sb.from('notifications').select('*').eq('user_id',uid).order('created_at',{ascending:false});
+  const c=document.getElementById('notif-container');
+  if(!data||!data.length){
+    c.innerHTML='<div class="empty-state"><div class="empty-icon">&#128276;</div><div class="empty-title">Aucune notification</div><div class="empty-sub">Vos notifications apparaitront ici</div></div>';
+    return;
+  }
+  const unread=data.filter(n=>!n.is_read);
+  const read=data.filter(n=>n.is_read);
+  let html='';
+  if(unread.length){
+    html+='<div class="section-label">&#128308; Non lues ('+unread.length+')</div>';
+    html+=unread.map(n=>'<div class="notif-card unread type-'+(n.type||'info')+'" onclick="markRead(\''+n.id+'\',this)"><div class="notif-icon '+(n.type||'info')+'">'+(typeIcon[n.type]||'&#128276;')+'</div><div class="notif-content"><div class="notif-title">'+n.title+'</div><div class="notif-msg">'+n.message+'</div><div class="notif-date">'+fmtDate(n.created_at)+'</div></div><div class="notif-dot '+(n.type==='error'?'red':'')+'"></div></div>').join('');
+  }
+  if(read.length){
+    html+='<div class="section-label" style="margin-top:16px">&#9989; Lues</div>';
+    html+=read.map(n=>'<div class="notif-card read"><div class="notif-icon '+(n.type||'info')+'">'+(typeIcon[n.type]||'&#128276;')+'</div><div class="notif-content"><div class="notif-title">'+n.title+'</div><div class="notif-msg">'+n.message+'</div><div class="notif-date">'+fmtDate(n.created_at)+'</div></div></div>').join('');
+  }
+  c.innerHTML=html;
+}
+window.markRead=async(id,el)=>{
+  await sb.from('notifications').update({is_read:true}).eq('id',id);
+  el.className=el.className.replace('unread','read').replace(/type-\w+/,'');
+  el.querySelector('.notif-dot')?.remove();
+  toast('Notification lue','success');
+};
+window.markAllRead=async()=>{
+  await sb.from('notifications').update({is_read:true}).eq('user_id',uid).eq('is_read',false);
+  toast('Toutes les notifications lues','success');
+  loadNotifs();
+};
+await loadNotifs();
+</script>
+</body>
+</html>
