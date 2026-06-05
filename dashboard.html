@@ -99,44 +99,45 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
 .modal-title span{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
 .modal-title span.green{background:var(--green-light);}
 .modal-title span.red{background:var(--red-light);}
-.modal-sub{font-size:13px;color:var(--text2);margin-bottom:20px;}
+.modal-sub{font-size:13px;color:var(--text2);margin-bottom:16px;}
 .form-group{margin-bottom:14px;}
 .form-label{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:block;}
 .form-input{width:100%;padding:14px 16px;border:2px solid var(--gray2);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--text);background:#fff;outline:none;transition:.2s;}
 .form-input:focus{border-color:var(--green);box-shadow:0 0 0 4px rgba(0,166,81,0.08)}
 .amount-presets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;}
 .preset-btn{padding:10px;border:2px solid var(--gray2);border-radius:10px;background:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;color:var(--text);cursor:pointer;transition:.2s;text-align:center;}
-.preset-btn:active{transform:scale(.96)}
 .preset-btn.selected{border-color:var(--green);background:var(--green-light);color:var(--green-dark);}
+.preset-btn-red.selected{border-color:var(--red);background:var(--red-light);color:var(--red);}
 .bka-box{background:linear-gradient(135deg,#1A1A2E,#2D3748);border-radius:16px;padding:16px;margin-bottom:16px;display:flex;align-items:center;gap:14px;}
 .bka-logo{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--green),var(--red));display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
 .bka-info{flex:1;}
 .bka-name{font-size:14px;font-weight:700;color:#fff;}
 .bka-sub{font-size:11px;color:rgba(255,255,255,0.6);margin-top:2px;}
-.bka-countries{display:flex;gap:4px;margin-top:6px;}
-.country-flag{font-size:16px;}
+.bka-countries{display:flex;gap:4px;margin-top:6px;font-size:16px;}
 .btn-bka{width:100%;padding:16px;background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-green);display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;}
-.btn-bka:active{transform:scale(.98)}
 .btn-bka:disabled{opacity:.6}
-.btn-manual{width:100%;padding:13px;background:var(--gray);color:var(--text2);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;}
-.info-box-green{background:var(--green-light);border-radius:12px;padding:12px 16px;margin-bottom:14px;font-size:12px;color:var(--green-dark);font-weight:500;line-height:1.5;}
-.payment-methods{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
-.pay-method{padding:12px;border:2px solid var(--gray2);border-radius:12px;cursor:pointer;text-align:center;transition:.2s;}
-.pay-method.selected{border-color:var(--red);background:var(--red-light);}
-.pay-method-icon{font-size:20px;margin-bottom:4px;}
-.pay-method-label{font-size:11px;font-weight:700;color:var(--text);}
 .btn-red{width:100%;padding:16px;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-red);display:flex;align-items:center;justify-content:center;gap:8px;}
 .btn-red:disabled{opacity:.6}
 .btn-cancel{width:100%;padding:14px;background:var(--gray);color:var(--text2);border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;margin-top:10px;}
-.info-box-red{background:var(--red-light);border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--red);font-weight:500;}
-.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.step-indicator{display:flex;align-items:center;gap:8px;margin-bottom:16px;}
-.step{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;}
+.info-box-green{background:var(--green-light);border-radius:12px;padding:12px 16px;margin-bottom:14px;font-size:12px;color:var(--green-dark);font-weight:500;line-height:1.5;}
+.info-box-red{background:var(--red-light);border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--red);font-weight:600;}
+.operator-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.operator-card{border:2px solid var(--gray2);border-radius:14px;padding:14px;cursor:pointer;text-align:center;transition:.2s;}
+.operator-card:active{transform:scale(.97)}
+.operator-card.selected{border-color:var(--red);background:var(--red-light);}
+.operator-icon{font-size:28px;margin-bottom:6px;}
+.operator-name{font-size:12px;font-weight:700;color:var(--text);}
+.operator-countries{font-size:10px;color:var(--text2);margin-top:2px;}
+.step-indicator{display:flex;align-items:center;gap:8px;margin-bottom:20px;}
+.step{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
 .step.active{background:var(--green);color:#fff;}
+.step.active-red{background:var(--red);color:#fff;}
 .step.inactive{background:var(--gray2);color:var(--text2);}
 .step-line{flex:1;height:2px;background:var(--gray2);}
 .step-line.done{background:var(--green);}
+.step-line.done-red{background:var(--red);}
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -165,18 +166,9 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
     </div>
     <div class="balance-amount"><span>FCFA </span><span id="balance">0</span></div>
     <div class="balance-row">
-      <div class="balance-mini g">
-        <div class="balance-mini-label">Gains/jour</div>
-        <div class="balance-mini-val green" id="today-gain">+0 F</div>
-      </div>
-      <div class="balance-mini w">
-        <div class="balance-mini-label">Investi</div>
-        <div class="balance-mini-val dark" id="total-invested">0 F</div>
-      </div>
-      <div class="balance-mini r">
-        <div class="balance-mini-label">Retire</div>
-        <div class="balance-mini-val red" id="total-withdrawn">0 F</div>
-      </div>
+      <div class="balance-mini g"><div class="balance-mini-label">Gains/jour</div><div class="balance-mini-val green" id="today-gain">+0 F</div></div>
+      <div class="balance-mini w"><div class="balance-mini-label">Investi</div><div class="balance-mini-val dark" id="total-invested">0 F</div></div>
+      <div class="balance-mini r"><div class="balance-mini-label">Retire</div><div class="balance-mini-val red" id="total-withdrawn">0 F</div></div>
     </div>
   </div>
   <div class="action-btns">
@@ -221,24 +213,23 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
   <div class="nav-item" onclick="window.location.href='profile.html'"><div class="nav-icon">&#128100;</div><div class="nav-label">Profil</div></div>
 </div>
 
-<!-- MODAL RECHARGE BKA PAY -->
+<!-- MODAL RECHARGE -->
 <div class="modal-overlay" id="modal-recharge">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title"><span class="green">&#128179;</span> Recharger mon compte</div>
     <div class="modal-sub">Paiement securise via BKA Pay</div>
     <div class="step-indicator">
-      <div class="step active" id="step1">1</div>
-      <div class="step-line" id="line1"></div>
-      <div class="step inactive" id="step2">2</div>
-      <div class="step-line"></div>
-      <div class="step inactive" id="step3">3</div>
+      <div class="step active" id="rs1">1</div>
+      <div class="step-line" id="rl1"></div>
+      <div class="step inactive" id="rs2">2</div>
+      <div class="step-line" id="rl2"></div>
+      <div class="step inactive" id="rs3">3</div>
     </div>
-    <!-- ETAPE 1 : Montant -->
     <div id="recharge-step1">
       <div class="form-group">
         <label class="form-label">Montant (FCFA)</label>
-        <input class="form-input" type="number" id="recharge-amount" placeholder="Ex: 5000" oninput="updatePresets(this.value)"/>
+        <input class="form-input" type="number" id="recharge-amount" placeholder="Ex: 5000"/>
       </div>
       <div class="amount-presets">
         <button class="preset-btn" onclick="setAmount(5000)">5 000</button>
@@ -252,48 +243,25 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
         <div class="bka-logo">&#128176;</div>
         <div class="bka-info">
           <div class="bka-name">BKA Pay</div>
-          <div class="bka-sub">Paiement mobile securise</div>
-          <div class="bka-countries">
-            <span class="country-flag">&#127788;</span>
-            <span class="country-flag">&#127726;</span>
-            <span class="country-flag">&#127787;</span>
-            <span class="country-flag">&#127463;&#127467;</span>
-            <span class="country-flag">&#127480;&#127475;</span>
-          </div>
+          <div class="bka-sub">Tchad · Benin · Togo · Burkina · Senegal</div>
+          <div class="bka-countries">&#127988;&#127988;&#127988;&#127988;&#127988;</div>
         </div>
       </div>
-      <button class="btn-bka" id="btn-go-bka" onclick="goToBKAPay()">
-        &#128176; Payer maintenant
-      </button>
+      <button class="btn-bka" onclick="goToBKAPay()">&#128176; Payer via BKA Pay</button>
       <button class="btn-cancel" onclick="closeModal('modal-recharge')">Annuler</button>
     </div>
-    <!-- ETAPE 2 : Confirmation apres paiement -->
     <div id="recharge-step2" style="display:none">
-      <div class="info-box-green">
-        &#10003; Vous avez effectue le paiement ? Enregistrez votre demande pour que l'admin puisse valider.
-      </div>
-      <div class="form-group">
-        <label class="form-label">Montant paye (FCFA)</label>
-        <input class="form-input" type="number" id="recharge-amount2" placeholder="Confirmez le montant" readonly/>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Reference de transaction (optionnel)</label>
-        <input class="form-input" type="text" id="recharge-ref" placeholder="Ex: TXN123456"/>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Votre numero de paiement</label>
-        <input class="form-input" type="text" id="recharge-number" placeholder="Ex: +235 66 XX XX XX"/>
-      </div>
-      <button class="btn-bka" id="btn-submit-recharge" onclick="submitRecharge()">
-        &#10003; Soumettre la demande
-      </button>
-      <button class="btn-manual" onclick="backToStep1()">&#8592; Modifier le montant</button>
+      <div class="info-box-green">&#10003; Apres paiement, soumettez votre demande pour validation.</div>
+      <div class="form-group"><label class="form-label">Montant paye (FCFA)</label><input class="form-input" type="number" id="recharge-amount2" readonly/></div>
+      <div class="form-group"><label class="form-label">Reference transaction (optionnel)</label><input class="form-input" type="text" id="recharge-ref" placeholder="Ex: TXN123456"/></div>
+      <div class="form-group"><label class="form-label">Votre numero de paiement</label><input class="form-input" type="tel" id="recharge-number" placeholder="Ex: +235 66 XX XX XX"/></div>
+      <button class="btn-bka" id="btn-submit-recharge" onclick="submitRecharge()">&#10003; Soumettre la demande</button>
+      <button class="btn-cancel" onclick="backToRechargeStep1()">&#8592; Retour</button>
     </div>
-    <!-- ETAPE 3 : Succes -->
-    <div id="recharge-step3" style="display:none;text-align:center;padding:20px 0;">
-      <div style="font-size:60px;margin-bottom:16px;">&#10004;</div>
-      <div style="font-size:18px;font-weight:800;color:var(--green);margin-bottom:8px;">Demande enregistree !</div>
-      <div style="font-size:13px;color:var(--text2);margin-bottom:20px;">Votre recharge est en attente de validation par l'administrateur. Vous serez notifie des validation.</div>
+    <div id="recharge-step3" style="display:none;text-align:center;padding:20px 0">
+      <div style="font-size:60px;margin-bottom:16px">&#10004;</div>
+      <div style="font-size:18px;font-weight:800;color:var(--green);margin-bottom:8px">Demande enregistree !</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:24px">Votre recharge est en attente de validation. Vous serez notifie a la validation.</div>
       <button class="btn-bka" onclick="closeModal('modal-recharge')">Fermer</button>
     </div>
   </div>
@@ -304,28 +272,91 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title"><span class="red">&#128184;</span> Retirer mes gains</div>
-    <div class="info-box-red">Solde disponible : <strong id="withdraw-balance">0 FCFA</strong></div>
-    <div class="payment-methods">
-      <div class="pay-method" onclick="selectWithdrawPay('orange_money',this)"><div class="pay-method-icon">&#128992;</div><div class="pay-method-label">Orange Money</div></div>
-      <div class="pay-method" onclick="selectWithdrawPay('wave',this)"><div class="pay-method-icon">&#128994;</div><div class="pay-method-label">Wave</div></div>
-      <div class="pay-method" onclick="selectWithdrawPay('mtn',this)"><div class="pay-method-icon">&#129000;</div><div class="pay-method-label">MTN Money</div></div>
-      <div class="pay-method" onclick="selectWithdrawPay('moov',this)"><div class="pay-method-icon">&#128995;</div><div class="pay-method-label">Moov Money</div></div>
-      <div class="pay-method" onclick="selectWithdrawPay('crypto',this)" style="grid-column:1/-1"><div class="pay-method-icon">&#8383;</div><div class="pay-method-label">Crypto (USDT/BTC)</div></div>
+    <div class="modal-sub">Choisissez votre operateur de retrait</div>
+    <div class="step-indicator">
+      <div class="step active-red" id="ws1">1</div>
+      <div class="step-line" id="wl1"></div>
+      <div class="step inactive" id="ws2">2</div>
+      <div class="step-line" id="wl2"></div>
+      <div class="step inactive" id="ws3">3</div>
     </div>
-    <div class="form-group"><label class="form-label">Montant a retirer (FCFA)</label><input class="form-input" type="number" id="withdraw-amount" placeholder="Minimum 1000 FCFA"/></div>
-    <div class="form-group"><label class="form-label">Numero / adresse reception</label><input class="form-input" type="text" id="withdraw-number" placeholder="Votre numero ou adresse"/></div>
-    <button class="btn-red" id="btn-withdraw-submit" onclick="submitWithdraw()">Demander le retrait</button>
-    <button class="btn-cancel" onclick="closeModal('modal-withdraw')">Annuler</button>
+    <!-- ETAPE 1 : Montant -->
+    <div id="withdraw-step1">
+      <div class="info-box-red">Solde disponible : <strong id="withdraw-balance">0 FCFA</strong></div>
+      <div class="form-group">
+        <label class="form-label">Montant a retirer (FCFA)</label>
+        <input class="form-input" type="number" id="withdraw-amount" placeholder="Minimum 1000 FCFA"/>
+      </div>
+      <div class="amount-presets">
+        <button class="preset-btn" onclick="setWithdrawAmount(1000)">1 000</button>
+        <button class="preset-btn" onclick="setWithdrawAmount(5000)">5 000</button>
+        <button class="preset-btn" onclick="setWithdrawAmount(10000)">10 000</button>
+        <button class="preset-btn" onclick="setWithdrawAmount(25000)">25 000</button>
+        <button class="preset-btn" onclick="setWithdrawAmount(50000)">50 000</button>
+        <button class="preset-btn" onclick="setWithdrawAmountMax()">Max</button>
+      </div>
+      <button class="btn-red" onclick="goToWithdrawStep2()">Continuer &#8250;</button>
+      <button class="btn-cancel" onclick="closeModal('modal-withdraw')">Annuler</button>
+    </div>
+    <!-- ETAPE 2 : Operateur -->
+    <div id="withdraw-step2" style="display:none">
+      <div class="form-group"><label class="form-label">Choisissez votre operateur</label></div>
+      <div class="operator-grid">
+        <div class="operator-card" onclick="selectOperator('orange_money',this)">
+          <div class="operator-icon">&#128992;</div>
+          <div class="operator-name">Orange Money</div>
+          <div class="operator-countries">Tchad, Senegal, Burkina</div>
+        </div>
+        <div class="operator-card" onclick="selectOperator('wave',this)">
+          <div class="operator-icon">&#128994;</div>
+          <div class="operator-name">Wave</div>
+          <div class="operator-countries">Senegal, Cote d'Ivoire</div>
+        </div>
+        <div class="operator-card" onclick="selectOperator('mtn',this)">
+          <div class="operator-icon">&#129000;</div>
+          <div class="operator-name">MTN Money</div>
+          <div class="operator-countries">Benin, Togo</div>
+        </div>
+        <div class="operator-card" onclick="selectOperator('moov',this)">
+          <div class="operator-icon">&#128995;</div>
+          <div class="operator-name">Moov Money</div>
+          <div class="operator-countries">Togo, Burkina, Benin</div>
+        </div>
+        <div class="operator-card" onclick="selectOperator('crypto',this)" style="grid-column:1/-1">
+          <div class="operator-icon">&#8383;</div>
+          <div class="operator-name">Crypto (USDT/BTC)</div>
+          <div class="operator-countries">Tous pays</div>
+        </div>
+      </div>
+      <button class="btn-red" onclick="goToWithdrawStep3()">Continuer &#8250;</button>
+      <button class="btn-cancel" onclick="backToWithdrawStep1()">&#8592; Retour</button>
+    </div>
+    <!-- ETAPE 3 : Infos -->
+    <div id="withdraw-step3" style="display:none">
+      <div class="info-box-red">Operateur : <strong id="selected-operator-label">-</strong> | Montant : <strong id="selected-amount-label">-</strong></div>
+      <div class="form-group">
+        <label class="form-label">Votre nom complet</label>
+        <input class="form-input" type="text" id="withdraw-name" placeholder="Ex: Moussa Diallo"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label" id="withdraw-number-label">Votre numero</label>
+        <input class="form-input" type="text" id="withdraw-number" placeholder="Ex: +235 66 XX XX XX"/>
+      </div>
+      <button class="btn-red" id="btn-withdraw-submit" onclick="submitWithdraw()">&#128184; Confirmer le retrait</button>
+      <button class="btn-cancel" onclick="backToWithdrawStep2()">&#8592; Retour</button>
+    </div>
   </div>
 </div>
+
 <div id="toast"></div>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 const sb=createClient('https://ainispvuqmuigfxzkkqh.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpbmlzcHZ1cW11aWdmeHpra3FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0ODcyMDUsImV4cCI6MjA5NjA2MzIwNX0.UOZxfyhC2_B7TtuSK4ea_x6u4GOdIsVEIMX8NUlmndc');
 window.sb=sb;
 const BKA_URL='https://bkapay.com/merchant/e70a1d40';
-let profile=null,selectedWithdrawMethod='',withdrawMin=1000;
+let profile=null,selectedOperator='',withdrawMin=1000;
 const fmt=n=>Number(n||0).toLocaleString('fr-FR');
+const operatorLabels={orange_money:'Orange Money',wave:'Wave',mtn:'MTN Money',moov:'Moov Money',crypto:'Crypto'};
 window.toast=(msg,type='')=>{const t=document.getElementById('toast');t.textContent=msg;t.className='show '+type;setTimeout(()=>t.className='',3000);};
 const {data:{session}}=await sb.auth.getSession();
 if(!session){window.location.href='index.html';}
@@ -359,44 +390,28 @@ await Promise.all([loadProfile(),loadInvestments(),loadReferrals(),loadNotifs()]
 
 // RECHARGE
 window.openRecharge=()=>{
-  document.getElementById('recharge-step1').style.display='block';
-  document.getElementById('recharge-step2').style.display='none';
-  document.getElementById('recharge-step3').style.display='none';
-  document.getElementById('recharge-amount').value='';
+  ['recharge-step1','recharge-step2','recharge-step3'].forEach((s,i)=>document.getElementById(s).style.display=i===0?'block':'none');
   document.getElementById('modal-recharge').classList.add('show');
 };
-window.setAmount=(amount)=>{
-  document.getElementById('recharge-amount').value=amount;
-  document.querySelectorAll('.preset-btn').forEach(b=>{
-    b.classList.toggle('selected',parseInt(b.textContent.replace(/\s/g,''))===amount||b.textContent.replace(/\s/g,'')===(amount+''));
-  });
-};
-window.updatePresets=(val)=>{
-  const v=parseInt(val);
-  document.querySelectorAll('.preset-btn').forEach(b=>{
-    const bval=parseInt(b.textContent.replace(/\s/g,''));
-    b.classList.toggle('selected',bval===v);
-  });
+window.setAmount=v=>{
+  document.getElementById('recharge-amount').value=v;
+  document.querySelectorAll('#modal-recharge .preset-btn').forEach(b=>b.classList.toggle('selected',parseInt(b.textContent.replace(/\s/g,''))===v));
 };
 window.goToBKAPay=()=>{
   const amount=parseInt(document.getElementById('recharge-amount').value);
-  if(!amount||amount<1000){toast('Montant minimum 1000 FCFA','error');return;}
-  // Essai pre-remplissage montant dans URL
-  const bkaUrl=BKA_URL+'?amount='+amount+'&ref=TIKA-'+uid.slice(0,8).toUpperCase();
-  // Passer a etape 2
+  if(!amount||amount<1000){toast('Minimum 1000 FCFA','error');return;}
   document.getElementById('recharge-step1').style.display='none';
   document.getElementById('recharge-step2').style.display='block';
   document.getElementById('recharge-amount2').value=amount;
-  document.getElementById('step2').className='step active';
-  document.getElementById('line1').className='step-line done';
-  // Ouvrir BKA Pay
-  window.open(bkaUrl,'_blank');
+  document.getElementById('rs2').className='step active';
+  document.getElementById('rl1').className='step-line done';
+  window.open(BKA_URL+'?amount='+amount,'_blank');
 };
-window.backToStep1=()=>{
+window.backToRechargeStep1=()=>{
   document.getElementById('recharge-step1').style.display='block';
   document.getElementById('recharge-step2').style.display='none';
-  document.getElementById('step2').className='step inactive';
-  document.getElementById('line1').className='step-line';
+  document.getElementById('rs2').className='step inactive';
+  document.getElementById('rl1').className='step-line';
 };
 window.submitRecharge=async()=>{
   const amount=parseInt(document.getElementById('recharge-amount2').value);
@@ -405,44 +420,107 @@ window.submitRecharge=async()=>{
   if(!amount){toast('Montant invalide','error');return;}
   const btn=document.getElementById('btn-submit-recharge');
   btn.disabled=true;btn.innerHTML='<div class="spinner"></div>';
-  const {error}=await sb.from('recharges').insert({user_id:uid,amount,payment_method:'bka_pay',payment_number:number||'BKA Pay',transaction_ref:ref||('BKA-'+Date.now()),status:'pending'});
+  const {error}=await sb.from('recharges').insert({user_id:uid,amount,payment_method:'bka_pay',payment_number:number||'BKA Pay',transaction_ref:ref||'BKA-'+Date.now(),status:'pending'});
   btn.disabled=false;btn.textContent='Soumettre la demande';
   if(error){toast('Erreur','error');return;}
   await sb.from('notifications').insert({user_id:uid,title:'Recharge en attente',message:'Votre recharge de '+fmt(amount)+' FCFA est en cours de verification.',type:'info'});
   document.getElementById('recharge-step2').style.display='none';
   document.getElementById('recharge-step3').style.display='block';
-  document.getElementById('step3').className='step active';
+  document.getElementById('rs3').className='step active';
+  document.getElementById('rl2').className='step-line done';
 };
 
 // RETRAIT
-window.openWithdraw=()=>{document.getElementById('modal-withdraw').classList.add('show');};
-window.selectWithdrawPay=(m,el)=>{selectedWithdrawMethod=m;document.querySelectorAll('#modal-withdraw .pay-method').forEach(e=>e.classList.remove('selected'));el.classList.add('selected');};
-window.submitWithdraw=async()=>{
-  if(!selectedWithdrawMethod){toast('Choisissez une methode','error');return;}
+window.openWithdraw=()=>{
+  ['withdraw-step1','withdraw-step2','withdraw-step3'].forEach((s,i)=>document.getElementById(s).style.display=i===0?'block':'none');
+  document.getElementById('ws2').className='step inactive';
+  document.getElementById('ws3').className='step inactive';
+  document.getElementById('wl1').className='step-line';
+  document.getElementById('wl2').className='step-line';
+  selectedOperator='';
+  document.getElementById('modal-withdraw').classList.add('show');
+};
+window.setWithdrawAmount=v=>{
+  document.getElementById('withdraw-amount').value=v;
+  document.querySelectorAll('#withdraw-step1 .preset-btn').forEach(b=>b.classList.toggle('selected',parseInt(b.textContent.replace(/\s/g,''))===v));
+};
+window.setWithdrawAmountMax=()=>{
+  if(!profile)return;
+  document.getElementById('withdraw-amount').value=profile.balance;
+  document.querySelectorAll('#withdraw-step1 .preset-btn').forEach(b=>b.classList.remove('selected'));
+  document.querySelectorAll('#withdraw-step1 .preset-btn')[5].classList.add('selected');
+};
+window.goToWithdrawStep2=()=>{
   const amount=parseInt(document.getElementById('withdraw-amount').value);
-  const number=document.getElementById('withdraw-number').value.trim();
   if(!amount||amount<withdrawMin){toast('Minimum '+fmt(withdrawMin)+' FCFA','error');return;}
+  if(!profile||amount>profile.balance){toast('Solde insuffisant','error');return;}
+  document.getElementById('withdraw-step1').style.display='none';
+  document.getElementById('withdraw-step2').style.display='block';
+  document.getElementById('ws2').className='step active-red';
+  document.getElementById('wl1').className='step-line done-red';
+};
+window.backToWithdrawStep1=()=>{
+  document.getElementById('withdraw-step1').style.display='block';
+  document.getElementById('withdraw-step2').style.display='none';
+  document.getElementById('ws2').className='step inactive';
+  document.getElementById('wl1').className='step-line';
+};
+window.selectOperator=(op,el)=>{
+  selectedOperator=op;
+  document.querySelectorAll('.operator-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+};
+window.goToWithdrawStep3=()=>{
+  if(!selectedOperator){toast('Choisissez un operateur','error');return;}
+  const amount=parseInt(document.getElementById('withdraw-amount').value);
+  document.getElementById('withdraw-step2').style.display='none';
+  document.getElementById('withdraw-step3').style.display='block';
+  document.getElementById('ws3').className='step active-red';
+  document.getElementById('wl2').className='step-line done-red';
+  document.getElementById('selected-operator-label').textContent=operatorLabels[selectedOperator];
+  document.getElementById('selected-amount-label').textContent=fmt(amount)+' FCFA';
+  document.getElementById('withdraw-number-label').textContent=selectedOperator==='crypto'?'Adresse wallet':'Votre numero';
+  document.getElementById('withdraw-number').placeholder=selectedOperator==='crypto'?'Adresse USDT/BTC':'Ex: +235 66 XX XX XX';
+};
+window.backToWithdrawStep2=()=>{
+  document.getElementById('withdraw-step2').style.display='block';
+  document.getElementById('withdraw-step3').style.display='none';
+  document.getElementById('ws3').className='step inactive';
+  document.getElementById('wl2').className='step-line';
+};
+window.submitWithdraw=async()=>{
+  const amount=parseInt(document.getElementById('withdraw-amount').value);
+  const name=document.getElementById('withdraw-name').value.trim();
+  const number=document.getElementById('withdraw-number').value.trim();
+  if(!name){toast('Entrez votre nom','error');return;}
   if(!number){toast('Entrez votre numero','error');return;}
   if(!profile||amount>profile.balance){toast('Solde insuffisant','error');return;}
   const btn=document.getElementById('btn-withdraw-submit');
   btn.disabled=true;btn.innerHTML='<div class="spinner"></div>';
   const {data:ws}=await sb.from('settings').select('value').eq('key','withdrawal_auto_limit').single();
   const isAuto=amount<=parseInt(ws?.value||50000);
-  const {error}=await sb.from('withdrawals').insert({user_id:uid,amount,payment_method:selectedWithdrawMethod,payment_number:number,status:isAuto?'processing':'pending',is_auto:isAuto});
-  if(!error)await sb.from('profiles').update({balance:profile.balance-amount,total_withdrawn:(profile.total_withdrawn||0)+amount}).eq('id',uid);
-  btn.disabled=false;btn.textContent='Demander le retrait';
+  const {error}=await sb.from('withdrawals').insert({
+    user_id:uid,amount,
+    payment_method:selectedOperator,
+    payment_number:number,
+    status:isAuto?'processing':'pending',
+    is_auto:isAuto,
+    admin_note:name
+  });
+  if(!error){
+    await sb.from('profiles').update({balance:profile.balance-amount,total_withdrawn:(profile.total_withdrawn||0)+amount}).eq('id',uid);
+    await sb.from('notifications').insert({user_id:uid,title:'Retrait en cours',message:'Votre retrait de '+fmt(amount)+' FCFA via '+operatorLabels[selectedOperator]+' est en cours.',type:'info'});
+  }
+  btn.disabled=false;btn.textContent='Confirmer le retrait';
   if(error){toast('Erreur','error');return;}
   closeModal('modal-withdraw');
   toast(isAuto?'Retrait en cours !':'Demande envoyee !','success');
-  loadProfile();selectedWithdrawMethod='';
+  loadProfile();selectedOperator='';
 };
 window.closeModal=id=>{
   document.getElementById(id).classList.remove('show');
-  if(id==='modal-recharge'){
-    document.getElementById('recharge-step1').style.display='block';
-    document.getElementById('recharge-step2').style.display='none';
-    document.getElementById('recharge-step3').style.display='none';
-  }
+  if(id==='modal-recharge'){['recharge-step1','recharge-step2','recharge-step3'].forEach((s,i)=>document.getElementById(s).style.display=i===0?'block':'none');}
+  if(id==='modal-withdraw'){['withdraw-step1','withdraw-step2','withdraw-step3'].forEach((s,i)=>document.getElementById(s).style.display=i===0?'block':'none');}
 };
 </script>
 </body>
