@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-:root{--green:#00A651;--green-dark:#007A3D;--green-light:#E8F7EF;--red:#E63946;--red-dark:#C0392B;--red-light:#FDECEA;--yellow:#F5A623;--yellow-light:#FFF8E7;--blue:#2E7EB8;--blue-light:#E8F0F8;--gray:#F4F6F8;--gray2:#E8ECF0;--text:#1A1A2E;--text2:#6B7280;--shadow-green:0 4px 24px rgba(0,166,81,0.25);--shadow-red:0 4px 24px rgba(230,57,70,0.25);--shadow-yellow:0 4px 24px rgba(245,166,35,0.25);}
+:root{--green:#00A651;--green-dark:#007A3D;--green-light:#E8F7EF;--red:#E63946;--red-dark:#C0392B;--red-light:#FDECEA;--yellow:#F5A623;--yellow-light:#FFF8E7;--blue:#2E7EB8;--blue-light:#E8F0F8;--purple:#8B5CF6;--purple-light:#F3E8FF;--gray:#F4F6F8;--gray2:#E8ECF0;--text:#1A1A2E;--text2:#6B7280;--shadow-green:0 4px 24px rgba(0,166,81,0.25);--shadow-red:0 4px 24px rgba(230,57,70,0.25);--shadow-yellow:0 4px 24px rgba(245,166,35,0.25);}
 html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);color:var(--text);overflow-x:hidden}
 #app{max-width:430px;margin:0 auto;min-height:100vh;padding-bottom:90px}
 .header{background:linear-gradient(135deg,rgba(0,100,50,0.88),rgba(0,60,30,0.95)),url(https://i.ibb.co/gbFL7njn/Screenshot-20260604-072208-Chrome.jpg) center/cover no-repeat;padding:50px 24px 80px;position:relative;overflow:hidden;}
@@ -122,11 +122,13 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
 .bka-sub{font-size:11px;color:rgba(255,255,255,0.6);margin-top:2px;}
 .bka-countries{display:flex;gap:4px;margin-top:6px;font-size:16px;}
 .manual-box{background:var(--yellow-light);border-radius:16px;padding:16px;margin-bottom:16px;border:2px solid var(--yellow);}
-.manual-title{font-size:15px;font-weight:800;color:var(--yellow);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
-.manual-number{background:var(--yellow);color:#fff;padding:4px 12px;border-radius:20px;font-size:16px;font-weight:800;letter-spacing:1px;text-align:center;margin:8px 0;font-family:monospace;}
+.manual-title{font-size:15px;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.manual-number{color:#fff;padding:4px 12px;border-radius:20px;font-size:16px;font-weight:800;letter-spacing:1px;text-align:center;margin:8px 0;font-family:monospace;display:inline-block;}
 .code-example{background:#fff;border-radius:12px;padding:12px;margin-top:10px;font-family:monospace;font-size:12px;color:var(--text);border:1px solid var(--gray2);}
 .code-example.airtel-blue{background:var(--blue-light);border-color:var(--blue);}
+.code-example.moov-purple{background:var(--purple-light);border-color:var(--purple);}
 .code-blue{background:var(--blue);color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;display:inline-block;margin-top:5px;}
+.code-purple{background:var(--purple);color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;display:inline-block;margin-top:5px;}
 .btn-bka{width:100%;padding:16px;background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-green);display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;}
 .btn-yellow{width:100%;padding:16px;background:linear-gradient(135deg,var(--yellow),#D4890F);color:#fff;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-yellow);display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;}
 .btn-bka:disabled,.btn-yellow:disabled{opacity:.6}
@@ -247,7 +249,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
         <div class="payment-card" onclick="selectPaymentMethod('manual')" id="method-manual">
           <div class="payment-icon">&#128241;</div>
           <div class="payment-name">Manuel Tchad</div>
-          <div class="payment-desc">Airtel Money / Tigo</div>
+          <div class="payment-desc">Airtel / Moov / Tigo</div>
         </div>
       </div>
     </div>
@@ -315,9 +317,9 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
           <button class="preset-btn" onclick="setManualAmount(100000)">100 000</button>
         </div>
         
-        <!-- Nouveau numero Airtel 87906204 -->
+        <!-- Airtel Money - 87906204 -->
         <div class="manual-box" style="border-color:var(--blue);background:var(--blue-light)">
-          <div class="manual-title">&#128241; Airtel Money Tchad</div>
+          <div class="manual-title" style="color:var(--blue);">&#128241; Airtel Money Tchad</div>
           <div>Envoyez l'argent a ce numero :</div>
           <div class="manual-number" style="background:var(--blue);">87906204</div>
           <div class="code-example airtel-blue">
@@ -327,18 +329,18 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
           </div>
         </div>
         
-        <!-- Ancien numero Airtel 98607683 -->
-        <div class="manual-box">
-          <div class="manual-title">&#128241; Airtel Money Tchad (Secondaire)</div>
+        <!-- Moov Money - 98607683 (ex Tigo) -->
+        <div class="manual-box" style="border-color:var(--purple);background:var(--purple-light)">
+          <div class="manual-title" style="color:var(--purple);">&#128241; Moov Money Tchad</div>
           <div>Envoyez l'argent a ce numero :</div>
-          <div class="manual-number">98607683</div>
-          <div class="code-example">
-            <strong>Code USSD Airtel :</strong><br/>
+          <div class="manual-number" style="background:var(--purple);">98607683</div>
+          <div class="code-example moov-purple">
+            <strong>Code USSD Moov :</strong><br/>
             *800*1*98607683*MONTANT*CODE#<br/>
-            <span style="font-size:10px;color:#666;">(CODE = votre code secret)</span>
+            <span class="code-purple">Ex: *800*1*98607683*5000*1234#</span>
           </div>
-          <div class="code-example" style="margin-top:8px">
-            <strong>Code USSD Tigo :</strong><br/>
+          <div class="code-example moov-purple" style="margin-top:8px">
+            <strong>Code USSD Moov (autre) :</strong><br/>
             *150*2*1*98607683*MONTANT*CODE#
           </div>
         </div>
@@ -351,17 +353,10 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
         <div class="form-group"><label class="form-label">Montant envoye (FCFA)</label><input class="form-input" type="number" id="manual-amount2" readonly/></div>
         <div class="form-group"><label class="form-label">Reference transaction (Transaction ID)</label><input class="form-input" type="text" id="manual-ref" placeholder="Ex: TXN123456789"/></div>
         <div class="form-group"><label class="form-label">Votre numero de telephone</label><input class="form-input" type="tel" id="manual-phone" placeholder="Ex: 66 XX XX XX"/></div>
-        <div class="form-group"><label class="form-label">Operateur</label>
-          <select class="form-input" id="manual-operator">
-            <option value="airtel_87906204">Airtel Money (87906204)</option>
-            <option value="airtel_98607683">Airtel Money (98607683)</option>
-            <option value="tigo">Tigo Cash</option>
-          </select>
-        </div>
-        <div class="form-group"><label class="form-label">Numero recipient</label>
+        <div class="form-group"><label class="form-label">Operateur / Numero recipient</label>
           <select class="form-input" id="manual-recipient">
-            <option value="87906204">87906204 (Principal Airtel)</option>
-            <option value="98607683">98607683 (Secondaire Airtel/Tigo)</option>
+            <option value="airtel_87906204">Airtel Money (87906204)</option>
+            <option value="moov_98607683">Moov Money (98607683)</option>
           </select>
         </div>
         <button class="btn-yellow" id="btn-submit-manual" onclick="submitManualRecharge()">&#10003; Soumettre la demande</button>
@@ -396,7 +391,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
         <div class="payment-card" onclick="selectWithdrawMethod('mobile')" id="method-mobile">
           <div class="payment-icon">&#128241;</div>
           <div class="payment-name">Mobile Money</div>
-          <div class="payment-desc">Airtel / Tigo / Orange / Moov / MTN</div>
+          <div class="payment-desc">Airtel / Moov / Orange / MTN</div>
         </div>
         <div class="payment-card" onclick="selectWithdrawMethod('crypto')" id="method-crypto">
           <div class="payment-icon">&#8383;</div>
@@ -437,17 +432,17 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
           <div class="operator-card" onclick="selectOperator('airtel_money',this)">
             <div class="operator-icon">&#128992;</div>
             <div class="operator-name">Airtel Money</div>
-            <div class="operator-countries">Tchad, Burkina</div>
+            <div class="operator-countries">Tchad</div>
           </div>
-          <div class="operator-card" onclick="selectOperator('tigo_cash',this)">
-            <div class="operator-icon">&#128994;</div>
-            <div class="operator-name">Tigo Cash</div>
-            <div class="operator-countries">Tchad, Senegal</div>
+          <div class="operator-card" onclick="selectOperator('moov_money',this)">
+            <div class="operator-icon">&#128995;</div>
+            <div class="operator-name">Moov Money</div>
+            <div class="operator-countries">Tchad</div>
           </div>
           <div class="operator-card" onclick="selectOperator('orange_money',this)">
             <div class="operator-icon">&#128992;</div>
             <div class="operator-name">Orange Money</div>
-            <div class="operator-countries">Tchad, Senegal, Burkina</div>
+            <div class="operator-countries">Senegal, Burkina, Cote Ivoire</div>
           </div>
           <div class="operator-card" onclick="selectOperator('wave',this)">
             <div class="operator-icon">&#128994;</div>
@@ -458,11 +453,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);co
             <div class="operator-icon">&#129000;</div>
             <div class="operator-name">MTN Money</div>
             <div class="operator-countries">Benin, Togo</div>
-          </div>
-          <div class="operator-card" onclick="selectOperator('moov_money',this)">
-            <div class="operator-icon">&#128995;</div>
-            <div class="operator-name">Moov Money</div>
-            <div class="operator-countries">Togo, Burkina, Benin</div>
           </div>
         </div>
         <button class="btn-red" onclick="goToWithdrawStep3()">Continuer &#8250;</button>
@@ -542,7 +532,7 @@ window.sb=sb;
 const BKA_URL='https://bkapay.com/merchant/e70a1d40';
 let profile=null,selectedOperator='',selectedCrypto='',selectedPaymentMethod='',selectedWithdrawType='',withdrawMin=1000;
 const fmt=n=>Number(n||0).toLocaleString('fr-FR');
-const operatorLabels={airtel_money:'Airtel Money',tigo_cash:'Tigo Cash',orange_money:'Orange Money',wave:'Wave',mtn_money:'MTN Money',moov_money:'Moov Money'};
+const operatorLabels={airtel_money:'Airtel Money',moov_money:'Moov Money',orange_money:'Orange Money',wave:'Wave',mtn_money:'MTN Money'};
 window.toast=(msg,type='')=>{const t=document.getElementById('toast');t.textContent=msg;t.className='show '+type;setTimeout(()=>t.className='',3000);};
 const {data:{session}}=await sb.auth.getSession();
 if(!session){window.location.href='index.html';}
@@ -670,7 +660,6 @@ window.submitManualRecharge=async()=>{
   const amount=parseInt(document.getElementById('manual-amount2').value);
   const ref=document.getElementById('manual-ref').value.trim();
   const phone=document.getElementById('manual-phone').value.trim();
-  const operator=document.getElementById('manual-operator').value;
   const recipient=document.getElementById('manual-recipient').value;
   if(!amount){toast('Montant invalide','error');return;}
   if(!ref){toast('Entrez la reference transaction','error');return;}
@@ -683,7 +672,7 @@ window.submitManualRecharge=async()=>{
     payment_number:phone,
     transaction_ref:ref,
     status:'pending',
-    admin_note:`Operateur: ${operator} | Recipient: ${recipient}`
+    admin_note:`Recipient: ${recipient}`
   });
   btn.disabled=false;btn.textContent='Soumettre la demande';
   if(error){toast('Erreur','error');return;}
@@ -694,7 +683,7 @@ window.submitManualRecharge=async()=>{
   document.getElementById('ml2').className='step-line done-yellow';
 };
 
-// RETRAIT METHODS
+// RETRAIT METHODS (similaire au precedent, conserve)
 window.selectWithdrawMethod=(method)=>{
   selectedWithdrawType=method;
   document.querySelectorAll('#withdraw-method .payment-card').forEach(c=>c.classList.remove('selected'));
