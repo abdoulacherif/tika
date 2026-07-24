@@ -36,19 +36,38 @@
   .page-title{font-family:'Rajdhani',sans-serif; font-weight:700; text-transform:uppercase; font-size:22px; margin-bottom:4px;}
   .page-sub{color:var(--chrome-dim); font-size:13px; margin-bottom:18px;}
 
-  .vip-list{display:flex; flex-direction:column; gap:8px;}
-  .vip-row{
-    display:flex; align-items:center; justify-content:space-between;
-    background:var(--steel); border:1px solid var(--line); border-radius:6px; padding:14px;
+  .vip-list{display:flex; flex-direction:column; gap:14px;}
+  .vip-card{
+    background:var(--steel); border:1px solid var(--line); border-radius:10px; overflow:hidden;
   }
-  .vip-row.current{border-color:var(--gold);}
-  .vip-row .name{font-family:'Rajdhani',sans-serif; font-weight:700; font-size:15px;}
-  .vip-row .meta{font-family:'Space Mono',monospace; font-size:12px; color:var(--chrome-dim); margin-top:3px;}
-  .vip-row .invest-btn{
+  .vip-card.current{border-color:var(--gold);}
+  .vip-media{position:relative; width:100%; aspect-ratio:16/9; overflow:hidden; background:#000;}
+  .vip-media img{width:100%; height:100%; object-fit:cover; display:block;}
+  .vip-media::after{
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(10,12,15,0) 40%, rgba(10,12,15,0.85) 100%);
+  }
+  .vip-media .tier-badge{
+    position:absolute; left:12px; bottom:10px; z-index:2;
+    font-family:'Rajdhani',sans-serif; font-weight:700; font-size:18px; text-transform:uppercase; color:#fff;
+  }
+  .vip-media .current-badge{
+    position:absolute; right:12px; top:10px; z-index:2;
+    font-family:'Rajdhani',sans-serif; font-size:10px; letter-spacing:0.08em; text-transform:uppercase;
+    background:var(--gold); color:#1a1400; padding:3px 9px; border-radius:10px;
+  }
+  .vip-body{display:flex; align-items:center; justify-content:space-between; padding:12px 14px;}
+  .vip-body .meta{font-family:'Space Mono',monospace; font-size:12px; color:var(--chrome-dim);}
+  .vip-body .invest-btn{
     font-family:'Rajdhani',sans-serif; font-size:12px; text-transform:uppercase; letter-spacing:0.05em;
-    background:none; border:1px solid var(--red); color:var(--red); padding:8px 14px; border-radius:4px; cursor:pointer;
+    background:var(--red); border:none; color:#fff; padding:9px 16px; border-radius:4px; cursor:pointer;
   }
-  .vip-row .invest-btn:disabled{opacity:0.5; border-color:var(--chrome-dim); color:var(--chrome-dim); cursor:default;}
+  .vip-body .invest-btn:disabled{opacity:0.5; cursor:default;}
+
+  .msg{font-family:'Rajdhani',sans-serif; font-size:13px; padding:10px 12px; border-radius:4px; margin-bottom:14px; display:none;}
+  .msg.show{display:block;}
+  .msg.err{background:rgba(214,40,57,0.14); color:#ff8a94; border:1px solid rgba(214,40,57,0.35);}
+  .msg.ok{background:rgba(227,178,60,0.12); color:var(--gold); border:1px solid rgba(227,178,60,0.35);}
 
   .empty{color:var(--chrome-dim); font-size:13px; text-align:center; padding:20px 0;}
   .loading-screen{
@@ -85,6 +104,7 @@
 <main class="wrap">
   <div class="page-title">Investir</div>
   <div class="page-sub">Choisissez un palier VIP. 130 jours de revenu quotidien.</div>
+  <div class="msg" id="invest-msg"></div>
   <div class="vip-list" id="vip-list"></div>
 </main>
 
@@ -114,22 +134,27 @@
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   const VIP_TIERS = [
-    {level:1, amount:3000,  daily:330,   days:130},
-    {level:2, amount:5000,  daily:550,   days:130},
-    {level:3, amount:10000, daily:1100,  days:130},
-    {level:4, amount:15000, daily:1650,  days:130},
-    {level:5, amount:25000, daily:2750,  days:130},
-    {level:6, amount:35000, daily:3850,  days:130},
-    {level:7, amount:50000, daily:5500,  days:130},
-    {level:8, amount:60000, daily:6600,  days:130},
-    {level:9, amount:100000,daily:11000, days:130},
-    {level:10,amount:150000,daily:16500, days:130},
+    {level:1, amount:3000,  daily:330,   days:130, img:'https://images.unsplash.com/photo-1642764984298-3f19d7b87601?w=900&q=75&auto=format&fit=crop'},
+    {level:2, amount:5000,  daily:550,   days:130, img:'https://images.unsplash.com/photo-1605806678127-c5b0769d499f?w=900&q=75&auto=format&fit=crop'},
+    {level:3, amount:10000, daily:1100,  days:130, img:'https://images.unsplash.com/photo-1751467928321-a2fcd7566fde?w=900&q=75&auto=format&fit=crop'},
+    {level:4, amount:15000, daily:1650,  days:130, img:'https://images.unsplash.com/photo-1758025550252-2eb870da49cc?w=900&q=75&auto=format&fit=crop'},
+    {level:5, amount:25000, daily:2750,  days:130, img:'https://images.unsplash.com/photo-1696233016051-55a6fd6b03e5?w=900&q=75&auto=format&fit=crop'},
+    {level:6, amount:35000, daily:3850,  days:130, img:'https://images.unsplash.com/photo-1764605206511-7a649d9df63b?w=900&q=75&auto=format&fit=crop'},
+    {level:7, amount:50000, daily:5500,  days:130, img:'https://images.unsplash.com/photo-1759515028784-18c74089a223?w=900&q=75&auto=format&fit=crop'},
+    {level:8, amount:60000, daily:6600,  days:130, img:'https://images.unsplash.com/photo-1621687275321-bc291fdabda0?w=900&q=75&auto=format&fit=crop'},
+    {level:9, amount:100000,daily:11000, days:130, img:'https://images.unsplash.com/photo-1739239130013-f8d430e8a147?w=900&q=75&auto=format&fit=crop'},
+    {level:10,amount:150000,daily:16500, days:130, img:'https://images.unsplash.com/photo-1726503015737-43b3d1009351?w=900&q=75&auto=format&fit=crop'},
   ];
 
   let profile = null;
   let userId = null;
 
   function fmt(n){ return Math.round(n).toLocaleString('fr-FR'); }
+  function showMsg(text, isError){
+    const el = document.getElementById('invest-msg');
+    el.textContent = text;
+    el.className = 'msg show ' + (isError ? 'err' : 'ok');
+  }
 
   async function init(){
     const { data: { session } } = await sb.auth.getSession();
@@ -147,23 +172,50 @@
   function renderVipList(){
     const el = document.getElementById('vip-list');
     el.innerHTML = VIP_TIERS.map(t => `
-      <div class="vip-row ${t.level === profile.vip_level ? 'current' : ''}">
-        <div>
-          <div class="name">VIP ${t.level}</div>
-          <div class="meta">${fmt(t.amount)}F · ${fmt(t.daily)}F/j · ${t.days}j</div>
+      <div class="vip-card ${t.level === profile.vip_level ? 'current' : ''}">
+        <div class="vip-media">
+          <img src="${t.img}" alt="Véhicule VIP ${t.level}" loading="lazy">
+          ${t.level === profile.vip_level ? '<div class="current-badge">Actif</div>' : ''}
+          <div class="tier-badge">VIP ${t.level}</div>
         </div>
-        <button class="invest-btn" onclick="invest(${t.level}, ${t.amount})">Investir</button>
+        <div class="vip-body">
+          <div class="meta">${fmt(t.amount)}F · ${fmt(t.daily)}F/j · ${t.days}j</div>
+          <button class="invest-btn" onclick="invest(${t.level}, ${t.amount})">Investir</button>
+        </div>
       </div>
     `).join('');
   }
 
   async function invest(level, amount){
-    // Étape suivante : brancher LeekPay.checkout() ici pour le paiement réel avant validation.
-    const { error } = await sb.from('transactions').insert({
-      user_id: userId, type: 'deposit', amount: amount, status: 'pending', vip_level: level
+    document.getElementById('invest-msg').className = 'msg';
+
+    // On revérifie le solde à jour avant de valider (au cas où il aurait changé).
+    const { data: fresh, error: fetchErr } = await sb.from('profiles').select('balance').eq('id', userId).single();
+    if(fetchErr){ showMsg("Erreur : " + fetchErr.message, true); return; }
+
+    const currentBalance = Number(fresh.balance);
+
+    if(currentBalance < amount){
+      showMsg(`Solde insuffisant : il vous manque ${fmt(amount - currentBalance)} FCFA pour ce palier.`, true);
+      return;
+    }
+
+    const newBalance = currentBalance - amount;
+
+    const { error: updErr } = await sb.from('profiles')
+      .update({ balance: newBalance, vip_level: level })
+      .eq('id', userId);
+    if(updErr){ showMsg("Erreur : " + updErr.message, true); return; }
+
+    const { error: txErr } = await sb.from('transactions').insert({
+      user_id: userId, type: 'deposit', amount: amount, status: 'completed', vip_level: level
     });
-    if(error){ alert("Erreur : " + error.message); return; }
-    alert(`Demande d'investissement VIP ${level} envoyée (${fmt(amount)} FCFA). En attente de confirmation du paiement.`);
+    if(txErr){ showMsg("Erreur transaction : " + txErr.message, true); return; }
+
+    profile.balance = newBalance;
+    profile.vip_level = level;
+    renderVipList();
+    showMsg(`Investissement VIP ${level} activé ! ${fmt(amount)} FCFA débités. Nouveau solde : ${fmt(newBalance)} FCFA.`, false);
   }
 
   init();
