@@ -1,848 +1,427 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
-<title>TIKA — Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tableau de bord — AXORA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-:root{--green:#00A651;--green-dark:#007A3D;--green-light:#E8F7EF;--red:#E63946;--red-dark:#C0392B;--red-light:#FDECEA;--yellow:#F5A623;--yellow-light:#FFF8E7;--blue:#2E7EB8;--blue-light:#E8F0F8;--purple:#8B5CF6;--purple-light:#F3E8FF;--gray:#F4F6F8;--gray2:#E8ECF0;--text:#1A1A2E;--text2:#6B7280;--shadow-green:0 4px 24px rgba(0,166,81,0.25);--shadow-red:0 4px 24px rgba(230,57,70,0.25);--shadow-yellow:0 4px 24px rgba(245,166,35,0.25);}
-html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray);color:var(--text);overflow-x:hidden}
-#app{max-width:430px;margin:0 auto;min-height:100vh;padding-bottom:90px}
-.header{background:linear-gradient(135deg,rgba(0,100,50,0.88),rgba(0,60,30,0.95)),url(https://i.ibb.co/gbFL7njn/Screenshot-20260604-072208-Chrome.jpg) center/cover no-repeat;padding:50px 24px 80px;position:relative;overflow:hidden;}
-.header-accent{position:absolute;top:0;right:0;width:120px;height:120px;background:linear-gradient(135deg,var(--red),var(--red-dark));border-radius:0 0 0 100%;opacity:0.6;}
-.header-accent2{position:absolute;bottom:-20px;left:-20px;width:100px;height:100px;background:rgba(255,255,255,0.06);border-radius:50%;}
-.header-top{display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1;}
-.header-left{display:flex;align-items:center;gap:12px;}
-.avatar{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--red-dark));display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;border:2px solid rgba(255,255,255,0.5);box-shadow:var(--shadow-red);}
-.header-greet{color:rgba(255,255,255,0.75);font-size:12px;}
-.header-name{color:#fff;font-size:16px;font-weight:700;}
-.header-notif{width:42px;height:42px;background:rgba(255,255,255,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;border:1px solid rgba(255,255,255,0.2);}
-.notif-dot{position:absolute;top:8px;right:8px;width:8px;height:8px;background:var(--red);border-radius:50%;}
-.balance-card{margin:0 16px;margin-top:-52px;background:#fff;border-radius:22px;padding:22px;box-shadow:0 8px 40px rgba(0,0,0,0.13);position:relative;z-index:2;overflow:hidden;}
-.balance-card::before{content:'';position:absolute;top:0;right:0;width:80px;height:80px;background:linear-gradient(135deg,var(--green-light),transparent);border-radius:0 22px 0 80px;}
-.balance-card::after{content:'';position:absolute;bottom:0;left:0;width:60px;height:60px;background:linear-gradient(135deg,transparent,var(--red-light));border-radius:0 60px 0 22px;}
-.balance-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
-.balance-label{font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:1px;}
-.balance-badge{background:var(--green-light);color:var(--green-dark);font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;}
-.balance-amount{font-size:34px;font-weight:900;color:var(--text);font-family:'Playfair Display',serif;margin-bottom:16px;}
-.balance-amount span{font-size:16px;font-weight:500;color:var(--text2);}
-.balance-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
-.balance-mini{border-radius:12px;padding:10px 8px;text-align:center;}
-.balance-mini.g{background:var(--green-light);}
-.balance-mini.w{background:var(--gray);}
-.balance-mini.r{background:var(--red-light);}
-.balance-mini-label{font-size:10px;color:var(--text2);font-weight:500;}
-.balance-mini-val{font-size:13px;font-weight:700;margin-top:3px;}
-.balance-mini-val.green{color:var(--green-dark)}
-.balance-mini-val.red{color:var(--red)}
-.balance-mini-val.dark{color:var(--text)}
-.action-btns{display:flex;gap:12px;padding:16px;}
-.action-btn{flex:1;padding:15px;border:none;border-radius:16px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:.2s;}
-.action-btn:active{transform:scale(.97)}
-.btn-recharge{background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;box-shadow:var(--shadow-green);}
-.btn-withdraw{background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;box-shadow:var(--shadow-red);}
-.quick-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:0 16px;margin-bottom:20px;}
-.quick-btn{background:#fff;border-radius:16px;padding:14px 6px;text-align:center;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,0.06);transition:.2s;position:relative;overflow:hidden;}
-.quick-btn:active{transform:scale(.95)}
-.quick-btn::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
-.quick-btn:nth-child(1)::before{background:var(--green);}
-.quick-btn:nth-child(2)::before{background:var(--red);}
-.quick-btn:nth-child(3)::before{background:var(--green);}
-.quick-btn:nth-child(4)::before{background:var(--red);}
-.quick-btn-icon{font-size:22px;margin-bottom:6px;}
-.quick-btn-label{font-size:10px;color:var(--text2);font-weight:600;}
-.section{padding:0 16px;margin-bottom:20px;}
-.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
-.section-title{font-size:15px;font-weight:700;color:var(--text);}
-.section-link{font-size:12px;color:var(--green);font-weight:600;cursor:pointer;}
-.stats-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.stat-card{border-radius:16px;padding:16px;position:relative;overflow:hidden;}
-.stat-card.green{background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;}
-.stat-card.red{background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;}
-.stat-card.white{background:#fff;box-shadow:0 2px 12px rgba(0,0,0,0.06);}
-.stat-card.dark{background:var(--text);color:#fff;}
-.stat-icon{font-size:22px;margin-bottom:8px;}
-.stat-label{font-size:11px;opacity:.8;font-weight:500;}
-.stat-val{font-size:18px;font-weight:700;margin-top:4px;}
-.stat-val.green{color:var(--green)}
-.stat-val.red{color:var(--red)}
-.invest-card{background:#fff;border-radius:16px;padding:14px 16px;margin-bottom:10px;box-shadow:0 2px 12px rgba(0,0,0,0.05);display:flex;align-items:center;gap:12px;border-left:4px solid var(--green);}
-.invest-badge{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,var(--green),var(--green-dark));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:12px;flex-shrink:0;}
-.invest-info{flex:1;}
-.invest-name{font-size:14px;font-weight:700;color:var(--text);}
-.invest-sub{font-size:11px;color:var(--text2);margin-top:2px;}
-.invest-gain{text-align:right;}
-.invest-gain-val{font-size:15px;font-weight:700;color:var(--green);}
-.invest-gain-label{font-size:10px;color:var(--text2);}
-.invest-status{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;margin-top:3px;background:var(--green-light);color:var(--green-dark);}
-.empty-state{text-align:center;padding:28px 16px;background:#fff;border-radius:16px;border:2px dashed var(--gray2);}
-.empty-icon{font-size:36px;margin-bottom:10px;}
-.empty-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;}
-.empty-sub{font-size:12px;color:var(--text2);}
-.empty-btn{margin-top:14px;display:inline-block;background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;padding:11px 22px;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;border:none;}
-.navbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#fff;border-top:1px solid var(--gray2);display:flex;padding:8px 0 20px;z-index:100;box-shadow:0 -4px 20px rgba(0,0,0,0.08);}
-.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 0;}
-.nav-icon{font-size:20px;}
-.nav-label{font-size:10px;font-weight:500;color:var(--text2);}
-.nav-item.active .nav-label{color:var(--green);font-weight:700;}
-#toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:500;opacity:0;transition:.3s;z-index:9999;max-width:340px;text-align:center;pointer-events:none;}
-#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-#toast.success{background:var(--green)}
-#toast.error{background:var(--red)}
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:200;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);}
-.modal-overlay.show{display:flex;}
-.modal{background:#fff;border-radius:28px 28px 0 0;padding:24px;width:100%;max-width:430px;max-height:88vh;overflow-y:auto;}
-.modal-handle{width:36px;height:4px;background:var(--gray2);border-radius:4px;margin:0 auto 20px;}
-.modal-title{font-size:18px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:10px;}
-.modal-title span{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
-.modal-title span.green{background:var(--green-light);}
-.modal-title span.red{background:var(--red-light);}
-.modal-title span.yellow{background:var(--yellow-light);}
-.modal-sub{font-size:13px;color:var(--text2);margin-bottom:16px;}
-.form-group{margin-bottom:14px;}
-.form-label{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:block;}
-.form-input{width:100%;padding:14px 16px;border:2px solid var(--gray2);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--text);background:#fff;outline:none;transition:.2s;}
-.form-input:focus{border-color:var(--green);box-shadow:0 0 0 4px rgba(0,166,81,0.08)}
-.amount-presets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;}
-.preset-btn{padding:10px;border:2px solid var(--gray2);border-radius:10px;background:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;color:var(--text);cursor:pointer;transition:.2s;text-align:center;}
-.preset-btn.selected{border-color:var(--green);background:var(--green-light);color:var(--green-dark);}
-.preset-btn-red.selected{border-color:var(--red);background:var(--red-light);color:var(--red);}
-.payment-methods{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
-.payment-card{border:2px solid var(--gray2);border-radius:16px;padding:16px;cursor:pointer;text-align:center;transition:.2s;}
-.payment-card.selected{border-color:var(--green);background:var(--green-light);}
-.payment-icon{font-size:28px;margin-bottom:8px;}
-.payment-name{font-size:14px;font-weight:700;color:var(--text);}
-.payment-desc{font-size:10px;color:var(--text2);margin-top:4px;}
-.bka-box{background:linear-gradient(135deg,#1A1A2E,#2D3748);border-radius:16px;padding:16px;margin-bottom:16px;display:flex;align-items:center;gap:14px;}
-.bka-logo{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--green),var(--red));display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
-.bka-info{flex:1;}
-.bka-name{font-size:14px;font-weight:700;color:#fff;}
-.bka-sub{font-size:11px;color:rgba(255,255,255,0.6);margin-top:2px;}
-.bka-countries{display:flex;gap:4px;margin-top:6px;font-size:16px;}
-.manual-box{background:var(--yellow-light);border-radius:16px;padding:16px;margin-bottom:16px;border:2px solid var(--yellow);}
-.manual-title{font-size:15px;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
-.manual-number{color:#fff;padding:4px 12px;border-radius:20px;font-size:16px;font-weight:800;letter-spacing:1px;text-align:center;margin:8px 0;font-family:monospace;display:inline-block;}
-.code-example{background:#fff;border-radius:12px;padding:12px;margin-top:10px;font-family:monospace;font-size:12px;color:var(--text);border:1px solid var(--gray2);}
-.code-example.airtel-blue{background:var(--blue-light);border-color:var(--blue);}
-.code-example.moov-purple{background:var(--purple-light);border-color:var(--purple);}
-.code-blue{background:var(--blue);color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;display:inline-block;margin-top:5px;}
-.code-purple{background:var(--purple);color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;display:inline-block;margin-top:5px;}
-.btn-bka{width:100%;padding:16px;background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-green);display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;}
-.btn-yellow{width:100%;padding:16px;background:linear-gradient(135deg,var(--yellow),#D4890F);color:#fff;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-yellow);display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;}
-.btn-bka:disabled,.btn-yellow:disabled{opacity:.6}
-.btn-red{width:100%;padding:16px;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-red);display:flex;align-items:center;justify-content:center;gap:8px;}
-.btn-red:disabled{opacity:.6}
-.btn-cancel{width:100%;padding:14px;background:var(--gray);color:var(--text2);border:none;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;margin-top:10px;}
-.info-box-green{background:var(--green-light);border-radius:12px;padding:12px 16px;margin-bottom:14px;font-size:12px;color:var(--green-dark);font-weight:500;line-height:1.5;}
-.info-box-red{background:var(--red-light);border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--red);font-weight:600;}
-.info-box-yellow{background:var(--yellow-light);border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#D4890F;font-weight:600;}
-.operator-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
-.operator-card{border:2px solid var(--gray2);border-radius:14px;padding:14px;cursor:pointer;text-align:center;transition:.2s;}
-.operator-card:active{transform:scale(.97)}
-.operator-card.selected{border-color:var(--red);background:var(--red-light);}
-.operator-icon{font-size:28px;margin-bottom:6px;}
-.operator-name{font-size:12px;font-weight:700;color:var(--text);}
-.operator-countries{font-size:10px;color:var(--text2);margin-top:2px;}
-.step-indicator{display:flex;align-items:center;gap:8px;margin-bottom:20px;}
-.step{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
-.step.active{background:var(--green);color:#fff;}
-.step.active-red{background:var(--red);color:#fff;}
-.step.active-yellow{background:var(--yellow);color:#fff;}
-.step.inactive{background:var(--gray2);color:var(--text2);}
-.step-line{flex:1;height:2px;background:var(--gray2);}
-.step-line.done{background:var(--green);}
-.step-line.done-red{background:var(--red);}
-.step-line.done-yellow{background:var(--yellow);}
-.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
+  :root{
+    --black:#0a0c0f; --steel:#1b1f26; --steel-2:#262b34; --chrome:#c9d0d6; --chrome-dim:#7d848d;
+    --red:#d62839; --gold:#e3b23c; --white:#f4f6f7; --line: rgba(201,208,214,0.12);
+    --green:#3ecf7e;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--black); color:var(--white); font-family:'Manrope', sans-serif;
+    -webkit-font-smoothing:antialiased; padding-bottom:70px;
+  }
+  a{color:inherit; text-decoration:none;}
+  .wrap{max-width:520px; margin:0 auto; padding:0 18px;}
+
+  header{
+    position:sticky; top:0; z-index:40; background:rgba(10,12,15,0.9); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  header .wrap{display:flex; align-items:center; justify-content:space-between; height:60px;}
+  .logo{
+    font-family:'Rajdhani', sans-serif; font-weight:700; font-size:20px; letter-spacing:0.12em;
+    background:linear-gradient(120deg, #dfe4e8, #8b929a 45%, #f4f6f7 55%, #6f757d);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .logo span{color:var(--red); -webkit-text-fill-color:var(--red);}
+  .logout{font-family:'Rajdhani',sans-serif; font-size:13px; letter-spacing:0.06em; text-transform:uppercase; color:var(--chrome-dim); border:1px solid var(--line); padding:7px 12px; border-radius:2px; cursor:pointer; background:none;}
+
+  main{padding:20px 0 30px;}
+
+  .balance-card{
+    background:linear-gradient(160deg, var(--steel), #14171c);
+    border:1px solid var(--line); border-top:2px solid var(--gold);
+    border-radius:10px; padding:22px 20px; position:relative; overflow:hidden;
+  }
+  .balance-card .lbl{font-family:'Rajdhani',sans-serif; font-size:12px; letter-spacing:0.16em; text-transform:uppercase; color:var(--chrome-dim);}
+  .balance-card .amt{font-family:'Rajdhani',sans-serif; font-weight:700; font-size:38px; margin-top:6px;}
+  .balance-card .amt span{font-size:20px; color:var(--chrome-dim); font-weight:600;}
+  .balance-row{display:flex; justify-content:space-between; align-items:flex-end; margin-top:4px;}
+  .vip-pill{
+    font-family:'Rajdhani',sans-serif; font-size:12px; letter-spacing:0.08em; text-transform:uppercase;
+    background:rgba(227,178,60,0.12); color:var(--gold); border:1px solid rgba(227,178,60,0.35);
+    padding:5px 11px; border-radius:20px;
+  }
+  .actions{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:18px;}
+  .action-btn{
+    font-family:'Rajdhani',sans-serif; font-weight:600; letter-spacing:0.06em; text-transform:uppercase;
+    font-size:14px; padding:12px; border-radius:4px; text-align:center; cursor:pointer; border:none;
+  }
+  .action-btn.primary{background:var(--red); color:#fff;}
+  .action-btn.ghost{background:none; border:1px solid var(--line); color:var(--chrome);}
+
+  .section{margin-top:26px;}
+  .section-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;}
+  .section-title{font-family:'Rajdhani',sans-serif; font-weight:700; text-transform:uppercase; font-size:15px; letter-spacing:0.05em; color:var(--chrome);}
+
+  /* daily reward */
+  .reward-card{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    background:var(--steel); border:1px solid var(--line); border-radius:8px; padding:16px 16px;
+  }
+  .reward-card .txt{font-size:13px; color:var(--chrome-dim); line-height:1.4;}
+  .reward-card .txt b{color:var(--white); font-family:'Rajdhani',sans-serif; font-size:15px; text-transform:uppercase; display:block; margin-bottom:2px;}
+  .claim-btn{
+    font-family:'Rajdhani',sans-serif; font-weight:600; text-transform:uppercase; font-size:13px;
+    background:var(--gold); color:#1a1400; border:none; padding:10px 16px; border-radius:4px; cursor:pointer; white-space:nowrap;
+  }
+  .claim-btn:disabled{background:var(--steel-2); color:var(--chrome-dim); cursor:default;}
+
+  /* referral */
+  .ref-card{background:var(--steel); border:1px solid var(--line); border-radius:8px; padding:16px;}
+  .ref-code{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    background:var(--black); border:1px solid var(--line); border-radius:4px; padding:11px 13px;
+  }
+  .ref-code .code{font-family:'Space Mono',monospace; font-size:15px; color:var(--gold); letter-spacing:0.05em;}
+  .copy-btn{font-family:'Rajdhani',sans-serif; font-size:12px; text-transform:uppercase; color:var(--chrome); background:none; border:1px solid var(--line); padding:6px 10px; border-radius:3px; cursor:pointer;}
+  .ref-tiers{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:12px;}
+  .ref-tier{background:var(--black); border:1px solid var(--line); border-radius:6px; padding:10px 8px; text-align:center;}
+  .ref-tier .p{font-family:'Rajdhani',sans-serif; font-weight:700; color:var(--red); font-size:16px;}
+  .ref-tier .l{font-size:10px; color:var(--chrome-dim); text-transform:uppercase; letter-spacing:0.06em; margin-top:2px;}
+
+  /* VIP tiers - invest */
+  .vip-list{display:flex; flex-direction:column; gap:8px;}
+  .vip-row{
+    display:flex; align-items:center; justify-content:space-between;
+    background:var(--steel); border:1px solid var(--line); border-radius:6px; padding:12px 14px;
+  }
+  .vip-row.current{border-color:var(--gold);}
+  .vip-row .name{font-family:'Rajdhani',sans-serif; font-weight:700; font-size:14px;}
+  .vip-row .meta{font-family:'Space Mono',monospace; font-size:12px; color:var(--chrome-dim); margin-top:2px;}
+  .vip-row .invest-btn{
+    font-family:'Rajdhani',sans-serif; font-size:12px; text-transform:uppercase; letter-spacing:0.05em;
+    background:none; border:1px solid var(--red); color:var(--red); padding:7px 12px; border-radius:4px; cursor:pointer;
+  }
+
+  /* withdraw form */
+  .form-card{background:var(--steel); border:1px solid var(--line); border-radius:8px; padding:16px;}
+  .field{margin-bottom:12px;}
+  .field label{display:block; font-family:'Rajdhani',sans-serif; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--chrome-dim); margin-bottom:5px;}
+  .field input{
+    width:100%; background:var(--black); border:1px solid var(--line); color:var(--white);
+    padding:10px 12px; font-family:'Space Mono',monospace; font-size:14px; border-radius:4px; outline:none;
+  }
+  .field input:focus{border-color:var(--red);}
+  .fee-note{font-size:12px; color:var(--chrome-dim); margin:-4px 0 12px;}
+  .submit-btn{
+    width:100%; font-family:'Rajdhani',sans-serif; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;
+    font-size:14px; background:var(--red); color:#fff; border:none; padding:12px; border-radius:4px; cursor:pointer;
+  }
+  .submit-btn:disabled{opacity:0.6; cursor:wait;}
+
+  /* history */
+  .history-item{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 0; border-bottom:1px solid var(--line);
+  }
+  .history-item:last-child{border-bottom:none;}
+  .history-item .t{font-family:'Rajdhani',sans-serif; font-size:13px; text-transform:uppercase; color:var(--chrome);}
+  .history-item .d{font-size:11px; color:var(--chrome-dim); margin-top:2px;}
+  .history-item .a{font-family:'Space Mono',monospace; font-size:14px;}
+  .a.pos{color:var(--green);}
+  .a.neg{color:var(--red);}
+  .status-tag{font-size:10px; text-transform:uppercase; letter-spacing:0.05em; padding:2px 7px; border-radius:10px; margin-left:6px;}
+  .status-tag.pending{background:rgba(227,178,60,0.14); color:var(--gold);}
+  .status-tag.completed{background:rgba(62,207,126,0.14); color:var(--green);}
+  .status-tag.failed{background:rgba(214,40,57,0.14); color:var(--red);}
+
+  .msg{font-family:'Rajdhani',sans-serif; font-size:13px; padding:10px 12px; border-radius:4px; margin-bottom:12px; display:none;}
+  .msg.show{display:block;}
+  .msg.err{background:rgba(214,40,57,0.14); color:#ff8a94; border:1px solid rgba(214,40,57,0.35);}
+  .msg.ok{background:rgba(227,178,60,0.12); color:var(--gold); border:1px solid rgba(227,178,60,0.35);}
+
+  .empty{color:var(--chrome-dim); font-size:13px; text-align:center; padding:20px 0;}
+  .loading-screen{
+    position:fixed; inset:0; background:var(--black); display:flex; align-items:center; justify-content:center;
+    font-family:'Rajdhani',sans-serif; color:var(--chrome-dim); letter-spacing:0.1em; text-transform:uppercase; font-size:13px; z-index:100;
+  }
 </style>
 </head>
 <body>
-<div id="app">
-  <div class="header">
-    <div class="header-accent"></div>
-    <div class="header-accent2"></div>
-    <div class="header-top">
-      <div class="header-left">
-        <div class="avatar" id="user-avatar">?</div>
-        <div>
-          <div class="header-greet">Bonjour</div>
-          <div class="header-name" id="user-name">Chargement...</div>
-        </div>
-      </div>
-      <div class="header-notif" onclick="window.location.href='notifications.html'">
-        <span>&#128276;</span>
-        <div class="notif-dot" id="notif-dot" style="display:none"></div>
-      </div>
-    </div>
+
+<div class="loading-screen" id="loading-screen">Chargement du tableau de bord…</div>
+
+<header>
+  <div class="wrap">
+    <div class="logo">AX<span>O</span>RA</div>
+    <button class="logout" onclick="handleLogout()">Déconnexion</button>
   </div>
+</header>
+
+<main class="wrap">
+
   <div class="balance-card">
-    <div class="balance-top">
-      <div class="balance-label">Solde disponible</div>
-      <div class="balance-badge">TIKA VIP</div>
-    </div>
-    <div class="balance-amount"><span>FCFA </span><span id="balance">0</span></div>
     <div class="balance-row">
-      <div class="balance-mini g"><div class="balance-mini-label">Gains/jour</div><div class="balance-mini-val green" id="today-gain">+0 F</div></div>
-      <div class="balance-mini w"><div class="balance-mini-label">Investi</div><div class="balance-mini-val dark" id="total-invested">0 F</div></div>
-      <div class="balance-mini r"><div class="balance-mini-label">Retire</div><div class="balance-mini-val red" id="total-withdrawn">0 F</div></div>
+      <div>
+        <div class="lbl">Solde disponible</div>
+        <div class="amt" id="balance-amt">— <span>FCFA</span></div>
+      </div>
+      <div class="vip-pill" id="vip-pill">VIP 0</div>
+    </div>
+    <div class="actions">
+      <button class="action-btn primary" onclick="scrollToId('vip-section')">Investir</button>
+      <button class="action-btn ghost" onclick="scrollToId('withdraw-section')">Retirer</button>
     </div>
   </div>
-  <div class="action-btns">
-    <button class="action-btn btn-recharge" onclick="openRecharge()">&#128179; Recharger</button>
-    <button class="action-btn btn-withdraw" onclick="openWithdraw()">&#128184; Retirer</button>
-  </div>
-  <div class="quick-actions">
-    <div class="quick-btn" onclick="window.location.href='invest.html'"><div class="quick-btn-icon">&#128200;</div><div class="quick-btn-label">Investir</div></div>
-    <div class="quick-btn" onclick="window.location.href='referral.html'"><div class="quick-btn-icon">&#129309;</div><div class="quick-btn-label">Parrainer</div></div>
-    <div class="quick-btn" onclick="window.location.href='wallet.html'"><div class="quick-btn-icon">&#128176;</div><div class="quick-btn-label">Historique</div></div>
-    <div class="quick-btn" onclick="window.location.href='support.html'"><div class="quick-btn-icon">&#128172;</div><div class="quick-btn-label">Support</div></div>
-  </div>
+
   <div class="section">
-    <div class="section-header"><div class="section-title">Statistiques</div></div>
-    <div class="stats-row">
-      <div class="stat-card green"><div class="stat-icon">&#128200;</div><div class="stat-label">Total gains</div><div class="stat-val" id="stat-total-gains">0 F</div></div>
-      <div class="stat-card red"><div class="stat-icon">&#127942;</div><div class="stat-label">Investissements</div><div class="stat-val" id="stat-active">0 actifs</div></div>
-      <div class="stat-card white"><div class="stat-icon">&#128101;</div><div class="stat-label" style="color:var(--text2);opacity:1">Filleuls</div><div class="stat-val green" id="stat-referrals">0</div></div>
-      <div class="stat-card dark"><div class="stat-icon">&#128142;</div><div class="stat-label">Commissions</div><div class="stat-val" style="color:#00A651" id="stat-commissions">0 F</div></div>
+    <div class="reward-card">
+      <div class="txt"><b>Récompense journalière</b>100 FCFA à réclamer chaque jour</div>
+      <button class="claim-btn" id="claim-btn" onclick="claimDailyReward()">Réclamer</button>
     </div>
   </div>
+
   <div class="section">
-    <div class="section-header">
-      <div class="section-title">Mes investissements</div>
-      <div class="section-link" onclick="window.location.href='invest.html'">Voir tout &#8250;</div>
-    </div>
-    <div id="investments-list">
-      <div class="empty-state">
-        <div class="empty-icon">&#128200;</div>
-        <div class="empty-title">Aucun investissement actif</div>
-        <div class="empty-sub">Commencez a investir pour generer des gains quotidiens</div>
-        <button class="empty-btn" onclick="window.location.href='invest.html'">Investir maintenant</button>
+    <div class="section-head"><div class="section-title">Parrainage</div></div>
+    <div class="ref-card">
+      <div class="ref-code">
+        <span class="code" id="ref-code">AX——————</span>
+        <button class="copy-btn" onclick="copyRefCode()">Copier</button>
+      </div>
+      <div class="ref-tiers">
+        <div class="ref-tier"><div class="p">25%</div><div class="l">Niveau 1</div></div>
+        <div class="ref-tier"><div class="p">2%</div><div class="l">Niveau 2</div></div>
+        <div class="ref-tier"><div class="p">1%</div><div class="l">Niveau 3</div></div>
       </div>
     </div>
   </div>
-</div>
-<div class="navbar">
-  <div class="nav-item active"><div class="nav-icon">&#127968;</div><div class="nav-label">Accueil</div></div>
-  <div class="nav-item" onclick="window.location.href='invest.html'"><div class="nav-icon">&#128200;</div><div class="nav-label">Investir</div></div>
-  <div class="nav-item" onclick="window.location.href='wallet.html'"><div class="nav-icon">&#128176;</div><div class="nav-label">Wallet</div></div>
-  <div class="nav-item" onclick="window.location.href='referral.html'"><div class="nav-icon">&#129309;</div><div class="nav-label">Parrainage</div></div>
-  <div class="nav-item" onclick="window.location.href='profile.html'"><div class="nav-icon">&#128100;</div><div class="nav-label">Profil</div></div>
-</div>
 
-<!-- MODAL RECHARGE -->
-<div class="modal-overlay" id="modal-recharge">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title"><span class="green">&#128179;</span> Recharger mon compte</div>
-    <div class="modal-sub">Choisissez votre mode de paiement</div>
-    
-    <div id="recharge-method" style="margin-bottom:20px">
-      <div class="payment-methods">
-        <div class="payment-card" onclick="selectPaymentMethod('bka')" id="method-bka">
-          <div class="payment-icon">&#128176;</div>
-          <div class="payment-name">BKA Pay</div>
-          <div class="payment-desc">Paiement securise</div>
+  <div class="section" id="vip-section">
+    <div class="section-head"><div class="section-title">Paliers VIP</div></div>
+    <div class="vip-list" id="vip-list"></div>
+  </div>
+
+  <div class="section" id="withdraw-section">
+    <div class="section-head"><div class="section-title">Retrait</div></div>
+    <div class="form-card">
+      <div class="msg" id="withdraw-msg"></div>
+      <form id="withdraw-form" onsubmit="return handleWithdraw(event)">
+        <div class="field">
+          <label>Montant (FCFA)</label>
+          <input type="number" id="wd-amount" min="1500" step="1" placeholder="Minimum 1 500 FCFA" required>
         </div>
-        <div class="payment-card" onclick="selectPaymentMethod('manual')" id="method-manual">
-          <div class="payment-icon">&#128241;</div>
-          <div class="payment-name">Manuel Tchad</div>
-          <div class="payment-desc">Airtel / Moov / Tigo</div>
-        </div>
-      </div>
-    </div>
-    
-    <div id="recharge-bka" style="display:none">
-      <div class="step-indicator">
-        <div class="step active" id="rs1">1</div>
-        <div class="step-line" id="rl1"></div>
-        <div class="step inactive" id="rs2">2</div>
-        <div class="step-line" id="rl2"></div>
-        <div class="step inactive" id="rs3">3</div>
-      </div>
-      <div id="recharge-step1">
-        <div class="form-group">
-          <label class="form-label">Montant (FCFA)</label>
-          <input class="form-input" type="number" id="recharge-amount" placeholder="Ex: 5000"/>
-        </div>
-        <div class="amount-presets">
-          <button class="preset-btn" onclick="setAmount(5000)">5 000</button>
-          <button class="preset-btn" onclick="setAmount(15000)">15 000</button>
-          <button class="preset-btn" onclick="setAmount(25000)">25 000</button>
-          <button class="preset-btn" onclick="setAmount(50000)">50 000</button>
-          <button class="preset-btn" onclick="setAmount(100000)">100 000</button>
-          <button class="preset-btn" onclick="setAmount(225000)">225 000</button>
-        </div>
-        <div class="bka-box">
-          <div class="bka-logo">&#128176;</div>
-          <div class="bka-info">
-            <div class="bka-name">BKA Pay</div>
-            <div class="bka-sub">Tchad · Benin · Togo · Burkina · Senegal</div>
-            <div class="bka-countries">&#127988;&#127988;&#127988;&#127988;&#127988;</div>
-          </div>
-        </div>
-        <button class="btn-bka" onclick="goToBKAPay()">&#128176; Payer via BKA Pay</button>
-        <button class="btn-cancel" onclick="closeModal('modal-recharge')">Annuler</button>
-      </div>
-      <div id="recharge-step2" style="display:none">
-        <div class="info-box-green">&#10003; Apres paiement, soumettez votre demande pour validation.</div>
-        <div class="form-group"><label class="form-label">Montant paye (FCFA)</label><input class="form-input" type="number" id="recharge-amount2" readonly/></div>
-        <div class="form-group"><label class="form-label">Reference transaction (optionnel)</label><input class="form-input" type="text" id="recharge-ref" placeholder="Ex: TXN123456"/></div>
-        <div class="form-group"><label class="form-label">Votre numero de paiement</label><input class="form-input" type="tel" id="recharge-number" placeholder="Ex: +235 66 XX XX XX"/></div>
-        <button class="btn-bka" id="btn-submit-recharge" onclick="submitRecharge()">&#10003; Soumettre la demande</button>
-        <button class="btn-cancel" onclick="backToRechargeStep1()">&#8592; Retour</button>
-      </div>
-    </div>
-    
-    <div id="recharge-manual" style="display:none">
-      <div class="step-indicator">
-        <div class="step active-yellow" id="ms1">1</div>
-        <div class="step-line" id="ml1"></div>
-        <div class="step inactive" id="ms2">2</div>
-        <div class="step-line" id="ml2"></div>
-        <div class="step inactive" id="ms3">3</div>
-      </div>
-      <div id="manual-step1">
-        <div class="form-group">
-          <label class="form-label">Montant (FCFA)</label>
-          <input class="form-input" type="number" id="manual-amount" placeholder="Ex: 5000"/>
-        </div>
-        <div class="amount-presets">
-          <button class="preset-btn" onclick="setManualAmount(5000)">5 000</button>
-          <button class="preset-btn" onclick="setManualAmount(10000)">10 000</button>
-          <button class="preset-btn" onclick="setManualAmount(25000)">25 000</button>
-          <button class="preset-btn" onclick="setManualAmount(50000)">50 000</button>
-          <button class="preset-btn" onclick="setManualAmount(100000)">100 000</button>
-        </div>
-        
-        <!-- Airtel Money - 87906204 -->
-        <div class="manual-box" style="border-color:var(--blue);background:var(--blue-light)">
-          <div class="manual-title" style="color:var(--blue);">&#128241; Airtel Money Tchad</div>
-          <div>Envoyez l'argent a ce numero :</div>
-          <div class="manual-number" style="background:var(--blue);">87906204</div>
-          <div class="code-example airtel-blue">
-            <strong>Code USSD Airtel :</strong><br/>
-            *436*3*1*1*87906204*MONTANT*1*1*CODE#<br/>
-            <span class="code-blue">Ex: *436*3*1*1*87906204*5000*1*1*1234#</span>
-          </div>
-        </div>
-        
-        <!-- Moov Money - 98607683 (ex Tigo) -->
-        <div class="manual-box" style="border-color:var(--purple);background:var(--purple-light)">
-          <div class="manual-title" style="color:var(--purple);">&#128241; Moov Money Tchad</div>
-          <div>Envoyez l'argent a ce numero :</div>
-          <div class="manual-number" style="background:var(--purple);">98607683</div>
-          <div class="code-example moov-purple">
-            <strong>Code USSD Moov :</strong><br/>
-            *800*1*98607683*MONTANT*CODE#<br/>
-            <span class="code-purple">Ex: *800*1*98607683*5000*1234#</span>
-          </div>
-          <div class="code-example moov-purple" style="margin-top:8px">
-            <strong>Code USSD Moov (autre) :</strong><br/>
-            *150*2*1*98607683*MONTANT*CODE#
-          </div>
-        </div>
-        
-        <button class="btn-yellow" onclick="goToManualStep2()">&#10003; J'ai paye, continuer</button>
-        <button class="btn-cancel" onclick="closeModal('modal-recharge')">Annuler</button>
-      </div>
-      <div id="manual-step2" style="display:none">
-        <div class="info-box-yellow">&#128241; Veuillez confirmer les informations ci-dessous</div>
-        <div class="form-group"><label class="form-label">Montant envoye (FCFA)</label><input class="form-input" type="number" id="manual-amount2" readonly/></div>
-        <div class="form-group"><label class="form-label">Reference transaction (Transaction ID)</label><input class="form-input" type="text" id="manual-ref" placeholder="Ex: TXN123456789"/></div>
-        <div class="form-group"><label class="form-label">Votre numero de telephone</label><input class="form-input" type="tel" id="manual-phone" placeholder="Ex: 66 XX XX XX"/></div>
-        <div class="form-group"><label class="form-label">Operateur / Numero recipient</label>
-          <select class="form-input" id="manual-recipient">
-            <option value="airtel_87906204">Airtel Money (87906204)</option>
-            <option value="moov_98607683">Moov Money (98607683)</option>
-          </select>
-        </div>
-        <button class="btn-yellow" id="btn-submit-manual" onclick="submitManualRecharge()">&#10003; Soumettre la demande</button>
-        <button class="btn-cancel" onclick="backToManualStep1()">&#8592; Retour</button>
-      </div>
-      <div id="manual-step3" style="display:none;text-align:center;padding:20px 0">
-        <div style="font-size:60px;margin-bottom:16px">&#10004;</div>
-        <div style="font-size:18px;font-weight:800;color:var(--yellow);margin-bottom:8px">Demande enregistree !</div>
-        <div style="font-size:13px;color:var(--text2);margin-bottom:24px">Votre recharge manuelle est en attente de validation.</div>
-        <button class="btn-yellow" onclick="closeModal('modal-recharge')">Fermer</button>
-      </div>
-    </div>
-    
-    <div id="recharge-step3" style="display:none;text-align:center;padding:20px 0">
-      <div style="font-size:60px;margin-bottom:16px">&#10004;</div>
-      <div style="font-size:18px;font-weight:800;color:var(--green);margin-bottom:8px">Demande enregistree !</div>
-      <div style="font-size:13px;color:var(--text2);margin-bottom:24px">Votre recharge est en attente de validation. Vous serez notifie a la validation.</div>
-      <button class="btn-bka" onclick="closeModal('modal-recharge')">Fermer</button>
+        <div class="fee-note">Frais de retrait : 10% · Disponible de 10h00 à 17h00 · 3 retraits maximum par jour</div>
+        <button type="submit" class="submit-btn" id="wd-submit">Demander le retrait</button>
+      </form>
     </div>
   </div>
-</div>
 
-<!-- MODAL RETRAIT -->
-<div class="modal-overlay" id="modal-withdraw">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title"><span class="red">&#128184;</span> Retirer mes gains</div>
-    <div class="modal-sub">Choisissez votre methode de retrait</div>
-    
-    <div id="withdraw-method" style="margin-bottom:20px">
-      <div class="payment-methods">
-        <div class="payment-card" onclick="selectWithdrawMethod('mobile')" id="method-mobile">
-          <div class="payment-icon">&#128241;</div>
-          <div class="payment-name">Mobile Money</div>
-          <div class="payment-desc">Airtel / Moov / Orange / MTN</div>
-        </div>
-        <div class="payment-card" onclick="selectWithdrawMethod('crypto')" id="method-crypto">
-          <div class="payment-icon">&#8383;</div>
-          <div class="payment-name">Crypto</div>
-          <div class="payment-desc">USDT / BTC</div>
-        </div>
-      </div>
-    </div>
-    
-    <div id="withdraw-mobile" style="display:none">
-      <div class="step-indicator">
-        <div class="step active-red" id="ws1">1</div>
-        <div class="step-line" id="wl1"></div>
-        <div class="step inactive" id="ws2">2</div>
-        <div class="step-line" id="wl2"></div>
-        <div class="step inactive" id="ws3">3</div>
-      </div>
-      <div id="withdraw-step1">
-        <div class="info-box-red">Solde disponible : <strong id="withdraw-balance">0 FCFA</strong></div>
-        <div class="form-group">
-          <label class="form-label">Montant a retirer (FCFA)</label>
-          <input class="form-input" type="number" id="withdraw-amount" placeholder="Minimum 1000 FCFA"/>
-        </div>
-        <div class="amount-presets">
-          <button class="preset-btn" onclick="setWithdrawAmount(1000)">1 000</button>
-          <button class="preset-btn" onclick="setWithdrawAmount(5000)">5 000</button>
-          <button class="preset-btn" onclick="setWithdrawAmount(10000)">10 000</button>
-          <button class="preset-btn" onclick="setWithdrawAmount(25000)">25 000</button>
-          <button class="preset-btn" onclick="setWithdrawAmount(50000)">50 000</button>
-          <button class="preset-btn" onclick="setWithdrawAmountMax()">Max</button>
-        </div>
-        <button class="btn-red" onclick="goToWithdrawStep2()">Continuer &#8250;</button>
-        <button class="btn-cancel" onclick="closeModal('modal-withdraw')">Annuler</button>
-      </div>
-      <div id="withdraw-step2" style="display:none">
-        <div class="form-group"><label class="form-label">Choisissez votre operateur</label></div>
-        <div class="operator-grid">
-          <div class="operator-card" onclick="selectOperator('airtel_money',this)">
-            <div class="operator-icon">&#128992;</div>
-            <div class="operator-name">Airtel Money</div>
-            <div class="operator-countries">Tchad</div>
-          </div>
-          <div class="operator-card" onclick="selectOperator('moov_money',this)">
-            <div class="operator-icon">&#128995;</div>
-            <div class="operator-name">Moov Money</div>
-            <div class="operator-countries">Tchad</div>
-          </div>
-          <div class="operator-card" onclick="selectOperator('orange_money',this)">
-            <div class="operator-icon">&#128992;</div>
-            <div class="operator-name">Orange Money</div>
-            <div class="operator-countries">Senegal, Burkina, Cote Ivoire</div>
-          </div>
-          <div class="operator-card" onclick="selectOperator('wave',this)">
-            <div class="operator-icon">&#128994;</div>
-            <div class="operator-name">Wave</div>
-            <div class="operator-countries">Senegal, Cote d'Ivoire</div>
-          </div>
-          <div class="operator-card" onclick="selectOperator('mtn_money',this)">
-            <div class="operator-icon">&#129000;</div>
-            <div class="operator-name">MTN Money</div>
-            <div class="operator-countries">Benin, Togo</div>
-          </div>
-        </div>
-        <button class="btn-red" onclick="goToWithdrawStep3()">Continuer &#8250;</button>
-        <button class="btn-cancel" onclick="backToWithdrawStep1()">&#8592; Retour</button>
-      </div>
-      <div id="withdraw-step3" style="display:none">
-        <div class="info-box-red">Operateur : <strong id="selected-operator-label">-</strong> | Montant : <strong id="selected-amount-label">-</strong></div>
-        <div class="form-group">
-          <label class="form-label">Nom complet</label>
-          <input class="form-input" type="text" id="withdraw-name" placeholder="Ex: Moussa Diallo"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Numero de telephone</label>
-          <input class="form-input" type="tel" id="withdraw-number" placeholder="Ex: 66 XX XX XX"/>
-        </div>
-        <button class="btn-red" id="btn-withdraw-submit" onclick="submitWithdraw('mobile')">&#128184; Confirmer le retrait</button>
-        <button class="btn-cancel" onclick="backToWithdrawStep2()">&#8592; Retour</button>
-      </div>
-    </div>
-    
-    <div id="withdraw-crypto" style="display:none">
-      <div class="step-indicator">
-        <div class="step active-red" id="cs1">1</div>
-        <div class="step-line" id="cl1"></div>
-        <div class="step inactive" id="cs2">2</div>
-        <div class="step-line" id="cl2"></div>
-        <div class="step inactive" id="cs3">3</div>
-      </div>
-      <div id="crypto-step1">
-        <div class="info-box-red">Solde disponible : <strong id="crypto-balance">0 FCFA</strong></div>
-        <div class="form-group">
-          <label class="form-label">Montant a retirer (FCFA)</label>
-          <input class="form-input" type="number" id="crypto-amount" placeholder="Minimum 5000 FCFA"/>
-        </div>
-        <button class="btn-red" onclick="goToCryptoStep2()">Continuer &#8250;</button>
-        <button class="btn-cancel" onclick="closeModal('modal-withdraw')">Annuler</button>
-      </div>
-      <div id="crypto-step2" style="display:none">
-        <div class="form-group"><label class="form-label">Choisissez votre crypto</label></div>
-        <div class="operator-grid">
-          <div class="operator-card" onclick="selectCrypto('USDT',this)">
-            <div class="operator-icon">&#8383;</div>
-            <div class="operator-name">USDT (TRC20)</div>
-            <div class="operator-countries">Frais: 1%</div>
-          </div>
-          <div class="operator-card" onclick="selectCrypto('BTC',this)">
-            <div class="operator-icon">&#8383;</div>
-            <div class="operator-name">Bitcoin (BTC)</div>
-            <div class="operator-countries">Frais: 1.5%</div>
-          </div>
-        </div>
-        <button class="btn-red" onclick="goToCryptoStep3()">Continuer &#8250;</button>
-        <button class="btn-cancel" onclick="backToCryptoStep1()">&#8592; Retour</button>
-      </div>
-      <div id="crypto-step3" style="display:none">
-        <div class="info-box-red">Crypto : <strong id="selected-crypto-label">-</strong> | Montant : <strong id="crypto-amount-label">-</strong></div>
-        <div class="form-group">
-          <label class="form-label">Nom complet</label>
-          <input class="form-input" type="text" id="crypto-name" placeholder="Ex: Moussa Diallo"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Adresse wallet</label>
-          <input class="form-input" type="text" id="crypto-address" placeholder="Adresse USDT ou BTC"/>
-        </div>
-        <button class="btn-red" id="btn-crypto-submit" onclick="submitWithdraw('crypto')">&#128184; Confirmer le retrait</button>
-        <button class="btn-cancel" onclick="backToCryptoStep2()">&#8592; Retour</button>
-      </div>
+  <div class="section">
+    <div class="section-head"><div class="section-title">Historique</div></div>
+    <div class="form-card" id="history-list">
+      <div class="empty">Chargement…</div>
     </div>
   </div>
-</div>
 
-<div id="toast"></div>
-<script type="module">
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-const sb=createClient('https://ainispvuqmuigfxzkkqh.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpbmlzcHZ1cW11aWdmeHpra3FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0ODcyMDUsImV4cCI6MjA5NjA2MzIwNX0.UOZxfyhC2_B7TtuSK4ea_x6u4GOdIsVEIMX8NUlmndc');
-window.sb=sb;
-const BKA_URL='https://bkapay.com/merchant/e70a1d40';
-let profile=null,selectedOperator='',selectedCrypto='',selectedPaymentMethod='',selectedWithdrawType='',withdrawMin=1000;
-const fmt=n=>Number(n||0).toLocaleString('fr-FR');
-const operatorLabels={airtel_money:'Airtel Money',moov_money:'Moov Money',orange_money:'Orange Money',wave:'Wave',mtn_money:'MTN Money'};
-window.toast=(msg,type='')=>{const t=document.getElementById('toast');t.textContent=msg;t.className='show '+type;setTimeout(()=>t.className='',3000);};
-const {data:{session}}=await sb.auth.getSession();
-if(!session){window.location.href='index.html';}
-const uid=session.user.id;
-const {data:settings}=await sb.from('settings').select('key,value');
-if(settings){const s=Object.fromEntries(settings.map(x=>[x.key,x.value]));withdrawMin=parseInt(s.withdrawal_min||1000);}
-async function loadProfile(){
-  const {data}=await sb.from('profiles').select('*').eq('id',uid).single();
-  if(!data)return;profile=data;
-  const init=(data.full_name||'U').split(' ').map(x=>x[0]).join('').toUpperCase().slice(0,2);
-  document.getElementById('user-avatar').textContent=init;
-  document.getElementById('user-name').textContent=data.full_name||'Utilisateur';
-  document.getElementById('balance').textContent=fmt(data.balance);
-  document.getElementById('total-invested').textContent=fmt(data.total_invested)+' F';
-  document.getElementById('total-withdrawn').textContent=fmt(data.total_withdrawn)+' F';
-  document.getElementById('stat-total-gains').textContent=fmt(data.total_gains)+' F';
-  document.getElementById('stat-commissions').textContent=fmt((data.commission_n1||0)+(data.commission_n2||0)+(data.commission_n3||0))+' F';
-  document.getElementById('withdraw-balance').textContent=fmt(data.balance)+' FCFA';
-  document.getElementById('crypto-balance').textContent=fmt(data.balance)+' FCFA';
-}
-async function loadInvestments(){
-  const {data}=await sb.from('investments').select('*,vip_plans(name)').eq('user_id',uid).eq('status','active');
-  if(!data||!data.length)return;
-  document.getElementById('stat-active').textContent=data.length+' actifs';
-  let g=0;data.forEach(i=>g+=i.daily_gain);
-  document.getElementById('today-gain').textContent='+'+fmt(g)+' F';
-  document.getElementById('investments-list').innerHTML=data.map(inv=>'<div class="invest-card"><div class="invest-badge">VIP'+inv.vip_level+'</div><div class="invest-info"><div class="invest-name">'+(inv.vip_plans?.name||'VIP '+inv.vip_level)+'</div><div class="invest-sub">Investi : '+fmt(inv.amount)+' FCFA</div><div class="invest-status">&#9679; Actif</div></div><div class="invest-gain"><div class="invest-gain-val">+'+fmt(inv.daily_gain)+' F</div><div class="invest-gain-label">/jour</div></div></div>').join('');
-}
-async function loadReferrals(){const {count}=await sb.from('profiles').select('*',{count:'exact',head:true}).eq('referred_by',uid);document.getElementById('stat-referrals').textContent=count||0;}
-async function loadNotifs(){const {count}=await sb.from('notifications').select('*',{count:'exact',head:true}).eq('user_id',uid).eq('is_read',false);if(count>0)document.getElementById('notif-dot').style.display='block';}
-await Promise.all([loadProfile(),loadInvestments(),loadReferrals(),loadNotifs()]);
+</main>
 
-// RECHARGE METHODS
-window.selectPaymentMethod=(method)=>{
-  selectedPaymentMethod=method;
-  document.querySelectorAll('.payment-card').forEach(c=>c.classList.remove('selected'));
-  document.getElementById(`method-${method}`).classList.add('selected');
-  document.getElementById('recharge-bka').style.display=method==='bka'?'block':'none';
-  document.getElementById('recharge-manual').style.display=method==='manual'?'block':'none';
-  if(method==='bka') resetRechargeBKA();
-  if(method==='manual') resetRechargeManual();
-};
-function resetRechargeBKA(){
-  document.getElementById('recharge-step1').style.display='block';
-  document.getElementById('recharge-step2').style.display='none';
-  document.getElementById('recharge-step3').style.display='none';
-  document.getElementById('rs2').className='step inactive';
-  document.getElementById('rs3').className='step inactive';
-  document.getElementById('rl1').className='step-line';
-  document.getElementById('rl2').className='step-line';
-}
-function resetRechargeManual(){
-  document.getElementById('manual-step1').style.display='block';
-  document.getElementById('manual-step2').style.display='none';
-  document.getElementById('manual-step3').style.display='none';
-  document.getElementById('ms2').className='step inactive';
-  document.getElementById('ms3').className='step inactive';
-  document.getElementById('ml1').className='step-line';
-  document.getElementById('ml2').className='step-line';
-}
-window.openRecharge=()=>{
-  selectedPaymentMethod='';
-  document.getElementById('recharge-bka').style.display='none';
-  document.getElementById('recharge-manual').style.display='none';
-  document.querySelectorAll('.payment-card').forEach(c=>c.classList.remove('selected'));
-  document.getElementById('modal-recharge').classList.add('show');
-  document.getElementById('recharge-method').style.display='block';
-};
-window.setAmount=v=>{
-  document.getElementById('recharge-amount').value=v;
-  document.querySelectorAll('#recharge-step1 .preset-btn').forEach(b=>b.classList.toggle('selected',parseInt(b.textContent.replace(/\s/g,''))===v));
-};
-window.setManualAmount=v=>{
-  document.getElementById('manual-amount').value=v;
-  document.querySelectorAll('#manual-step1 .preset-btn').forEach(b=>b.classList.toggle('selected',parseInt(b.textContent.replace(/\s/g,''))===v));
-};
-window.goToBKAPay=()=>{
-  const amount=parseInt(document.getElementById('recharge-amount').value);
-  if(!amount||amount<1000){toast('Minimum 1000 FCFA','error');return;}
-  document.getElementById('recharge-step1').style.display='none';
-  document.getElementById('recharge-step2').style.display='block';
-  document.getElementById('recharge-amount2').value=amount;
-  document.getElementById('rs2').className='step active';
-  document.getElementById('rl1').className='step-line done';
-  window.open(BKA_URL+'?amount='+amount,'_blank');
-};
-window.backToRechargeStep1=()=>{
-  document.getElementById('recharge-step1').style.display='block';
-  document.getElementById('recharge-step2').style.display='none';
-  document.getElementById('rs2').className='step inactive';
-  document.getElementById('rl1').className='step-line';
-};
-window.submitRecharge=async()=>{
-  const amount=parseInt(document.getElementById('recharge-amount2').value);
-  const ref=document.getElementById('recharge-ref').value.trim();
-  const number=document.getElementById('recharge-number').value.trim();
-  if(!amount){toast('Montant invalide','error');return;}
-  const btn=document.getElementById('btn-submit-recharge');
-  btn.disabled=true;btn.innerHTML='<div class="spinner"></div>';
-  const {error}=await sb.from('recharges').insert({user_id:uid,amount,payment_method:'bka_pay',payment_number:number||'BKA Pay',transaction_ref:ref||'BKA-'+Date.now(),status:'pending'});
-  btn.disabled=false;btn.textContent='Soumettre la demande';
-  if(error){toast('Erreur','error');return;}
-  await sb.from('notifications').insert({user_id:uid,title:'Recharge en attente',message:'Votre recharge de '+fmt(amount)+' FCFA est en cours de verification.',type:'info'});
-  document.getElementById('recharge-step2').style.display='none';
-  document.getElementById('recharge-step3').style.display='block';
-  document.getElementById('rs3').className='step active';
-  document.getElementById('rl2').className='step-line done';
-};
-window.goToManualStep2=()=>{
-  const amount=parseInt(document.getElementById('manual-amount').value);
-  if(!amount||amount<500){toast('Minimum 500 FCFA','error');return;}
-  document.getElementById('manual-step1').style.display='none';
-  document.getElementById('manual-step2').style.display='block';
-  document.getElementById('manual-amount2').value=amount;
-  document.getElementById('ms2').className='step active-yellow';
-  document.getElementById('ml1').className='step-line done-yellow';
-};
-window.backToManualStep1=()=>{
-  document.getElementById('manual-step1').style.display='block';
-  document.getElementById('manual-step2').style.display='none';
-  document.getElementById('ms2').className='step inactive';
-  document.getElementById('ml1').className='step-line';
-};
-window.submitManualRecharge=async()=>{
-  const amount=parseInt(document.getElementById('manual-amount2').value);
-  const ref=document.getElementById('manual-ref').value.trim();
-  const phone=document.getElementById('manual-phone').value.trim();
-  const recipient=document.getElementById('manual-recipient').value;
-  if(!amount){toast('Montant invalide','error');return;}
-  if(!ref){toast('Entrez la reference transaction','error');return;}
-  if(!phone){toast('Entrez votre numero','error');return;}
-  const btn=document.getElementById('btn-submit-manual');
-  btn.disabled=true;btn.innerHTML='<div class="spinner"></div>';
-  const {error}=await sb.from('recharges').insert({
-    user_id:uid,amount,
-    payment_method:'manual_tchad',
-    payment_number:phone,
-    transaction_ref:ref,
-    status:'pending',
-    admin_note:`Recipient: ${recipient}`
-  });
-  btn.disabled=false;btn.textContent='Soumettre la demande';
-  if(error){toast('Erreur','error');return;}
-  await sb.from('notifications').insert({user_id:uid,title:'Recharge manuelle en attente',message:'Votre recharge manuelle de '+fmt(amount)+' FCFA est en cours de verification.',type:'info'});
-  document.getElementById('manual-step2').style.display='none';
-  document.getElementById('manual-step3').style.display='block';
-  document.getElementById('ms3').className='step active-yellow';
-  document.getElementById('ml2').className='step-line done-yellow';
-};
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+  const SUPABASE_URL = 'https://tjwauutdpdahzxphhrxa.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRqd2F1dXRkcGRhaHp4cGhocnhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4ODg3MTQsImV4cCI6MjEwMDQ2NDcxNH0.KTZte9pS5JUu1gZJ4i7KXIDc4hHFjJhDlZcoy6begnA';
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// RETRAIT METHODS (similaire au precedent, conserve)
-window.selectWithdrawMethod=(method)=>{
-  selectedWithdrawType=method;
-  document.querySelectorAll('#withdraw-method .payment-card').forEach(c=>c.classList.remove('selected'));
-  document.getElementById(`method-${method}`).classList.add('selected');
-  document.getElementById('withdraw-mobile').style.display=method==='mobile'?'block':'none';
-  document.getElementById('withdraw-crypto').style.display=method==='crypto'?'block':'none';
-  if(method==='mobile') resetWithdrawMobile();
-  if(method==='crypto') resetWithdrawCrypto();
-};
-function resetWithdrawMobile(){
-  document.getElementById('withdraw-step1').style.display='block';
-  document.getElementById('withdraw-step2').style.display='none';
-  document.getElementById('withdraw-step3').style.display='none';
-  document.getElementById('ws2').className='step inactive';
-  document.getElementById('ws3').className='step inactive';
-  document.getElementById('wl1').className='step-line';
-  document.getElementById('wl2').className='step-line';
-}
-function resetWithdrawCrypto(){
-  document.getElementById('crypto-step1').style.display='block';
-  document.getElementById('crypto-step2').style.display='none';
-  document.getElementById('crypto-step3').style.display='none';
-  document.getElementById('cs2').className='step inactive';
-  document.getElementById('cs3').className='step inactive';
-  document.getElementById('cl1').className='step-line';
-  document.getElementById('cl2').className='step-line';
-}
-window.openWithdraw=()=>{
-  selectedWithdrawType='';
-  document.getElementById('withdraw-mobile').style.display='none';
-  document.getElementById('withdraw-crypto').style.display='none';
-  document.querySelectorAll('#withdraw-method .payment-card').forEach(c=>c.classList.remove('selected'));
-  document.getElementById('modal-withdraw').classList.add('show');
-};
-window.setWithdrawAmount=v=>{
-  document.getElementById('withdraw-amount').value=v;
-  document.querySelectorAll('#withdraw-step1 .preset-btn').forEach(b=>b.classList.toggle('selected',parseInt(b.textContent.replace(/\s/g,''))===v));
-};
-window.setWithdrawAmountMax=()=>{
-  if(!profile)return;
-  document.getElementById('withdraw-amount').value=profile.balance;
-  document.querySelectorAll('#withdraw-step1 .preset-btn').forEach(b=>b.classList.remove('selected'));
-};
-window.goToWithdrawStep2=()=>{
-  const amount=parseInt(document.getElementById('withdraw-amount').value);
-  if(!amount||amount<withdrawMin){toast('Minimum '+fmt(withdrawMin)+' FCFA','error');return;}
-  if(!profile||amount>profile.balance){toast('Solde insuffisant','error');return;}
-  document.getElementById('withdraw-step1').style.display='none';
-  document.getElementById('withdraw-step2').style.display='block';
-  document.getElementById('ws2').className='step active-red';
-  document.getElementById('wl1').className='step-line done-red';
-};
-window.backToWithdrawStep1=()=>{
-  document.getElementById('withdraw-step1').style.display='block';
-  document.getElementById('withdraw-step2').style.display='none';
-  document.getElementById('ws2').className='step inactive';
-  document.getElementById('wl1').className='step-line';
-};
-window.selectOperator=(op,el)=>{
-  selectedOperator=op;
-  document.querySelectorAll('.operator-card').forEach(c=>c.classList.remove('selected'));
-  el.classList.add('selected');
-};
-window.goToWithdrawStep3=()=>{
-  if(!selectedOperator){toast('Choisissez un operateur','error');return;}
-  const amount=parseInt(document.getElementById('withdraw-amount').value);
-  document.getElementById('withdraw-step2').style.display='none';
-  document.getElementById('withdraw-step3').style.display='block';
-  document.getElementById('ws3').className='step active-red';
-  document.getElementById('wl2').className='step-line done-red';
-  document.getElementById('selected-operator-label').textContent=operatorLabels[selectedOperator]||selectedOperator;
-  document.getElementById('selected-amount-label').textContent=fmt(amount)+' FCFA';
-};
-window.backToWithdrawStep2=()=>{
-  document.getElementById('withdraw-step2').style.display='block';
-  document.getElementById('withdraw-step3').style.display='none';
-  document.getElementById('ws3').className='step inactive';
-  document.getElementById('wl2').className='step-line';
-};
-window.goToCryptoStep2=()=>{
-  const amount=parseInt(document.getElementById('crypto-amount').value);
-  if(!amount||amount<5000){toast('Minimum 5000 FCFA','error');return;}
-  if(!profile||amount>profile.balance){toast('Solde insuffisant','error');return;}
-  document.getElementById('crypto-step1').style.display='none';
-  document.getElementById('crypto-step2').style.display='block';
-  document.getElementById('cs2').className='step active-red';
-  document.getElementById('cl1').className='step-line done-red';
-};
-window.backToCryptoStep1=()=>{
-  document.getElementById('crypto-step1').style.display='block';
-  document.getElementById('crypto-step2').style.display='none';
-  document.getElementById('cs2').className='step inactive';
-  document.getElementById('cl1').className='step-line';
-};
-window.selectCrypto=(crypto,el)=>{
-  selectedCrypto=crypto;
-  document.querySelectorAll('#crypto-step2 .operator-card').forEach(c=>c.classList.remove('selected'));
-  el.classList.add('selected');
-};
-window.goToCryptoStep3=()=>{
-  if(!selectedCrypto){toast('Choisissez votre crypto','error');return;}
-  const amount=parseInt(document.getElementById('crypto-amount').value);
-  document.getElementById('crypto-step2').style.display='none';
-  document.getElementById('crypto-step3').style.display='block';
-  document.getElementById('cs3').className='step active-red';
-  document.getElementById('cl2').className='step-line done-red';
-  document.getElementById('selected-crypto-label').textContent=selectedCrypto;
-  document.getElementById('crypto-amount-label').textContent=fmt(amount)+' FCFA';
-};
-window.backToCryptoStep2=()=>{
-  document.getElementById('crypto-step2').style.display='block';
-  document.getElementById('crypto-step3').style.display='none';
-  document.getElementById('cs3').className='step inactive';
-  document.getElementById('cl2').className='step-line';
-};
-window.submitWithdraw=async(type)=>{
-  const amount=type==='mobile'?parseInt(document.getElementById('withdraw-amount').value):parseInt(document.getElementById('crypto-amount').value);
-  const name=type==='mobile'?document.getElementById('withdraw-name').value.trim():document.getElementById('crypto-name').value.trim();
-  const number=type==='mobile'?document.getElementById('withdraw-number').value.trim():document.getElementById('crypto-address').value.trim();
-  if(!name){toast('Entrez votre nom','error');return;}
-  if(!number){toast(type==='mobile'?'Entrez votre numero':'Entrez votre adresse wallet','error');return;}
-  if(!profile||amount>profile.balance){toast('Solde insuffisant','error');return;}
-  const btn=type==='mobile'?document.getElementById('btn-withdraw-submit'):document.getElementById('btn-crypto-submit');
-  btn.disabled=true;btn.innerHTML='<div class="spinner"></div>';
-  const paymentMethod=type==='mobile'?selectedOperator:selectedCrypto;
-  const {data:ws}=await sb.from('settings').select('value').eq('key','withdrawal_auto_limit').single();
-  const isAuto=amount<=parseInt(ws?.value||50000);
-  const {error}=await sb.from('withdrawals').insert({
-    user_id:uid,amount,
-    payment_method:paymentMethod,
-    payment_number:number,
-    status:isAuto?'processing':'pending',
-    is_auto:isAuto,
-    admin_note:`${name} | ${type==='mobile'?'Mobile Money':'Crypto'}`
-  });
-  if(!error){
-    await sb.from('profiles').update({balance:profile.balance-amount,total_withdrawn:(profile.total_withdrawn||0)+amount}).eq('id',uid);
-    await sb.from('notifications').insert({user_id:uid,title:'Retrait en cours',message:'Votre retrait de '+fmt(amount)+' FCFA est en cours.',type:'info'});
+  const VIP_TIERS = [
+    {level:1, amount:3000,  daily:330,   days:130},
+    {level:2, amount:5000,  daily:550,   days:130},
+    {level:3, amount:10000, daily:1100,  days:130},
+    {level:4, amount:15000, daily:1650,  days:130},
+    {level:5, amount:25000, daily:2750,  days:130},
+    {level:6, amount:35000, daily:3850,  days:130},
+    {level:7, amount:50000, daily:5500,  days:130},
+    {level:8, amount:60000, daily:6600,  days:130},
+    {level:9, amount:100000,daily:11000, days:130},
+    {level:10,amount:150000,daily:16500, days:130},
+  ];
+
+  let profile = null;
+  let userId = null;
+
+  function fmt(n){ return Math.round(n).toLocaleString('fr-FR'); }
+  function scrollToId(id){ document.getElementById(id).scrollIntoView({behavior:'smooth', block:'start'}); }
+
+  async function init(){
+    const { data: { user } } = await sb.auth.getUser();
+    if(!user){ window.location.href = 'login.html'; return; }
+    userId = user.id;
+
+    const { data: prof, error } = await sb.from('profiles').select('*').eq('id', userId).single();
+    if(error || !prof){ window.location.href = 'login.html'; return; }
+    profile = prof;
+
+    renderProfile();
+    renderVipList();
+    await refreshClaimButton();
+    await loadHistory();
+
+    document.getElementById('loading-screen').style.display = 'none';
   }
-  btn.disabled=false;btn.textContent=type==='mobile'?'Confirmer le retrait':'Confirmer le retrait';
-  if(error){toast('Erreur','error');return;}
-  closeModal('modal-withdraw');
-  toast(isAuto?'Retrait en cours !':'Demande envoyee !','success');
-  loadProfile();
-  selectedOperator='';
-  selectedCrypto='';
-};
-window.closeModal=id=>{
-  document.getElementById(id).classList.remove('show');
-  if(id==='modal-recharge'){
-    document.getElementById('recharge-method').style.display='block';
-    selectedPaymentMethod='';
+
+  function renderProfile(){
+    document.getElementById('balance-amt').innerHTML = fmt(profile.balance) + ' <span>FCFA</span>';
+    document.getElementById('vip-pill').textContent = 'VIP ' + profile.vip_level;
+    document.getElementById('ref-code').textContent = profile.referral_code;
   }
-  if(id==='modal-withdraw'){
-    selectedWithdrawType='';
-    selectedOperator='';
-    selectedCrypto='';
+
+  function copyRefCode(){
+    navigator.clipboard.writeText(profile.referral_code);
   }
-};
+
+  function renderVipList(){
+    const el = document.getElementById('vip-list');
+    el.innerHTML = VIP_TIERS.map(t => `
+      <div class="vip-row ${t.level === profile.vip_level ? 'current' : ''}">
+        <div>
+          <div class="name">VIP ${t.level}</div>
+          <div class="meta">${fmt(t.amount)}F · ${fmt(t.daily)}F/j · ${t.days}j</div>
+        </div>
+        <button class="invest-btn" onclick="invest(${t.level}, ${t.amount})">Investir</button>
+      </div>
+    `).join('');
+  }
+
+  async function invest(level, amount){
+    // Étape suivante : brancher LeekPay.checkout() ici pour le paiement réel avant validation.
+    const { error } = await sb.from('transactions').insert({
+      user_id: userId, type: 'deposit', amount: amount, status: 'pending', vip_level: level
+    });
+    if(error){ alert("Erreur : " + error.message); return; }
+    alert(`Demande d'investissement VIP ${level} envoyée (${fmt(amount)} FCFA). En attente de confirmation du paiement.`);
+    await loadHistory();
+  }
+
+  async function refreshClaimButton(){
+    const startOfDay = new Date(); startOfDay.setHours(0,0,0,0);
+    const { data } = await sb.from('transactions')
+      .select('id').eq('user_id', userId).eq('type', 'daily_reward')
+      .gte('created_at', startOfDay.toISOString());
+    const btn = document.getElementById('claim-btn');
+    if(data && data.length > 0){
+      btn.disabled = true; btn.textContent = 'Déjà réclamée';
+    }
+  }
+
+  async function claimDailyReward(){
+    const btn = document.getElementById('claim-btn');
+    btn.disabled = true; btn.textContent = 'En cours…';
+
+    const { error: txErr } = await sb.from('transactions').insert({
+      user_id: userId, type: 'daily_reward', amount: 100, status: 'completed'
+    });
+    if(txErr){ btn.disabled = false; btn.textContent = 'Réclamer'; alert("Erreur : " + txErr.message); return; }
+
+    const newBalance = Number(profile.balance) + 100;
+    const { error: updErr } = await sb.from('profiles').update({ balance: newBalance }).eq('id', userId);
+    if(updErr){ alert("Erreur solde : " + updErr.message); return; }
+
+    profile.balance = newBalance;
+    renderProfile();
+    btn.textContent = 'Déjà réclamée';
+    await loadHistory();
+  }
+
+  function withinWithdrawHours(){
+    const h = new Date().getHours();
+    return h >= 10 && h < 17;
+  }
+
+  async function handleWithdraw(e){
+    e.preventDefault();
+    const btn = document.getElementById('wd-submit');
+    const msgEl = document.getElementById('withdraw-msg');
+    const amount = Number(document.getElementById('wd-amount').value);
+
+    msgEl.className = 'msg';
+
+    if(amount < 1500){
+      msgEl.textContent = 'Le montant minimum est de 1 500 FCFA.'; msgEl.className = 'msg show err'; return false;
+    }
+    if(amount > profile.balance){
+      msgEl.textContent = 'Solde insuffisant.'; msgEl.className = 'msg show err'; return false;
+    }
+    if(!withinWithdrawHours()){
+      msgEl.textContent = 'Les retraits sont ouverts de 10h00 à 17h00.'; msgEl.className = 'msg show err'; return false;
+    }
+
+    const startOfDay = new Date(); startOfDay.setHours(0,0,0,0);
+    const { data: todaysWithdrawals } = await sb.from('transactions')
+      .select('id').eq('user_id', userId).eq('type', 'withdrawal')
+      .gte('created_at', startOfDay.toISOString());
+    if(todaysWithdrawals && todaysWithdrawals.length >= 3){
+      msgEl.textContent = 'Limite de 3 retraits par jour atteinte.'; msgEl.className = 'msg show err'; return false;
+    }
+
+    btn.disabled = true; btn.textContent = 'Envoi…';
+
+    const fee = Math.round(amount * 0.10);
+    const { error: txErr } = await sb.from('transactions').insert({
+      user_id: userId, type: 'withdrawal', amount: amount, fee: fee, status: 'pending'
+    });
+
+    if(txErr){
+      msgEl.textContent = "Erreur : " + txErr.message; msgEl.className = 'msg show err';
+      btn.disabled = false; btn.textContent = 'Demander le retrait';
+      return false;
+    }
+
+    const newBalance = Number(profile.balance) - amount;
+    await sb.from('profiles').update({ balance: newBalance }).eq('id', userId);
+    profile.balance = newBalance;
+    renderProfile();
+
+    msgEl.textContent = `Demande de retrait envoyée : ${fmt(amount)} FCFA (frais ${fmt(fee)} FCFA). Traitement sous 24h.`;
+    msgEl.className = 'msg show ok';
+    document.getElementById('withdraw-form').reset();
+    btn.disabled = false; btn.textContent = 'Demander le retrait';
+    await loadHistory();
+    return false;
+  }
+
+  const TYPE_LABELS = {
+    deposit: 'Investissement', withdrawal: 'Retrait', daily_gain: 'Gain quotidien',
+    daily_reward: 'Récompense journalière', referral_commission: 'Commission parrainage', signup_bonus: "Bonus d'inscription"
+  };
+  const STATUS_LABELS = { pending:'En attente', completed:'Terminé', failed:'Échoué' };
+
+  async function loadHistory(){
+    const el = document.getElementById('history-list');
+    const { data, error } = await sb.from('transactions')
+      .select('*').eq('user_id', userId).order('created_at', { ascending:false }).limit(20);
+
+    if(error || !data || data.length === 0){
+      el.innerHTML = '<div class="empty">Aucune transaction pour le moment.</div>';
+      return;
+    }
+
+    const isNegative = t => t.type === 'withdrawal';
+    el.innerHTML = data.map(t => `
+      <div class="history-item">
+        <div>
+          <div class="t">${TYPE_LABELS[t.type] || t.type}</div>
+          <div class="d">${new Date(t.created_at).toLocaleString('fr-FR')}</div>
+        </div>
+        <div style="text-align:right;">
+          <span class="a ${isNegative(t) ? 'neg' : 'pos'}">${isNegative(t) ? '-' : '+'}${fmt(t.amount)}F</span>
+          <span class="status-tag ${t.status}">${STATUS_LABELS[t.status]}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function handleLogout(){
+    await sb.auth.signOut();
+    window.location.href = 'login.html';
+  }
+
+  init();
 </script>
 </body>
 </html>
