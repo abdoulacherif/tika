@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tableau de bord — AXORA</title>
+<title>Tableau de bord — ROMANDEX</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -151,7 +151,7 @@
 
 <header>
   <div class="wrap">
-    <div class="logo">AX<span>O</span>RA</div>
+    <div class="logo">R<span>O</span>MANDEX</div>
     <button class="logout" onclick="handleLogout()">Déconnexion</button>
   </div>
 </header>
@@ -249,9 +249,9 @@
   function scrollToId(id){ document.getElementById(id).scrollIntoView({behavior:'smooth', block:'start'}); }
 
   async function init(){
-    const { data: { user } } = await sb.auth.getUser();
-    if(!user){ window.location.href = 'login.html'; return; }
-    userId = user.id;
+    const { data: { session } } = await sb.auth.getSession();
+    if(!session || !session.user){ window.location.href = 'login.html'; return; }
+    userId = session.user.id;
 
     const { data: prof, error } = await sb.from('profiles').select('*').eq('id', userId).single();
     if(error || !prof){ window.location.href = 'login.html'; return; }
