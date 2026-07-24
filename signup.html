@@ -29,7 +29,16 @@
     -webkit-background-clip:text; background-clip:text; color:transparent;
   }
   .logo span{color:var(--red); -webkit-text-fill-color:var(--red);}
-  main{flex:1; display:flex; align-items:center; justify-content:center; padding:32px 20px; position:relative; z-index:1;}
+  .car-stage{
+    position:relative; z-index:1; padding:28px 20px 8px; text-align:center;
+    background:linear-gradient(180deg, rgba(214,40,57,0.08), transparent 70%);
+  }
+  .car-stage svg{width:100%; max-width:360px; height:auto; margin:0 auto;}
+  .car-caption{
+    font-family:'Rajdhani',sans-serif; font-size:12px; letter-spacing:0.18em; text-transform:uppercase;
+    color:var(--chrome-dim); margin-top:6px;
+  }
+  main{flex:1; display:flex; align-items:flex-start; justify-content:center; padding:20px 20px 40px; position:relative; z-index:1;}
   .card{
     width:100%; max-width:420px; background:var(--steel); border:1px solid var(--line);
     border-top:2px solid var(--red); border-radius:8px; padding:30px 24px;
@@ -47,6 +56,14 @@
     padding:12px 13px; font-family:'Space Mono',monospace; font-size:14px; border-radius:4px; outline:none;
   }
   .field input:focus{border-color:var(--red);}
+  .field select{
+    width:100%; background:var(--black); border:1px solid var(--line); color:var(--white);
+    padding:12px 13px; font-family:'Space Mono',monospace; font-size:14px; border-radius:4px; outline:none;
+    appearance:none; -webkit-appearance:none;
+    background-image:url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237d848d' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 13px center; background-size:16px;
+  }
+  .field select:focus{border-color:var(--red);}
   .field .hint{font-size:11px; color:var(--chrome-dim); margin-top:5px;}
   .submit{
     width:100%; margin-top:8px; font-family:'Rajdhani',sans-serif; font-weight:600; letter-spacing:0.06em;
@@ -71,6 +88,34 @@
   <a href="index.html" class="logo">AX<span>O</span>RA</a>
 </header>
 
+<div class="car-stage">
+  <svg viewBox="0 0 400 160" fill="none">
+    <defs>
+      <linearGradient id="bodyGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#e8edf1"/>
+        <stop offset="45%" stop-color="#aab1b8"/>
+        <stop offset="55%" stop-color="#7d848d"/>
+        <stop offset="100%" stop-color="#3a4048"/>
+      </linearGradient>
+      <linearGradient id="glassGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#3a4048"/>
+        <stop offset="100%" stop-color="#181b20"/>
+      </linearGradient>
+    </defs>
+    <ellipse cx="200" cy="140" rx="170" ry="10" fill="#000" opacity="0.5"/>
+    <path d="M35 118 C40 88 70 82 100 78 L130 50 C145 40 165 36 190 36 L250 36 C270 36 285 42 298 54 L320 78 C345 82 365 92 372 112 L372 122 C372 128 366 132 360 132 L326 132 C324 118 312 108 298 108 C284 108 272 118 270 132 L142 132 C140 118 128 108 114 108 C100 108 88 118 86 132 L48 132 C40 132 35 126 35 118 Z" fill="url(#bodyGrad)" stroke="#0a0c0f" stroke-width="1.5"/>
+    <path d="M136 76 L152 52 C162 44 175 40 192 40 L246 40 C262 40 273 45 283 55 L300 76 Z" fill="url(#glassGrad)"/>
+    <line x1="212" y1="40" x2="210" y2="76" stroke="#0a0c0f" stroke-width="2"/>
+    <circle cx="114" cy="132" r="26" fill="#121417" stroke="#3a4048" stroke-width="2"/>
+    <circle cx="114" cy="132" r="11" fill="#7d848d"/>
+    <circle cx="298" cy="132" r="26" fill="#121417" stroke="#3a4048" stroke-width="2"/>
+    <circle cx="298" cy="132" r="11" fill="#7d848d"/>
+    <rect x="40" y="96" width="34" height="7" rx="3" fill="#d62839"/>
+    <rect x="330" y="96" width="30" height="6" rx="3" fill="#e3b23c"/>
+  </svg>
+  <div class="car-caption">AXORA · Édition performance</div>
+</div>
+
 <main>
   <div class="card">
     <div class="eyebrow">Nouveau pilote</div>
@@ -92,6 +137,18 @@
       <div class="field">
         <label>Mot de passe</label>
         <input type="password" id="su-password" placeholder="6 caractères minimum" minlength="6" required>
+      </div>
+      <div class="field">
+        <label>Pays</label>
+        <select id="su-country" required>
+          <option value="" disabled selected>Sélectionnez votre pays</option>
+          <option value="SN">🇸🇳 Sénégal</option>
+          <option value="CM">🇨🇲 Cameroun</option>
+          <option value="TG">🇹🇬 Togo</option>
+          <option value="BJ">🇧🇯 Bénin</option>
+          <option value="CI">🇨🇮 Côte d'Ivoire</option>
+          <option value="NE">🇳🇪 Niger</option>
+        </select>
       </div>
       <div class="field">
         <label>Code de parrainage (optionnel)</label>
@@ -125,6 +182,7 @@
     const email = document.getElementById('su-email').value.trim();
     const phone = document.getElementById('su-phone').value.trim();
     const password = document.getElementById('su-password').value;
+    const country = document.getElementById('su-country').value;
     const refCode = document.getElementById('su-ref').value.trim().toUpperCase();
 
     btn.disabled = true; btn.textContent = 'Création en cours…';
@@ -145,6 +203,7 @@
       id: userId,
       email: email,
       phone: phone,
+      country: country,
       referral_code: myCode,
       referred_by: refCode || null,
       balance: 500,
