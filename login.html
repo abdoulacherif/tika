@@ -166,8 +166,7 @@
     }
 
     showMsg('Connexion réussie ! Redirection vers votre tableau de bord…', false);
-    // À adapter dès que le tableau de bord existe :
-    // window.location.href = 'dashboard.html';
+    setTimeout(() => { window.location.href = 'dashboard.html'; }, 900);
     return false;
   }
 </script>
