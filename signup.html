@@ -30,13 +30,19 @@
   }
   .logo span{color:var(--red); -webkit-text-fill-color:var(--red);}
   .car-stage{
-    position:relative; z-index:1; padding:28px 20px 8px; text-align:center;
+    position:relative; z-index:1; padding:24px 0 6px; text-align:center;
     background:linear-gradient(180deg, rgba(214,40,57,0.08), transparent 70%);
+    overflow:hidden;
   }
-  .car-stage svg{width:100%; max-width:360px; height:auto; margin:0 auto;}
+  .car-photo{
+    width:100%; max-width:480px; margin:0 auto;
+    -webkit-mask-image: radial-gradient(ellipse 68% 72% at 50% 48%, black 50%, transparent 100%);
+    mask-image: radial-gradient(ellipse 68% 72% at 50% 48%, black 50%, transparent 100%);
+  }
+  .car-photo img{width:100%; display:block; filter:brightness(0.94) contrast(1.05);}
   .car-caption{
     font-family:'Rajdhani',sans-serif; font-size:12px; letter-spacing:0.18em; text-transform:uppercase;
-    color:var(--chrome-dim); margin-top:6px;
+    color:var(--chrome-dim); margin-top:2px;
   }
   main{flex:1; display:flex; align-items:flex-start; justify-content:center; padding:20px 20px 40px; position:relative; z-index:1;}
   .card{
@@ -89,30 +95,9 @@
 </header>
 
 <div class="car-stage">
-  <svg viewBox="0 0 400 160" fill="none">
-    <defs>
-      <linearGradient id="bodyGrad" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#e8edf1"/>
-        <stop offset="45%" stop-color="#aab1b8"/>
-        <stop offset="55%" stop-color="#7d848d"/>
-        <stop offset="100%" stop-color="#3a4048"/>
-      </linearGradient>
-      <linearGradient id="glassGrad" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#3a4048"/>
-        <stop offset="100%" stop-color="#181b20"/>
-      </linearGradient>
-    </defs>
-    <ellipse cx="200" cy="140" rx="170" ry="10" fill="#000" opacity="0.5"/>
-    <path d="M35 118 C40 88 70 82 100 78 L130 50 C145 40 165 36 190 36 L250 36 C270 36 285 42 298 54 L320 78 C345 82 365 92 372 112 L372 122 C372 128 366 132 360 132 L326 132 C324 118 312 108 298 108 C284 108 272 118 270 132 L142 132 C140 118 128 108 114 108 C100 108 88 118 86 132 L48 132 C40 132 35 126 35 118 Z" fill="url(#bodyGrad)" stroke="#0a0c0f" stroke-width="1.5"/>
-    <path d="M136 76 L152 52 C162 44 175 40 192 40 L246 40 C262 40 273 45 283 55 L300 76 Z" fill="url(#glassGrad)"/>
-    <line x1="212" y1="40" x2="210" y2="76" stroke="#0a0c0f" stroke-width="2"/>
-    <circle cx="114" cy="132" r="26" fill="#121417" stroke="#3a4048" stroke-width="2"/>
-    <circle cx="114" cy="132" r="11" fill="#7d848d"/>
-    <circle cx="298" cy="132" r="26" fill="#121417" stroke="#3a4048" stroke-width="2"/>
-    <circle cx="298" cy="132" r="11" fill="#7d848d"/>
-    <rect x="40" y="96" width="34" height="7" rx="3" fill="#d62839"/>
-    <rect x="330" y="96" width="30" height="6" rx="3" fill="#e3b23c"/>
-  </svg>
+  <div class="car-photo">
+    <img src="assets/car.jpg" alt="Véhicule AXORA">
+  </div>
   <div class="car-caption">AXORA · Édition performance</div>
 </div>
 
