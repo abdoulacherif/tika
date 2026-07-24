@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Inscription — AXORA</title>
+<title>Inscription — ROMANDEX</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Manrope:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -91,14 +91,14 @@
 <body>
 
 <header>
-  <a href="index.html" class="logo">AX<span>O</span>RA</a>
+  <a href="index.html" class="logo">R<span>O</span>MANDEX</a>
 </header>
 
 <div class="car-stage">
   <div class="car-photo">
-    <img src="https://i.ibb.co/YKC4Nc3/IMG-20260724-164451-314.jpg" alt="Véhicule AXORA">
+    <img src="https://i.ibb.co/YKC4Nc3/IMG-20260724-164451-314.jpg" alt="Véhicule ROMANDEX">
   </div>
-  <div class="car-caption">AXORA · Édition performance</div>
+  <div class="car-caption">ROMANDEX · Édition performance</div>
 </div>
 
 <main>
@@ -137,7 +137,7 @@
       </div>
       <div class="field">
         <label>Code de parrainage (optionnel)</label>
-        <input type="text" id="su-ref" placeholder="AX7F3K2Q">
+        <input type="text" id="su-ref" placeholder="RX7F3K2Q">
       </div>
       <button type="submit" class="submit" id="submit-btn">Créer mon compte</button>
     </form>
@@ -153,7 +153,7 @@
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   function genReferralCode(){
-    return 'AX' + Math.random().toString(36).slice(2,8).toUpperCase();
+    return 'RX' + Math.random().toString(36).slice(2,8).toUpperCase();
   }
   function showMsg(text, isError){
     const el = document.getElementById('msg');
