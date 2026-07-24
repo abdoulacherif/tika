@@ -143,6 +143,21 @@
     position:fixed; inset:0; background:var(--black); display:flex; align-items:center; justify-content:center;
     font-family:'Rajdhani',sans-serif; color:var(--chrome-dim); letter-spacing:0.1em; text-transform:uppercase; font-size:13px; z-index:100;
   }
+
+  /* BOTTOM NAV */
+  .bottom-nav{
+    position:fixed; left:0; right:0; bottom:0; z-index:60;
+    display:flex; background:rgba(10,12,15,0.95); backdrop-filter:blur(10px);
+    border-top:1px solid var(--line);
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  .nav-item{
+    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+    padding:9px 4px 8px; color:var(--chrome-dim);
+    font-family:'Rajdhani',sans-serif; font-size:10px; letter-spacing:0.06em; text-transform:uppercase;
+  }
+  .nav-item svg{width:20px; height:20px;}
+  .nav-item.active{color:var(--red);}
 </style>
 </head>
 <body>
@@ -167,8 +182,8 @@
       <div class="vip-pill" id="vip-pill">VIP 0</div>
     </div>
     <div class="actions">
-      <button class="action-btn primary" onclick="scrollToId('vip-section')">Investir</button>
-      <button class="action-btn ghost" onclick="scrollToId('withdraw-section')">Retirer</button>
+      <a href="invest.html" class="action-btn primary" style="display:flex; align-items:center; justify-content:center;">Investir</a>
+      <a href="withdraw.html" class="action-btn ghost" style="display:flex; align-items:center; justify-content:center;">Retirer</a>
     </div>
   </div>
 
@@ -194,26 +209,6 @@
     </div>
   </div>
 
-  <div class="section" id="vip-section">
-    <div class="section-head"><div class="section-title">Paliers VIP</div></div>
-    <div class="vip-list" id="vip-list"></div>
-  </div>
-
-  <div class="section" id="withdraw-section">
-    <div class="section-head"><div class="section-title">Retrait</div></div>
-    <div class="form-card">
-      <div class="msg" id="withdraw-msg"></div>
-      <form id="withdraw-form" onsubmit="return handleWithdraw(event)">
-        <div class="field">
-          <label>Montant (FCFA)</label>
-          <input type="number" id="wd-amount" min="1500" step="1" placeholder="Minimum 1 500 FCFA" required>
-        </div>
-        <div class="fee-note">Frais de retrait : 10% · Disponible de 10h00 à 17h00 · 3 retraits maximum par jour</div>
-        <button type="submit" class="submit-btn" id="wd-submit">Demander le retrait</button>
-      </form>
-    </div>
-  </div>
-
   <div class="section">
     <div class="section-head"><div class="section-title">Historique</div></div>
     <div class="form-card" id="history-list">
@@ -223,30 +218,35 @@
 
 </main>
 
+<nav class="bottom-nav">
+  <a href="recharge.html" class="nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+    <span>Recharge</span>
+  </a>
+  <a href="vitesse.html" class="nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15a8 8 0 1 1 16 0"/><path d="M12 15 16 10"/><circle cx="12" cy="15" r="1"/></svg>
+    <span>Vitesse</span>
+  </a>
+  <a href="profil.html" class="nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+    <span>Profil</span>
+  </a>
+  <a href="affilie.html" class="nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M2 21c0-3.5 2.5-6 5-6s5 2.5 5 6"/><path d="M12 21c0-3.5 2.5-6 5-6s5 2.5 5 6"/></svg>
+    <span>Affilié</span>
+  </a>
+</nav>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
   const SUPABASE_URL = 'https://tjwauutdpdahzxphhrxa.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRqd2F1dXRkcGRhaHp4cGhocnhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4ODg3MTQsImV4cCI6MjEwMDQ2NDcxNH0.KTZte9pS5JUu1gZJ4i7KXIDc4hHFjJhDlZcoy6begnA';
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  const VIP_TIERS = [
-    {level:1, amount:3000,  daily:330,   days:130},
-    {level:2, amount:5000,  daily:550,   days:130},
-    {level:3, amount:10000, daily:1100,  days:130},
-    {level:4, amount:15000, daily:1650,  days:130},
-    {level:5, amount:25000, daily:2750,  days:130},
-    {level:6, amount:35000, daily:3850,  days:130},
-    {level:7, amount:50000, daily:5500,  days:130},
-    {level:8, amount:60000, daily:6600,  days:130},
-    {level:9, amount:100000,daily:11000, days:130},
-    {level:10,amount:150000,daily:16500, days:130},
-  ];
-
   let profile = null;
   let userId = null;
 
   function fmt(n){ return Math.round(n).toLocaleString('fr-FR'); }
-  function scrollToId(id){ document.getElementById(id).scrollIntoView({behavior:'smooth', block:'start'}); }
 
   async function init(){
     const { data: { session } } = await sb.auth.getSession();
@@ -258,7 +258,6 @@
     profile = prof;
 
     renderProfile();
-    renderVipList();
     await refreshClaimButton();
     await loadHistory();
 
@@ -273,29 +272,6 @@
 
   function copyRefCode(){
     navigator.clipboard.writeText(profile.referral_code);
-  }
-
-  function renderVipList(){
-    const el = document.getElementById('vip-list');
-    el.innerHTML = VIP_TIERS.map(t => `
-      <div class="vip-row ${t.level === profile.vip_level ? 'current' : ''}">
-        <div>
-          <div class="name">VIP ${t.level}</div>
-          <div class="meta">${fmt(t.amount)}F · ${fmt(t.daily)}F/j · ${t.days}j</div>
-        </div>
-        <button class="invest-btn" onclick="invest(${t.level}, ${t.amount})">Investir</button>
-      </div>
-    `).join('');
-  }
-
-  async function invest(level, amount){
-    // Étape suivante : brancher LeekPay.checkout() ici pour le paiement réel avant validation.
-    const { error } = await sb.from('transactions').insert({
-      user_id: userId, type: 'deposit', amount: amount, status: 'pending', vip_level: level
-    });
-    if(error){ alert("Erreur : " + error.message); return; }
-    alert(`Demande d'investissement VIP ${level} envoyée (${fmt(amount)} FCFA). En attente de confirmation du paiement.`);
-    await loadHistory();
   }
 
   async function refreshClaimButton(){
@@ -326,63 +302,6 @@
     renderProfile();
     btn.textContent = 'Déjà réclamée';
     await loadHistory();
-  }
-
-  function withinWithdrawHours(){
-    const h = new Date().getHours();
-    return h >= 10 && h < 17;
-  }
-
-  async function handleWithdraw(e){
-    e.preventDefault();
-    const btn = document.getElementById('wd-submit');
-    const msgEl = document.getElementById('withdraw-msg');
-    const amount = Number(document.getElementById('wd-amount').value);
-
-    msgEl.className = 'msg';
-
-    if(amount < 1500){
-      msgEl.textContent = 'Le montant minimum est de 1 500 FCFA.'; msgEl.className = 'msg show err'; return false;
-    }
-    if(amount > profile.balance){
-      msgEl.textContent = 'Solde insuffisant.'; msgEl.className = 'msg show err'; return false;
-    }
-    if(!withinWithdrawHours()){
-      msgEl.textContent = 'Les retraits sont ouverts de 10h00 à 17h00.'; msgEl.className = 'msg show err'; return false;
-    }
-
-    const startOfDay = new Date(); startOfDay.setHours(0,0,0,0);
-    const { data: todaysWithdrawals } = await sb.from('transactions')
-      .select('id').eq('user_id', userId).eq('type', 'withdrawal')
-      .gte('created_at', startOfDay.toISOString());
-    if(todaysWithdrawals && todaysWithdrawals.length >= 3){
-      msgEl.textContent = 'Limite de 3 retraits par jour atteinte.'; msgEl.className = 'msg show err'; return false;
-    }
-
-    btn.disabled = true; btn.textContent = 'Envoi…';
-
-    const fee = Math.round(amount * 0.10);
-    const { error: txErr } = await sb.from('transactions').insert({
-      user_id: userId, type: 'withdrawal', amount: amount, fee: fee, status: 'pending'
-    });
-
-    if(txErr){
-      msgEl.textContent = "Erreur : " + txErr.message; msgEl.className = 'msg show err';
-      btn.disabled = false; btn.textContent = 'Demander le retrait';
-      return false;
-    }
-
-    const newBalance = Number(profile.balance) - amount;
-    await sb.from('profiles').update({ balance: newBalance }).eq('id', userId);
-    profile.balance = newBalance;
-    renderProfile();
-
-    msgEl.textContent = `Demande de retrait envoyée : ${fmt(amount)} FCFA (frais ${fmt(fee)} FCFA). Traitement sous 24h.`;
-    msgEl.className = 'msg show ok';
-    document.getElementById('withdraw-form').reset();
-    btn.disabled = false; btn.textContent = 'Demander le retrait';
-    await loadHistory();
-    return false;
   }
 
   const TYPE_LABELS = {
