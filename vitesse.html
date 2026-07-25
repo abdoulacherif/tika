@@ -165,10 +165,10 @@
     7:{amount:50000, daily:5500},  8:{amount:60000, daily:6600},
     9:{amount:100000,daily:11000}, 10:{amount:150000,daily:16500},
   };
-  const DURATION_DAYS = 130;
 
   let profile = null;
   let userId = null;
+  let investments = [];
 
   function fmt(n){ return Math.round(n).toLocaleString('fr-FR'); }
 
@@ -187,9 +187,19 @@
 
   async function render(){
     const el = document.getElementById('vitesse-content');
-    const tier = VIP_TIERS[profile.vip_level];
 
-    if(!profile.vip_level || profile.vip_level === 0 || !tier){
+    const { data: inv, error } = await sb.from('investments')
+      .select('*').eq('user_id', userId).order('started_at', { ascending:false });
+
+    if(error){
+      el.innerHTML = `<div class="empty-vip"><p>Erreur de chargement : ${error.message}</p></div>`;
+      return;
+    }
+
+    investments = inv || [];
+    const activeOnes = investments.filter(i => i.status === 'active');
+
+    if(activeOnes.length === 0){
       el.innerHTML = `
         <div class="empty-vip">
           <p>Aucun investissement actif. Choisissez un palier VIP pour voir votre vitesse de croisière ici.</p>
@@ -199,101 +209,122 @@
       return;
     }
 
-    const rate = ((tier.daily / tier.amount) * 100).toFixed(1);
-    const needleAngle = -125 + Math.min(rate / 15, 1) * 163;
-
-    const startedAt = profile.vip_started_at ? new Date(profile.vip_started_at) : new Date();
-    const daysElapsed = Math.min(DURATION_DAYS, Math.floor((Date.now() - startedAt.getTime()) / 86400000));
-    const daysLeft = Math.max(0, DURATION_DAYS - daysElapsed);
-    const progressPct = Math.min(100, (daysElapsed / DURATION_DAYS) * 100);
-
     const { data: gains } = await sb.from('transactions')
       .select('amount').eq('user_id', userId).eq('type', 'daily_gain').eq('status', 'completed');
     const totalGained = (gains || []).reduce((s,t) => s + Number(t.amount), 0);
-
-    const startOfDay = new Date(); startOfDay.setHours(0,0,0,0);
-    const { data: claimedToday } = await sb.from('transactions')
-      .select('id').eq('user_id', userId).eq('type', 'daily_gain')
-      .gte('created_at', startOfDay.toISOString());
-    const alreadyClaimed = claimedToday && claimedToday.length > 0;
+    const totalProjected = activeOnes.reduce((s,i) => s + Number(i.daily_gain) * i.duration_days, 0);
 
     el.innerHTML = `
-      <div class="gauge-card">
-        <div class="gauge">
-          <svg viewBox="0 0 220 220">
-            <defs>
-              <linearGradient id="arcGrad" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stop-color="#7d848d"/>
-                <stop offset="60%" stop-color="#c9d0d6"/>
-                <stop offset="85%" stop-color="#e3b23c"/>
-                <stop offset="100%" stop-color="#d62839"/>
-              </linearGradient>
-            </defs>
-            <circle cx="110" cy="110" r="92" fill="none" stroke="#1b1f26" stroke-width="12"/>
-            <path d="M 33 172 A 92 92 0 1 1 187 172" fill="none" stroke="url(#arcGrad)" stroke-width="12" stroke-linecap="round"/>
-            <g class="needle" style="transform:rotate(${needleAngle}deg)">
-              <line x1="110" y1="110" x2="110" y2="34" stroke="#e3b23c" stroke-width="3"/>
-              <circle cx="110" cy="110" r="7" fill="#e3b23c"/>
-            </g>
-          </svg>
-          <div class="gauge-readout">
-            <div class="num">${rate}<span>%</span></div>
-            <div class="lbl">Gain / jour</div>
-          </div>
-        </div>
-        <div class="gauge-caption">VIP ${profile.vip_level} · ${fmt(tier.amount)} FCFA investis</div>
-      </div>
-
-      <div class="section">
-        <div class="section-title">Gain du jour</div>
-        <div class="gain-card">
-          <div class="txt"><b>${fmt(tier.daily)} FCFA</b><span>Disponible une fois par jour</span></div>
-          <button class="claim-btn" id="claim-btn" ${alreadyClaimed ? 'disabled' : ''} onclick="claimGain(${tier.daily})">
-            ${alreadyClaimed ? 'Déjà réclamé' : 'Réclamer'}
-          </button>
-        </div>
-        <div class="msg" id="vitesse-msg"></div>
-      </div>
-
-      <div class="section">
-        <div class="section-title">Progression (130 jours)</div>
-        <div class="progress-card">
-          <div class="progress-top"><span class="lbl">Jour ${daysElapsed} / ${DURATION_DAYS}</span><span class="val">${progressPct.toFixed(0)}%</span></div>
-          <div class="progress-track"><div class="progress-fill" style="width:${progressPct}%"></div></div>
-          <div class="progress-days"><span>${daysElapsed} jours écoulés</span><span>${daysLeft} jours restants</span></div>
-        </div>
-      </div>
-
       <div class="section">
         <div class="stats-row">
-          <div class="stat-box"><div class="v">${fmt(totalGained)}F</div><div class="k">Total gagné</div></div>
-          <div class="stat-box"><div class="v">${fmt(tier.daily * DURATION_DAYS)}F</div><div class="k">Projeté sur 130j</div></div>
+          <div class="stat-box"><div class="v">${fmt(totalGained)}F</div><div class="k">Total gagné (tous investissements)</div></div>
+          <div class="stat-box"><div class="v">${fmt(totalProjected)}F</div><div class="k">Projeté sur 130j (cumulé)</div></div>
+        </div>
+      </div>
+    ` + activeOnes.map(i => renderInvestmentCard(i)).join('');
+  }
+
+  function renderInvestmentCard(inv){
+    const rate = ((Number(inv.daily_gain) / Number(inv.amount)) * 100).toFixed(1);
+    const needleAngle = -125 + Math.min(rate / 15, 1) * 163;
+
+    const startedAt = new Date(inv.started_at);
+    const daysElapsed = Math.floor((Date.now() - startedAt.getTime()) / 86400000);
+    const daysLeft = Math.max(0, inv.duration_days - daysElapsed);
+    const progressPct = Math.min(100, (daysElapsed / inv.duration_days) * 100);
+
+    const tooEarly = daysElapsed < 1;
+    const lastClaim = inv.last_claim_at ? new Date(inv.last_claim_at) : null;
+    const claimedToday = lastClaim && lastClaim.toDateString() === new Date().toDateString();
+    const canClaim = !tooEarly && !claimedToday;
+
+    let btnLabel = 'Réclamer';
+    if(tooEarly) btnLabel = 'Disponible demain';
+    else if(claimedToday) btnLabel = 'Déjà réclamé';
+
+    return `
+      <div class="section">
+        <div class="gauge-card">
+          <div class="gauge">
+            <svg viewBox="0 0 220 220">
+              <defs>
+                <linearGradient id="arcGrad-${inv.id}" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#7d848d"/>
+                  <stop offset="60%" stop-color="#c9d0d6"/>
+                  <stop offset="85%" stop-color="#e3b23c"/>
+                  <stop offset="100%" stop-color="#d62839"/>
+                </linearGradient>
+              </defs>
+              <circle cx="110" cy="110" r="92" fill="none" stroke="#1b1f26" stroke-width="12"/>
+              <path d="M 33 172 A 92 92 0 1 1 187 172" fill="none" stroke="url(#arcGrad-${inv.id})" stroke-width="12" stroke-linecap="round"/>
+              <g class="needle" style="transform:rotate(${needleAngle}deg)">
+                <line x1="110" y1="110" x2="110" y2="34" stroke="#e3b23c" stroke-width="3"/>
+                <circle cx="110" cy="110" r="7" fill="#e3b23c"/>
+              </g>
+            </svg>
+            <div class="gauge-readout">
+              <div class="num">${rate}<span>%</span></div>
+              <div class="lbl">Gain / jour</div>
+            </div>
+          </div>
+          <div class="gauge-caption">VIP ${inv.vip_level} · ${fmt(inv.amount)} FCFA investis · démarré le ${startedAt.toLocaleDateString('fr-FR')}</div>
+        </div>
+
+        <div class="gain-card" style="margin-top:14px;">
+          <div class="txt"><b>${fmt(inv.daily_gain)} FCFA</b><span>${tooEarly ? "Premier gain disponible demain" : "Disponible une fois par jour"}</span></div>
+          <button class="claim-btn" id="claim-${inv.id}" ${canClaim ? '' : 'disabled'} onclick="claimGain('${inv.id}')">
+            ${btnLabel}
+          </button>
+        </div>
+
+        <div class="progress-card" style="margin-top:14px;">
+          <div class="progress-top"><span class="lbl">Jour ${Math.max(0,daysElapsed)} / ${inv.duration_days}</span><span class="val">${progressPct.toFixed(0)}%</span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:${progressPct}%"></div></div>
+          <div class="progress-days"><span>${Math.max(0,daysElapsed)} jours écoulés</span><span>${daysLeft} jours restants</span></div>
         </div>
       </div>
     `;
   }
 
-  async function claimGain(amount){
-    const btn = document.getElementById('claim-btn');
+  async function claimGain(investmentId){
+    const btn = document.getElementById('claim-' + investmentId);
     btn.disabled = true; btn.textContent = 'En cours…';
 
-    const { error: txErr } = await sb.from('transactions').insert({
-      user_id: userId, type: 'daily_gain', amount: amount, status: 'completed', vip_level: profile.vip_level
-    });
-    if(txErr){
-      document.getElementById('vitesse-msg').textContent = "Erreur : " + txErr.message;
-      document.getElementById('vitesse-msg').className = 'msg show err';
+    const { data, error } = await sb.rpc('claim_investment_gain', { p_investment_id: investmentId });
+
+    if(error){
+      showToast("Erreur : " + error.message, true);
       btn.disabled = false; btn.textContent = 'Réclamer';
       return;
     }
 
-    const newBalance = Number(profile.balance) + amount;
-    await sb.from('profiles').update({ balance: newBalance }).eq('id', userId);
-    profile.balance = newBalance;
+    if(!data || !data.success){
+      const errors = {
+        too_early: "Le premier gain n'est disponible que le lendemain de l'investissement.",
+        already_claimed_today: 'Déjà réclamé aujourd\'hui.',
+        expired: 'Cet investissement est arrivé à échéance (130 jours écoulés).',
+        not_active: 'Cet investissement n\'est plus actif.',
+      };
+      showToast(errors[data && data.error] || "Impossible de réclamer ce gain.", true);
+      await render();
+      return;
+    }
 
-    document.getElementById('vitesse-msg').textContent = `${fmt(amount)} FCFA ajoutés à votre solde.`;
-    document.getElementById('vitesse-msg').className = 'msg show ok';
-    btn.textContent = 'Déjà réclamé';
+    profile.balance = Number(profile.balance) + Number(data.amount);
+    showToast(`${fmt(data.amount)} FCFA ajoutés à votre solde.`, false);
+    await render();
+  }
+
+  function showToast(text, isError){
+    let el = document.getElementById('vitesse-toast');
+    if(!el){
+      el = document.createElement('div');
+      el.id = 'vitesse-toast';
+      el.className = 'msg';
+      document.getElementById('vitesse-content').prepend(el);
+    }
+    el.textContent = text;
+    el.className = 'msg show ' + (isError ? 'err' : 'ok');
   }
 
   init();
