@@ -51,6 +51,14 @@
     padding:10px 12px; font-family:'Space Mono',monospace; font-size:14px; border-radius:4px; outline:none;
   }
   .field input:focus{border-color:var(--red);}
+  .field select{
+    width:100%; background:var(--black); border:1px solid var(--line); color:var(--white);
+    padding:10px 12px; font-family:'Space Mono',monospace; font-size:14px; border-radius:4px; outline:none;
+    appearance:none; -webkit-appearance:none;
+    background-image:url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237d848d' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 13px center; background-size:16px;
+  }
+  .field select:focus{border-color:var(--red);}
   .fee-note{font-size:12px; color:var(--chrome-dim); margin:-4px 0 12px; line-height:1.5;}
   .submit-btn{
     width:100%; font-family:'Rajdhani',sans-serif; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;
@@ -106,6 +114,32 @@
     <div class="msg" id="withdraw-msg"></div>
     <form id="withdraw-form" onsubmit="return handleWithdraw(event)">
       <div class="field">
+        <label>Pays</label>
+        <select id="wd-country" onchange="updateOperators()" required>
+          <option value="" disabled selected>Sélectionnez votre pays</option>
+          <option value="SN">🇸🇳 Sénégal</option>
+          <option value="CM">🇨🇲 Cameroun</option>
+          <option value="TG">🇹🇬 Togo</option>
+          <option value="BJ">🇧🇯 Bénin</option>
+          <option value="CI">🇨🇮 Côte d'Ivoire</option>
+          <option value="NE">🇳🇪 Niger</option>
+          <option value="BF">🇧🇫 Burkina Faso</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Opérateur</label>
+        <select id="wd-operator" required>
+          <option value="" disabled selected>Choisissez d'abord un pays</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Numéro Mobile Money</label>
+        <input type="tel" id="wd-phone" placeholder="77 123 45 67" required>
+      </div>
+
+      <div class="field">
         <label>Montant (FCFA)</label>
         <input type="number" id="wd-amount" min="1500" step="1" placeholder="Minimum 1 500 FCFA" required>
       </div>
@@ -143,7 +177,25 @@
   let profile = null;
   let userId = null;
 
+  const OPERATORS = {
+    SN: ['Orange Money', 'Wave', 'Free Money'],
+    CM: ['MTN Mobile Money', 'Orange Money'],
+    TG: ['T-Money (Togocel)', 'Moov Flooz'],
+    BJ: ['MTN Mobile Money', 'Moov Money'],
+    CI: ['Orange Money', 'MTN Money', 'Moov Money', 'Wave'],
+    NE: ['Airtel Money', 'Orange Money', 'Moov Money'],
+    BF: ['Orange Money', 'Moov Money'],
+  };
+
   function fmt(n){ return Math.round(n).toLocaleString('fr-FR'); }
+
+  function updateOperators(){
+    const country = document.getElementById('wd-country').value;
+    const sel = document.getElementById('wd-operator');
+    const ops = OPERATORS[country] || [];
+    sel.innerHTML = '<option value="" disabled selected>Choisissez un opérateur</option>' +
+      ops.map(o => `<option value="${o}">${o}</option>`).join('');
+  }
 
   async function init(){
     const { data: { session } } = await sb.auth.getSession();
@@ -155,6 +207,9 @@
     profile = prof;
 
     document.getElementById('balance-amt').textContent = fmt(profile.balance) + ' FCFA';
+    if(profile.country){ document.getElementById('wd-country').value = profile.country; updateOperators(); }
+    if(profile.phone){ document.getElementById('wd-phone').value = profile.phone; }
+
     document.getElementById('loading-screen').style.display = 'none';
   }
 
@@ -167,10 +222,19 @@
     e.preventDefault();
     const btn = document.getElementById('wd-submit');
     const msgEl = document.getElementById('withdraw-msg');
+    const country = document.getElementById('wd-country').value;
+    const operator = document.getElementById('wd-operator').value;
+    const phone = document.getElementById('wd-phone').value.trim();
     const amount = Number(document.getElementById('wd-amount').value);
 
     msgEl.className = 'msg';
 
+    if(!country || !operator){
+      msgEl.textContent = 'Choisissez un pays et un opérateur.'; msgEl.className = 'msg show err'; return false;
+    }
+    if(!phone){
+      msgEl.textContent = 'Renseignez votre numéro Mobile Money.'; msgEl.className = 'msg show err'; return false;
+    }
     if(amount < 1500){
       msgEl.textContent = 'Le montant minimum est de 1 500 FCFA.'; msgEl.className = 'msg show err'; return false;
     }
@@ -193,7 +257,8 @@
 
     const fee = Math.round(amount * 0.10);
     const { error: txErr } = await sb.from('transactions').insert({
-      user_id: userId, type: 'withdrawal', amount: amount, fee: fee, status: 'pending'
+      user_id: userId, type: 'withdrawal', amount: amount, fee: fee, status: 'pending',
+      method: `${operator} · ${country} · ${phone}`
     });
 
     if(txErr){
@@ -207,9 +272,10 @@
     profile.balance = newBalance;
     document.getElementById('balance-amt').textContent = fmt(profile.balance) + ' FCFA';
 
-    msgEl.textContent = `Demande de retrait envoyée : ${fmt(amount)} FCFA (frais ${fmt(fee)} FCFA). Traitement sous 24h.`;
+    msgEl.textContent = `Demande de retrait envoyée : ${fmt(amount)} FCFA (frais ${fmt(fee)} FCFA) vers ${operator} ${phone}. Traitement sous 24h.`;
     msgEl.className = 'msg show ok';
     document.getElementById('withdraw-form').reset();
+    if(profile.country){ document.getElementById('wd-country').value = profile.country; updateOperators(); }
     btn.disabled = false; btn.textContent = 'Demander le retrait';
     return false;
   }
