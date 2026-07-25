@@ -253,35 +253,52 @@
 
     btn.disabled = true; btn.textContent = 'Ouverture du paiement…';
 
-    LeekPay.checkout({
-      amount: amount,
-      currency: 'XOF',
-      apiKey: LEEKPAY_PUBLIC_KEY,
-      description: `Recharge ROMANDEX · ${operator} · ${country}`,
-      customerEmail: profile.email,
+    if(LEEKPAY_PUBLIC_KEY.includes('REMPLACE_MOI')){
+      showMsg("Configuration manquante : remplace LEEKPAY_PUBLIC_KEY par ta vraie clé publique (pk_live_...) dans le code de cette page.", true);
+      btn.disabled = false; btn.textContent = 'Recharger';
+      return false;
+    }
 
-      onSuccess: async function(data){
-        // Le navigateur seul ne suffit pas à valider un paiement en production (voir doc LeekPay) —
-        // pour une mise en prod réelle, la confirmation finale doit venir d'un webhook côté serveur.
-        const newBalance = Number(profile.balance) + Number(data.amount);
-        const { error: updErr } = await sb.from('profiles').update({ balance: newBalance }).eq('id', userId);
-        if(updErr){ showMsg("Paiement reçu mais erreur solde : " + updErr.message, true); return; }
+    if(typeof LeekPay === 'undefined' || !LeekPay.checkout){
+      showMsg("Le module de paiement LeekPay ne s'est pas chargé (bloqueur de script, connexion, ou domaine non accessible). Vérifie la console du navigateur pour le détail.", true);
+      btn.disabled = false; btn.textContent = 'Recharger';
+      return false;
+    }
 
-        await sb.from('transactions').insert({
-          user_id: userId, type: 'deposit', amount: data.amount, status: 'completed', method: operator
-        });
+    try {
+      LeekPay.checkout({
+        amount: amount,
+        currency: 'XOF',
+        apiKey: LEEKPAY_PUBLIC_KEY,
+        description: `Recharge ROMANDEX · ${operator} · ${country}`,
+        customerEmail: profile.email,
 
-        profile.balance = newBalance;
-        document.getElementById('balance-amt').textContent = fmt(profile.balance) + ' FCFA';
-        showMsg(`Recharge réussie : ${fmt(data.amount)} FCFA ajoutés. Nouveau solde : ${fmt(newBalance)} FCFA.`, false);
-        btn.disabled = false; btn.textContent = 'Recharger';
-      },
+        onSuccess: async function(data){
+          // Le navigateur seul ne suffit pas à valider un paiement en production (voir doc LeekPay) —
+          // pour une mise en prod réelle, la confirmation finale doit venir d'un webhook côté serveur.
+          const newBalance = Number(profile.balance) + Number(data.amount);
+          const { error: updErr } = await sb.from('profiles').update({ balance: newBalance }).eq('id', userId);
+          if(updErr){ showMsg("Paiement reçu mais erreur solde : " + updErr.message, true); return; }
 
-      onCancel: function(){
-        showMsg('Paiement annulé.', true);
-        btn.disabled = false; btn.textContent = 'Recharger';
-      }
-    });
+          await sb.from('transactions').insert({
+            user_id: userId, type: 'deposit', amount: data.amount, status: 'completed', method: operator
+          });
+
+          profile.balance = newBalance;
+          document.getElementById('balance-amt').textContent = fmt(profile.balance) + ' FCFA';
+          showMsg(`Recharge réussie : ${fmt(data.amount)} FCFA ajoutés. Nouveau solde : ${fmt(newBalance)} FCFA.`, false);
+          btn.disabled = false; btn.textContent = 'Recharger';
+        },
+
+        onCancel: function(){
+          showMsg('Paiement annulé.', true);
+          btn.disabled = false; btn.textContent = 'Recharger';
+        }
+      });
+    } catch(err){
+      showMsg("Erreur au lancement du paiement : " + err.message, true);
+      btn.disabled = false; btn.textContent = 'Recharger';
+    }
 
     return false;
   }
