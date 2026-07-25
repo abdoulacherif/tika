@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Recharge — ROMANDEX</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --black:#0a0c0f; --steel:#1b1f26; --chrome:#c9d0d6; --chrome-dim:#7d848d;
@@ -18,6 +18,7 @@
   }
   a{color:inherit; text-decoration:none;}
   .wrap{max-width:520px; margin:0 auto; padding:0 18px;}
+
   header{
     position:sticky; top:0; z-index:40; background:rgba(10,12,15,0.9); backdrop-filter:blur(10px);
     border-bottom:1px solid var(--line);
@@ -30,14 +31,49 @@
     -webkit-background-clip:text; background-clip:text; color:transparent;
   }
   .logo span{color:var(--red); -webkit-text-fill-color:var(--red);}
+
   main{padding:20px 0 30px;}
   .page-title{font-family:'Rajdhani',sans-serif; font-weight:700; text-transform:uppercase; font-size:22px; margin-bottom:4px;}
   .page-sub{color:var(--chrome-dim); font-size:13px; margin-bottom:18px;}
-  .placeholder-card{
-    background:var(--steel); border:1px solid var(--line); border-radius:8px;
-    padding:32px 20px; text-align:center; color:var(--chrome-dim); font-size:14px; line-height:1.6;
+
+  .balance-note{
+    display:flex; justify-content:space-between; align-items:center;
+    background:var(--steel); border:1px solid var(--line); border-radius:8px; padding:14px 16px; margin-bottom:16px;
   }
-  .placeholder-card b{display:block; color:var(--white); font-family:'Rajdhani',sans-serif; text-transform:uppercase; font-size:16px; margin-bottom:8px;}
+  .balance-note .lbl{font-family:'Rajdhani',sans-serif; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--chrome-dim);}
+  .balance-note .amt{font-family:'Rajdhani',sans-serif; font-weight:700; font-size:20px; margin-top:2px;}
+
+  .form-card{background:var(--steel); border:1px solid var(--line); border-radius:8px; padding:16px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block; font-family:'Rajdhani',sans-serif; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--chrome-dim); margin-bottom:6px;}
+  .field input, .field select{
+    width:100%; background:var(--black); border:1px solid var(--line); color:var(--white);
+    padding:11px 12px; font-family:'Space Mono',monospace; font-size:14px; border-radius:4px; outline:none;
+  }
+  .field select{
+    appearance:none; -webkit-appearance:none;
+    background-image:url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237d848d' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 13px center; background-size:16px;
+  }
+  .field input:focus, .field select:focus{border-color:var(--red);}
+  .quick-amounts{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:14px;}
+  .quick-amt{
+    font-family:'Space Mono',monospace; font-size:12px; text-align:center; padding:9px 4px;
+    background:var(--black); border:1px solid var(--line); border-radius:4px; color:var(--chrome); cursor:pointer;
+  }
+  .quick-amt.active{border-color:var(--gold); color:var(--gold);}
+  .fee-note{font-size:12px; color:var(--chrome-dim); margin:-4px 0 12px; line-height:1.5;}
+  .submit-btn{
+    width:100%; font-family:'Rajdhani',sans-serif; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;
+    font-size:14px; background:var(--red); color:#fff; border:none; padding:13px; border-radius:4px; cursor:pointer;
+  }
+  .submit-btn:disabled{opacity:0.6; cursor:wait;}
+
+  .msg{font-family:'Rajdhani',sans-serif; font-size:13px; padding:10px 12px; border-radius:4px; margin-bottom:14px; display:none;}
+  .msg.show{display:block;}
+  .msg.err{background:rgba(214,40,57,0.14); color:#ff8a94; border:1px solid rgba(214,40,57,0.35);}
+  .msg.ok{background:rgba(227,178,60,0.12); color:var(--gold); border:1px solid rgba(227,178,60,0.35);}
+
   .loading-screen{
     position:fixed; inset:0; background:var(--black); display:flex; align-items:center; justify-content:center;
     font-family:'Rajdhani',sans-serif; color:var(--chrome-dim); letter-spacing:0.1em; text-transform:uppercase; font-size:13px; z-index:100;
@@ -70,10 +106,49 @@
 
 <main class="wrap">
   <div class="page-title">Recharge</div>
-  <div class="page-sub">Ajoutez des fonds à votre compte.</div>
-  <div class="placeholder-card">
-    <b>Bientôt disponible</b>
-    Cette page est prête à recevoir son contenu — dis-moi ce qu'elle doit afficher.
+  <div class="page-sub">Ajoutez des fonds via Mobile Money (LeekPay).</div>
+
+  <div class="balance-note">
+    <div><div class="lbl">Solde actuel</div><div class="amt" id="balance-amt">—</div></div>
+  </div>
+
+  <div class="form-card">
+    <div class="msg" id="recharge-msg"></div>
+    <form id="recharge-form" onsubmit="return handleRecharge(event)">
+      <div class="field">
+        <label>Pays</label>
+        <select id="rc-country" onchange="updateOperators()" required>
+          <option value="" disabled selected>Sélectionnez votre pays</option>
+          <option value="SN">🇸🇳 Sénégal</option>
+          <option value="CM">🇨🇲 Cameroun</option>
+          <option value="TG">🇹🇬 Togo</option>
+          <option value="BJ">🇧🇯 Bénin</option>
+          <option value="CI">🇨🇮 Côte d'Ivoire</option>
+          <option value="NE">🇳🇪 Niger</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Opérateur</label>
+        <select id="rc-operator" required>
+          <option value="" disabled selected>Choisissez d'abord un pays</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Montant (FCFA)</label>
+        <div class="quick-amounts" id="quick-amounts">
+          <div class="quick-amt" data-amt="3000">3 000</div>
+          <div class="quick-amt" data-amt="5000">5 000</div>
+          <div class="quick-amt" data-amt="10000">10 000</div>
+          <div class="quick-amt" data-amt="25000">25 000</div>
+        </div>
+        <input type="number" id="rc-amount" min="3000" step="1" placeholder="Minimum 3 000 FCFA" required>
+      </div>
+
+      <div class="fee-note">Paiement sécurisé via LeekPay · Dépôt minimum : 3 000 FCFA</div>
+      <button type="submit" class="submit-btn" id="rc-submit">Recharger</button>
+    </form>
   </div>
 </main>
 
@@ -96,17 +171,121 @@
   </a>
 </nav>
 
+<!-- SDK LeekPay -->
+<script src="https://leekpay.fr/js/leekpay.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
   const SUPABASE_URL = 'https://tjwauutdpdahzxphhrxa.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRqd2F1dXRkcGRhaHp4cGhocnhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4ODg3MTQsImV4cCI6MjEwMDQ2NDcxNH0.KTZte9pS5JUu1gZJ4i7KXIDc4hHFjJhDlZcoy6begnA';
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+  // ⚠️ Remplace par ta vraie clé PUBLIQUE LeekPay (pk_live_xxx) — jamais la clé secrète ici.
+  const LEEKPAY_PUBLIC_KEY = 'pk_live_REMPLACE_MOI';
+
+  const OPERATORS = {
+    SN: ['Orange Money', 'Wave', 'Free Money'],
+    CM: ['MTN Mobile Money', 'Orange Money'],
+    TG: ['T-Money (Togocel)', 'Moov Flooz'],
+    BJ: ['MTN Mobile Money', 'Moov Money'],
+    CI: ['Orange Money', 'MTN Money', 'Moov Money', 'Wave'],
+    NE: ['Airtel Money', 'Orange Money', 'Moov Money'],
+  };
+
+  let profile = null;
+  let userId = null;
+
+  function fmt(n){ return Math.round(n).toLocaleString('fr-FR'); }
+  function showMsg(text, isError){
+    const el = document.getElementById('recharge-msg');
+    el.textContent = text;
+    el.className = 'msg show ' + (isError ? 'err' : 'ok');
+  }
+
+  function updateOperators(){
+    const country = document.getElementById('rc-country').value;
+    const sel = document.getElementById('rc-operator');
+    const ops = OPERATORS[country] || [];
+    sel.innerHTML = '<option value="" disabled selected>Choisissez un opérateur</option>' +
+      ops.map(o => `<option value="${o}">${o}</option>`).join('');
+  }
+
+  document.getElementById('quick-amounts').addEventListener('click', (e) => {
+    const btn = e.target.closest('.quick-amt');
+    if(!btn) return;
+    document.querySelectorAll('.quick-amt').forEach(el => el.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('rc-amount').value = btn.dataset.amt;
+  });
+
   async function init(){
     const { data: { session } } = await sb.auth.getSession();
     if(!session || !session.user){ window.location.href = 'login.html'; return; }
+    userId = session.user.id;
+
+    const { data: prof, error } = await sb.from('profiles').select('*').eq('id', userId).single();
+    if(error || !prof){ window.location.href = 'login.html'; return; }
+    profile = prof;
+
+    document.getElementById('balance-amt').textContent = fmt(profile.balance) + ' FCFA';
+    if(profile.country){ document.getElementById('rc-country').value = profile.country; updateOperators(); }
+
     document.getElementById('loading-screen').style.display = 'none';
   }
+
+  function handleRecharge(e){
+    e.preventDefault();
+    const btn = document.getElementById('rc-submit');
+    const country = document.getElementById('rc-country').value;
+    const operator = document.getElementById('rc-operator').value;
+    const amount = Number(document.getElementById('rc-amount').value);
+
+    document.getElementById('recharge-msg').className = 'msg';
+
+    if(!country || !operator){
+      showMsg('Choisissez un pays et un opérateur.', true);
+      return false;
+    }
+    if(amount < 3000){
+      showMsg('Le montant minimum est de 3 000 FCFA.', true);
+      return false;
+    }
+
+    btn.disabled = true; btn.textContent = 'Ouverture du paiement…';
+
+    LeekPay.checkout({
+      amount: amount,
+      currency: 'XOF',
+      apiKey: LEEKPAY_PUBLIC_KEY,
+      description: `Recharge ROMANDEX · ${operator} · ${country}`,
+      customerEmail: profile.email,
+
+      onSuccess: async function(data){
+        // Le navigateur seul ne suffit pas à valider un paiement en production (voir doc LeekPay) —
+        // pour une mise en prod réelle, la confirmation finale doit venir d'un webhook côté serveur.
+        const newBalance = Number(profile.balance) + Number(data.amount);
+        const { error: updErr } = await sb.from('profiles').update({ balance: newBalance }).eq('id', userId);
+        if(updErr){ showMsg("Paiement reçu mais erreur solde : " + updErr.message, true); return; }
+
+        await sb.from('transactions').insert({
+          user_id: userId, type: 'deposit', amount: data.amount, status: 'completed', method: operator
+        });
+
+        profile.balance = newBalance;
+        document.getElementById('balance-amt').textContent = fmt(profile.balance) + ' FCFA';
+        showMsg(`Recharge réussie : ${fmt(data.amount)} FCFA ajoutés. Nouveau solde : ${fmt(newBalance)} FCFA.`, false);
+        btn.disabled = false; btn.textContent = 'Recharger';
+      },
+
+      onCancel: function(){
+        showMsg('Paiement annulé.', true);
+        btn.disabled = false; btn.textContent = 'Recharger';
+      }
+    });
+
+    return false;
+  }
+
   init();
 </script>
 </body>
