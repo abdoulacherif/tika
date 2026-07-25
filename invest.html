@@ -203,7 +203,7 @@
     const newBalance = currentBalance - amount;
 
     const { error: updErr } = await sb.from('profiles')
-      .update({ balance: newBalance, vip_level: level })
+      .update({ balance: newBalance, vip_level: level, vip_started_at: new Date().toISOString() })
       .eq('id', userId);
     if(updErr){ showMsg("Erreur : " + updErr.message, true); return; }
 
