@@ -155,6 +155,16 @@
   function genReferralCode(){
     return 'RX' + Math.random().toString(36).slice(2,8).toUpperCase();
   }
+
+  // Récupère le code de parrainage depuis l'URL (ex: signup.html?ref=RX7F3K2Q) et le pré-remplit.
+  (function prefillReferralFromUrl(){
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get('ref');
+    if(ref){
+      const field = document.getElementById('su-ref');
+      field.value = ref.trim().toUpperCase();
+    }
+  })();
   function showMsg(text, isError){
     const el = document.getElementById('msg');
     el.textContent = text;
