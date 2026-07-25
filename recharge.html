@@ -125,6 +125,7 @@
           <option value="BJ">🇧🇯 Bénin</option>
           <option value="CI">🇨🇮 Côte d'Ivoire</option>
           <option value="NE">🇳🇪 Niger</option>
+          <option value="BF">🇧🇫 Burkina Faso</option>
         </select>
       </div>
 
@@ -181,7 +182,7 @@
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   // ⚠️ Remplace par ta vraie clé PUBLIQUE LeekPay (pk_live_xxx) — jamais la clé secrète ici.
-  const LEEKPAY_PUBLIC_KEY = 'pk_live_h0RQu365IhnhdXkW2YeWZiDmKQGo7Pn1';
+  const LEEKPAY_PUBLIC_KEY = 'pk_live_REMPLACE_MOI';
 
   const OPERATORS = {
     SN: ['Orange Money', 'Wave', 'Free Money'],
@@ -190,6 +191,7 @@
     BJ: ['MTN Mobile Money', 'Moov Money'],
     CI: ['Orange Money', 'MTN Money', 'Moov Money', 'Wave'],
     NE: ['Airtel Money', 'Orange Money', 'Moov Money'],
+    BF: ['Orange Money', 'Moov Money'],
   };
 
   let profile = null;
