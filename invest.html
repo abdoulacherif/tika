@@ -189,33 +189,32 @@
   async function invest(level, amount){
     document.getElementById('invest-msg').className = 'msg';
 
-    // On revérifie le solde à jour avant de valider (au cas où il aurait changé).
-    const { data: fresh, error: fetchErr } = await sb.from('profiles').select('balance').eq('id', userId).single();
-    if(fetchErr){ showMsg("Erreur : " + fetchErr.message, true); return; }
+    const btnEls = document.querySelectorAll('.invest-btn');
+    btnEls.forEach(b => b.disabled = true);
 
-    const currentBalance = Number(fresh.balance);
+    const { data, error } = await sb.rpc('invest_and_distribute', { p_level: level, p_amount: amount });
 
-    if(currentBalance < amount){
-      showMsg(`Solde insuffisant : il vous manque ${fmt(amount - currentBalance)} FCFA pour ce palier.`, true);
+    btnEls.forEach(b => b.disabled = false);
+
+    if(error){
+      showMsg("Erreur : " + error.message, true);
+      return;
+    }
+    if(!data || !data.success){
+      if(data && data.error === 'insufficient_balance'){
+        showMsg(`Solde insuffisant : il vous manque ${fmt(amount - Number(data.balance || 0))} FCFA pour ce palier.`, true);
+      } else {
+        showMsg("Impossible d'activer cet investissement.", true);
+      }
       return;
     }
 
-    const newBalance = currentBalance - amount;
+    // On rafraîchit le profil local (solde débité + VIP activé côté serveur)
+    const { data: fresh } = await sb.from('profiles').select('*').eq('id', userId).single();
+    if(fresh) profile = fresh;
 
-    const { error: updErr } = await sb.from('profiles')
-      .update({ balance: newBalance, vip_level: level, vip_started_at: new Date().toISOString() })
-      .eq('id', userId);
-    if(updErr){ showMsg("Erreur : " + updErr.message, true); return; }
-
-    const { error: txErr } = await sb.from('transactions').insert({
-      user_id: userId, type: 'deposit', amount: amount, status: 'completed', vip_level: level
-    });
-    if(txErr){ showMsg("Erreur transaction : " + txErr.message, true); return; }
-
-    profile.balance = newBalance;
-    profile.vip_level = level;
     renderVipList();
-    showMsg(`Investissement VIP ${level} activé ! ${fmt(amount)} FCFA débités. Nouveau solde : ${fmt(newBalance)} FCFA.`, false);
+    showMsg(`Investissement VIP ${level} activé ! ${fmt(amount)} FCFA débités. Nouveau solde : ${fmt(profile.balance)} FCFA. Les commissions de parrainage ont été reversées automatiquement.`, false);
   }
 
   init();
