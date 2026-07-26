@@ -141,7 +141,7 @@
 
       <div class="field">
         <label>Montant (FCFA)</label>
-        <input type="number" id="wd-amount" min="1500" step="1" placeholder="Minimum 1 500 FCFA" required>
+        <input type="number" id="wd-amount" min="1000" step="1" placeholder="Minimum 1 000 FCFA" required>
       </div>
       <div class="fee-note">Frais de retrait : 10% · Disponible de 10h00 à 17h00 · 3 retraits maximum par jour</div>
       <button type="submit" class="submit-btn" id="wd-submit">Demander le retrait</button>
@@ -150,9 +150,9 @@
 </main>
 
 <nav class="bottom-nav">
-  <a href="recharge.html" class="nav-item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-    <span>Recharge</span>
+  <a href="invest.html" class="nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+    <span>Investir</span>
   </a>
   <a href="vitesse.html" class="nav-item">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15a8 8 0 1 1 16 0"/><path d="M12 15 16 10"/><circle cx="12" cy="15" r="1"/></svg>
@@ -235,8 +235,8 @@
     if(!phone){
       msgEl.textContent = 'Renseignez votre numéro Mobile Money.'; msgEl.className = 'msg show err'; return false;
     }
-    if(amount < 1500){
-      msgEl.textContent = 'Le montant minimum est de 1 500 FCFA.'; msgEl.className = 'msg show err'; return false;
+    if(amount < 1000){
+      msgEl.textContent = 'Le montant minimum est de 1 000 FCFA.'; msgEl.className = 'msg show err'; return false;
     }
     if(amount > profile.balance){
       msgEl.textContent = 'Solde insuffisant.'; msgEl.className = 'msg show err'; return false;
