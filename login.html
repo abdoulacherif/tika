@@ -167,6 +167,7 @@
     }
 
     showMsg('Connexion réussie ! Redirection vers votre tableau de bord…', false);
+    try { localStorage.setItem('romandex_welcome_pending', '1'); } catch(e){}
     setTimeout(() => { window.location.href = 'dashboard.html'; }, 900);
     return false;
   }
