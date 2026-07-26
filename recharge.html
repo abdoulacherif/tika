@@ -128,7 +128,7 @@
     </div>
     <div class="provider-card" data-provider="soleaspay" onclick="selectProvider('soleaspay')">
       <div class="name">SoleasPay</div>
-      <div class="tag">MTN · Orange</div>
+      <div class="tag">Selon le pays</div>
     </div>
   </div>
 
@@ -146,6 +146,7 @@
           <option value="CI">🇨🇮 Côte d'Ivoire</option>
           <option value="NE">🇳🇪 Niger</option>
           <option value="BF">🇧🇫 Burkina Faso</option>
+          <option value="ML">🇲🇱 Mali</option>
         </select>
       </div>
 
@@ -217,7 +218,7 @@
   // ⚠️ Remplace par ta vraie clé x-api-key SoleasPay (disponible sur leur dashboard).
   const SOLEASPAY_API_KEY = 'RY4_Pz69OhEuFqSVH_ptZU_HottxXFvhYzyp5l4Ovb8-AP';
   const SOLEASPAY_BASE_URL = 'https://soleaspay.com';
-  const SOLEASPAY_SERVICE_IDS = { 'MTN Mobile Money': 1, 'Orange Money': 2 };
+  const SOLEASPAY_SUPPORTED_COUNTRIES = ['CM','CI','BF','BJ','TG'];
   const COUNTRY_CURRENCY = { SN:'XOF', CM:'XAF', TG:'XOF', BJ:'XOF', CI:'XOF', NE:'XOF', BF:'XOF' };
 
   const OPERATORS_LEEKPAY = {
@@ -228,9 +229,19 @@
     CI: ['Orange Money', 'MTN Money', 'Moov Money', 'Wave'],
     NE: ['Airtel Money', 'Orange Money', 'Moov Money'],
     BF: ['Orange Money', 'Moov Money'],
+    ML: ['Orange Money', 'Moov Money'],
   };
-  // SoleasPay ne gère que ces deux réseaux, quel que soit le pays.
-  const OPERATORS_SOLEASPAY = ['MTN Mobile Money', 'Orange Money'];
+
+  // Correspondance réelle vérifiée sur l'API SoleasPay (leur doc PDF est incomplète) :
+  // https://soleaspay.com/api/services-list — un identifiant "service" différent par pays ET par opérateur.
+  // Le Sénégal, le Niger et le Mali n'ont aucun service actif chez SoleasPay pour le moment.
+  const OPERATORS_SOLEASPAY = {
+    CM: { 'MTN Mobile Money': 1, 'Orange Money': 2 },
+    CI: { 'Orange Money': 29, 'MTN Money': 30, 'Moov Money': 31, 'Wave': 32 },
+    BF: { 'Moov Money': 33, 'Orange Money': 34 },
+    BJ: { 'MTN Mobile Money': 35, 'Moov Money': 36 },
+    TG: { 'T-Money (Togocel)': 37, 'Moov Flooz': 38 },
+  };
 
   let currentProvider = 'leekpay';
   let profile = null;
@@ -248,19 +259,37 @@
     document.querySelectorAll('.provider-card').forEach(c => c.classList.toggle('active', c.dataset.provider === provider));
     document.getElementById('field-name').style.display = provider === 'soleaspay' ? 'block' : 'none';
     document.getElementById('rc-name').required = provider === 'soleaspay';
-    document.getElementById('fee-note').textContent =
-      provider === 'leekpay'
-        ? 'Paiement sécurisé via LeekPay · Dépôt minimum : 3 000 FCFA'
-        : 'Paiement via SoleasPay (MTN / Orange Money) · Crédité après confirmation manuelle · Dépôt minimum : 3 000 FCFA';
     updateOperators();
   }
 
   function updateOperators(){
     const country = document.getElementById('rc-country').value;
     const sel = document.getElementById('rc-operator');
-    const ops = currentProvider === 'leekpay' ? (OPERATORS_LEEKPAY[country] || []) : OPERATORS_SOLEASPAY;
+    const feeNote = document.getElementById('fee-note');
+
+    if(currentProvider === 'leekpay'){
+      const ops = OPERATORS_LEEKPAY[country] || [];
+      sel.innerHTML = '<option value="" disabled selected>Choisissez un opérateur</option>' +
+        ops.map(o => `<option value="${o}">${o}</option>`).join('');
+      feeNote.textContent = 'Paiement sécurisé via LeekPay · Dépôt minimum : 3 000 FCFA';
+      return;
+    }
+
+    // SoleasPay
+    if(!country){
+      sel.innerHTML = '<option value="" disabled selected>Choisissez d\'abord un pays</option>';
+      feeNote.textContent = 'Paiement via SoleasPay · Dépôt minimum : 3 000 FCFA';
+      return;
+    }
+    if(!SOLEASPAY_SUPPORTED_COUNTRIES.includes(country)){
+      sel.innerHTML = '<option value="" disabled selected>SoleasPay indisponible pour ce pays</option>';
+      feeNote.textContent = "SoleasPay n'est pas encore disponible pour ce pays — choisissez LeekPay à la place.";
+      return;
+    }
+    const ops = Object.keys(OPERATORS_SOLEASPAY[country] || {});
     sel.innerHTML = '<option value="" disabled selected>Choisissez un opérateur</option>' +
       ops.map(o => `<option value="${o}">${o}</option>`).join('');
+    feeNote.textContent = 'Paiement via SoleasPay · Crédité après confirmation manuelle · Dépôt minimum : 3 000 FCFA';
   }
 
   document.getElementById('quick-amounts').addEventListener('click', (e) => {
@@ -367,6 +396,10 @@
     if(!clientName){ showMsg('Renseignez votre nom complet.', true); return false; }
     if(!phone){ showMsg('Renseignez votre numéro Mobile Money.', true); return false; }
     if(amount < 3000){ showMsg('Le montant minimum est de 3 000 FCFA.', true); return false; }
+    if(!SOLEASPAY_SUPPORTED_COUNTRIES.includes(country)){
+      showMsg("SoleasPay n'est pas disponible pour ce pays. Choisissez LeekPay à la place.", true);
+      return false;
+    }
 
     if(SOLEASPAY_API_KEY.includes('A_REMPLACER')){
       showMsg("Configuration manquante : remplace SOLEASPAY_API_KEY dans le code de cette page.", true);
@@ -377,7 +410,13 @@
 
     const orderId = 'RMDX-' + Date.now() + '-' + Math.random().toString(36).slice(2,6).toUpperCase();
     const currency = COUNTRY_CURRENCY[country] || 'XOF';
-    const serviceId = SOLEASPAY_SERVICE_IDS[operator];
+    const serviceId = (OPERATORS_SOLEASPAY[country] || {})[operator];
+
+    if(!serviceId){
+      showMsg("Cet opérateur n'est pas reconnu par SoleasPay pour ce pays.", true);
+      btn.disabled = false; btn.textContent = 'Recharger';
+      return false;
+    }
 
     let result;
     try {
