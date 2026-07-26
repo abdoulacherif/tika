@@ -69,7 +69,7 @@
   }
   .submit-btn:disabled{opacity:0.6; cursor:wait;}
 
-  .msg{font-family:'Rajdhani',sans-serif; font-size:13px; padding:10px 12px; border-radius:4px; margin-bottom:14px; display:none;}
+  .msg{font-family:'Rajdhani',sans-serif; font-size:13px; padding:10px 12px; border-radius:4px; margin-bottom:14px; display:none; line-height:1.5;}
   .msg.show{display:block;}
   .msg.err{background:rgba(214,40,57,0.14); color:#ff8a94; border:1px solid rgba(214,40,57,0.35);}
   .msg.ok{background:rgba(227,178,60,0.12); color:var(--gold); border:1px solid rgba(227,178,60,0.35);}
@@ -154,9 +154,9 @@
 </main>
 
 <nav class="bottom-nav">
-  <a href="recharge.html" class="nav-item active">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-    <span>Recharge</span>
+  <a href="invest.html" class="nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+    <span>Investir</span>
   </a>
   <a href="vitesse.html" class="nav-item">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15a8 8 0 1 1 16 0"/><path d="M12 15 16 10"/><circle cx="12" cy="15" r="1"/></svg>
@@ -182,7 +182,7 @@
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   // ⚠️ Remplace par ta vraie clé PUBLIQUE LeekPay (pk_live_xxx) — jamais la clé secrète ici.
-  const LEEKPAY_PUBLIC_KEY = 'fp_live_eff4958ad8817a903afa9bb7ba2562bb73dc68f559374930';
+  const LEEKPAY_PUBLIC_KEY = 'pk_live_REMPLACE_MOI';
 
   const OPERATORS = {
     SN: ['Orange Money', 'Wave', 'Free Money'],
