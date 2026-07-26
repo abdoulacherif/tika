@@ -43,6 +43,15 @@
   .balance-note .lbl{font-family:'Rajdhani',sans-serif; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--chrome-dim);}
   .balance-note .amt{font-family:'Rajdhani',sans-serif; font-weight:700; font-size:20px; margin-top:2px;}
 
+  .provider-row{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;}
+  .provider-card{
+    background:var(--steel); border:1px solid var(--line); border-radius:8px; padding:14px 12px; text-align:center;
+    cursor:pointer; transition:border-color .15s ease;
+  }
+  .provider-card.active{border-color:var(--gold);}
+  .provider-card .name{font-family:'Rajdhani',sans-serif; font-weight:700; text-transform:uppercase; font-size:14px;}
+  .provider-card .tag{font-size:10px; color:var(--chrome-dim); margin-top:3px; text-transform:uppercase; letter-spacing:0.05em;}
+
   .form-card{background:var(--steel); border:1px solid var(--line); border-radius:8px; padding:16px;}
   .field{margin-bottom:14px;}
   .field label{display:block; font-family:'Rajdhani',sans-serif; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--chrome-dim); margin-bottom:6px;}
@@ -106,10 +115,21 @@
 
 <main class="wrap">
   <div class="page-title">Recharge</div>
-  <div class="page-sub">Ajoutez des fonds via Mobile Money (LeekPay).</div>
+  <div class="page-sub">Choisissez votre moyen de paiement, puis ajoutez des fonds.</div>
 
   <div class="balance-note">
     <div><div class="lbl">Solde actuel</div><div class="amt" id="balance-amt">—</div></div>
+  </div>
+
+  <div class="provider-row" id="provider-row">
+    <div class="provider-card active" data-provider="leekpay" onclick="selectProvider('leekpay')">
+      <div class="name">LeekPay</div>
+      <div class="tag">Tous opérateurs</div>
+    </div>
+    <div class="provider-card" data-provider="soleaspay" onclick="selectProvider('soleaspay')">
+      <div class="name">SoleasPay</div>
+      <div class="tag">MTN · Orange</div>
+    </div>
   </div>
 
   <div class="form-card">
@@ -136,6 +156,16 @@
         </select>
       </div>
 
+      <div class="field" id="field-name" style="display:none;">
+        <label>Nom complet</label>
+        <input type="text" id="rc-name" placeholder="Prénom et nom">
+      </div>
+
+      <div class="field">
+        <label>Numéro Mobile Money</label>
+        <input type="tel" id="rc-phone" placeholder="77 123 45 67" required>
+      </div>
+
       <div class="field">
         <label>Montant (FCFA)</label>
         <div class="quick-amounts" id="quick-amounts">
@@ -147,7 +177,7 @@
         <input type="number" id="rc-amount" min="3000" step="1" placeholder="Minimum 3 000 FCFA" required>
       </div>
 
-      <div class="fee-note">Paiement sécurisé via LeekPay · Dépôt minimum : 3 000 FCFA</div>
+      <div class="fee-note" id="fee-note">Paiement sécurisé via LeekPay · Dépôt minimum : 3 000 FCFA</div>
       <button type="submit" class="submit-btn" id="rc-submit">Recharger</button>
     </form>
   </div>
@@ -182,9 +212,15 @@
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   // ⚠️ Remplace par ta vraie clé PUBLIQUE LeekPay (pk_live_xxx) — jamais la clé secrète ici.
-  const LEEKPAY_PUBLIC_KEY = 'pk_live_REMPLACE_MOI';
+  const LEEKPAY_PUBLIC_KEY = 'pk_live_aWmHUDEt1X4cjvdPM9vl88VcvRfLkO8K';
 
-  const OPERATORS = {
+  // ⚠️ Remplace par ta vraie clé x-api-key SoleasPay (disponible sur leur dashboard).
+  const SOLEASPAY_API_KEY = 'RY4_Pz69OhEuFqSVH_ptZU_HottxXFvhYzyp5l4Ovb8-AP';
+  const SOLEASPAY_BASE_URL = 'https://soleaspay.com';
+  const SOLEASPAY_SERVICE_IDS = { 'MTN Mobile Money': 1, 'Orange Money': 2 };
+  const COUNTRY_CURRENCY = { SN:'XOF', CM:'XAF', TG:'XOF', BJ:'XOF', CI:'XOF', NE:'XOF', BF:'XOF' };
+
+  const OPERATORS_LEEKPAY = {
     SN: ['Orange Money', 'Wave', 'Free Money'],
     CM: ['MTN Mobile Money', 'Orange Money'],
     TG: ['T-Money (Togocel)', 'Moov Flooz'],
@@ -193,7 +229,10 @@
     NE: ['Airtel Money', 'Orange Money', 'Moov Money'],
     BF: ['Orange Money', 'Moov Money'],
   };
+  // SoleasPay ne gère que ces deux réseaux, quel que soit le pays.
+  const OPERATORS_SOLEASPAY = ['MTN Mobile Money', 'Orange Money'];
 
+  let currentProvider = 'leekpay';
   let profile = null;
   let userId = null;
 
@@ -204,10 +243,22 @@
     el.className = 'msg show ' + (isError ? 'err' : 'ok');
   }
 
+  function selectProvider(provider){
+    currentProvider = provider;
+    document.querySelectorAll('.provider-card').forEach(c => c.classList.toggle('active', c.dataset.provider === provider));
+    document.getElementById('field-name').style.display = provider === 'soleaspay' ? 'block' : 'none';
+    document.getElementById('rc-name').required = provider === 'soleaspay';
+    document.getElementById('fee-note').textContent =
+      provider === 'leekpay'
+        ? 'Paiement sécurisé via LeekPay · Dépôt minimum : 3 000 FCFA'
+        : 'Paiement via SoleasPay (MTN / Orange Money) · Crédité après confirmation manuelle · Dépôt minimum : 3 000 FCFA';
+    updateOperators();
+  }
+
   function updateOperators(){
     const country = document.getElementById('rc-country').value;
     const sel = document.getElementById('rc-operator');
-    const ops = OPERATORS[country] || [];
+    const ops = currentProvider === 'leekpay' ? (OPERATORS_LEEKPAY[country] || []) : OPERATORS_SOLEASPAY;
     sel.innerHTML = '<option value="" disabled selected>Choisissez un opérateur</option>' +
       ops.map(o => `<option value="${o}">${o}</option>`).join('');
   }
@@ -230,13 +281,20 @@
     profile = prof;
 
     document.getElementById('balance-amt').textContent = fmt(profile.balance) + ' FCFA';
-    if(profile.country){ document.getElementById('rc-country').value = profile.country; updateOperators(); }
+    if(profile.country){ document.getElementById('rc-country').value = profile.country; }
+    if(profile.phone){ document.getElementById('rc-phone').value = profile.phone; }
+    updateOperators();
 
     document.getElementById('loading-screen').style.display = 'none';
   }
 
-  function handleRecharge(e){
+  async function handleRecharge(e){
     e.preventDefault();
+    if(currentProvider === 'leekpay') return handleLeekPay();
+    return handleSoleasPay();
+  }
+
+  function handleLeekPay(){
     const btn = document.getElementById('rc-submit');
     const country = document.getElementById('rc-country').value;
     const operator = document.getElementById('rc-operator').value;
@@ -244,25 +302,18 @@
 
     document.getElementById('recharge-msg').className = 'msg';
 
-    if(!country || !operator){
-      showMsg('Choisissez un pays et un opérateur.', true);
-      return false;
-    }
-    if(amount < 3000){
-      showMsg('Le montant minimum est de 3 000 FCFA.', true);
-      return false;
-    }
+    if(!country || !operator){ showMsg('Choisissez un pays et un opérateur.', true); return false; }
+    if(amount < 3000){ showMsg('Le montant minimum est de 3 000 FCFA.', true); return false; }
 
     btn.disabled = true; btn.textContent = 'Ouverture du paiement…';
 
     if(LEEKPAY_PUBLIC_KEY.includes('REMPLACE_MOI')){
-      showMsg("Configuration manquante : remplace LEEKPAY_PUBLIC_KEY par ta vraie clé publique (pk_live_...) dans le code de cette page.", true);
+      showMsg("Configuration manquante : remplace LEEKPAY_PUBLIC_KEY dans le code de cette page.", true);
       btn.disabled = false; btn.textContent = 'Recharger';
       return false;
     }
-
     if(typeof LeekPay === 'undefined' || !LeekPay.checkout){
-      showMsg("Le module de paiement LeekPay ne s'est pas chargé (bloqueur de script, connexion, ou domaine non accessible). Vérifie la console du navigateur pour le détail.", true);
+      showMsg("Le module LeekPay ne s'est pas chargé (bloqueur de script ou connexion).", true);
       btn.disabled = false; btn.textContent = 'Recharger';
       return false;
     }
@@ -276,14 +327,12 @@
         customerEmail: profile.email,
 
         onSuccess: async function(data){
-          // Le navigateur seul ne suffit pas à valider un paiement en production (voir doc LeekPay) —
-          // pour une mise en prod réelle, la confirmation finale doit venir d'un webhook côté serveur.
           const newBalance = Number(profile.balance) + Number(data.amount);
           const { error: updErr } = await sb.from('profiles').update({ balance: newBalance }).eq('id', userId);
           if(updErr){ showMsg("Paiement reçu mais erreur solde : " + updErr.message, true); return; }
 
           await sb.from('transactions').insert({
-            user_id: userId, type: 'deposit', amount: data.amount, status: 'completed', method: operator
+            user_id: userId, type: 'deposit', amount: data.amount, status: 'completed', method: `LeekPay · ${operator}`
           });
 
           profile.balance = newBalance;
@@ -291,7 +340,6 @@
           showMsg(`Recharge réussie : ${fmt(data.amount)} FCFA ajoutés. Nouveau solde : ${fmt(newBalance)} FCFA.`, false);
           btn.disabled = false; btn.textContent = 'Recharger';
         },
-
         onCancel: function(){
           showMsg('Paiement annulé.', true);
           btn.disabled = false; btn.textContent = 'Recharger';
@@ -302,6 +350,85 @@
       btn.disabled = false; btn.textContent = 'Recharger';
     }
 
+    return false;
+  }
+
+  async function handleSoleasPay(){
+    const btn = document.getElementById('rc-submit');
+    const country = document.getElementById('rc-country').value;
+    const operator = document.getElementById('rc-operator').value;
+    const clientName = document.getElementById('rc-name').value.trim();
+    const phone = document.getElementById('rc-phone').value.trim();
+    const amount = Number(document.getElementById('rc-amount').value);
+
+    document.getElementById('recharge-msg').className = 'msg';
+
+    if(!country || !operator){ showMsg('Choisissez un pays et un opérateur.', true); return false; }
+    if(!clientName){ showMsg('Renseignez votre nom complet.', true); return false; }
+    if(!phone){ showMsg('Renseignez votre numéro Mobile Money.', true); return false; }
+    if(amount < 3000){ showMsg('Le montant minimum est de 3 000 FCFA.', true); return false; }
+
+    if(SOLEASPAY_API_KEY.includes('A_REMPLACER')){
+      showMsg("Configuration manquante : remplace SOLEASPAY_API_KEY dans le code de cette page.", true);
+      return false;
+    }
+
+    btn.disabled = true; btn.textContent = 'Envoi de la demande…';
+
+    const orderId = 'RMDX-' + Date.now() + '-' + Math.random().toString(36).slice(2,6).toUpperCase();
+    const currency = COUNTRY_CURRENCY[country] || 'XOF';
+    const serviceId = SOLEASPAY_SERVICE_IDS[operator];
+
+    let result;
+    try {
+      const response = await fetch(SOLEASPAY_BASE_URL + '/api/agent/bills/v3', {
+        method: 'POST',
+        headers: {
+          'x-api-key': SOLEASPAY_API_KEY,
+          'operation': '2',
+          'service': String(serviceId),
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          wallet: phone,
+          amount: amount,
+          currency: currency,
+          orderId: orderId,
+          description: `Recharge ROMANDEX`,
+          payer: clientName,
+          payerEmail: profile.email,
+          successUrl: location.origin + '/recharge.html',
+          failureUrl: location.origin + '/recharge.html'
+        })
+      });
+      result = await response.json();
+
+      if(!result || result.success === false){
+        showMsg("Erreur SoleasPay : " + (result && result.message || 'demande refusée'), true);
+        btn.disabled = false; btn.textContent = 'Recharger';
+        return false;
+      }
+    } catch(err){
+      showMsg("Impossible de contacter SoleasPay : " + err.message, true);
+      btn.disabled = false; btn.textContent = 'Recharger';
+      return false;
+    }
+
+    // Statut "en attente" par sécurité : la confirmation définitive passe par un callback serveur
+    // que ce site (statique) ne peut pas recevoir directement. Validation manuelle par l'admin.
+    const { error: txErr } = await sb.from('transactions').insert({
+      user_id: userId, type: 'deposit', amount: amount, status: 'pending', method: `SoleasPay · ${operator} · ${orderId}`
+    });
+
+    btn.disabled = false; btn.textContent = 'Recharger';
+
+    if(txErr){
+      showMsg("Demande envoyée à SoleasPay mais erreur d'enregistrement : " + txErr.message, true);
+      return false;
+    }
+
+    showMsg(`Demande envoyée ! Validez le paiement de ${fmt(amount)} FCFA sur votre téléphone (${phone}). Votre solde sera crédité après confirmation.`, false);
+    document.getElementById('recharge-form').reset();
     return false;
   }
 
