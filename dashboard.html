@@ -228,6 +228,51 @@
   }
   .nav-item svg{width:20px; height:20px;}
   .nav-item.active{color:var(--red);}
+
+  /* WELCOME MODAL */
+  .welcome-overlay{
+    position:fixed; inset:0; z-index:200; background:rgba(6,7,9,0.78); backdrop-filter:blur(4px);
+    display:none; align-items:center; justify-content:center; padding:20px;
+  }
+  .welcome-overlay.show{display:flex;}
+  .welcome-card{
+    width:100%; max-width:420px; background:var(--steel); border:1px solid var(--line); border-top:2px solid var(--gold);
+    border-radius:12px; padding:26px 22px 22px; position:relative;
+    animation:welcomeIn .3s cubic-bezier(.22,1,.36,1);
+  }
+  @keyframes welcomeIn{ from{opacity:0; transform:translateY(16px) scale(0.97);} to{opacity:1; transform:translateY(0) scale(1);} }
+  .welcome-close{
+    position:absolute; top:14px; right:14px; background:none; border:none; color:var(--chrome-dim);
+    font-size:18px; cursor:pointer; width:28px; height:28px; border-radius:50%;
+  }
+  .welcome-icon{
+    width:56px; height:56px; border-radius:50%; margin:0 auto 14px;
+    background:rgba(227,178,60,0.12); border:1px solid rgba(227,178,60,0.35);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .welcome-icon svg{width:26px; height:26px; color:var(--gold);}
+  .welcome-title{
+    font-family:'Rajdhani',sans-serif; font-weight:700; text-transform:uppercase; font-size:20px;
+    text-align:center; margin-bottom:4px; letter-spacing:0.03em;
+  }
+  .welcome-rule{
+    display:flex; gap:12px; margin-top:16px; align-items:flex-start;
+  }
+  .welcome-num{
+    flex-shrink:0; width:24px; height:24px; border-radius:6px; background:rgba(227,178,60,0.14); color:var(--gold);
+    font-family:'Rajdhani',sans-serif; font-weight:700; font-size:12px; display:flex; align-items:center; justify-content:center;
+  }
+  .welcome-rule p{font-size:13px; color:var(--chrome); line-height:1.5;}
+  .welcome-ok{
+    width:100%; margin-top:22px; font-family:'Rajdhani',sans-serif; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;
+    font-size:14px; background:var(--red); color:#fff; border:none; padding:13px; border-radius:6px; cursor:pointer;
+  }
+  .welcome-tg{
+    width:100%; margin-top:10px; font-family:'Rajdhani',sans-serif; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;
+    font-size:13px; background:#2aabee; color:#fff; border:none; padding:11px; border-radius:6px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .welcome-tg svg{width:16px; height:16px; fill:#fff;}
 </style>
 </head>
 <body>
@@ -235,6 +280,43 @@
 <div class="loading-screen" id="loading-screen">
   <div class="loading-logo">R<span>O</span>MANDEX</div>
   <div class="loading-bar"></div>
+</div>
+
+<div class="welcome-overlay" id="welcome-overlay">
+  <div class="welcome-card">
+    <button class="welcome-close" onclick="closeWelcome()">✕</button>
+    <div class="welcome-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    </div>
+    <div class="welcome-title">Bienvenue sur Romandex</div>
+
+    <div class="welcome-rule">
+      <div class="welcome-num">1</div>
+      <p>Bonus de <b>500 FCFA</b> déjà crédité sur votre compte.</p>
+    </div>
+    <div class="welcome-rule">
+      <div class="welcome-num">2</div>
+      <p>Connectez-vous chaque jour et réclamez <b>50 FCFA</b> de récompense journalière.</p>
+    </div>
+    <div class="welcome-rule">
+      <div class="welcome-num">3</div>
+      <p>Invitez vos amis à investir et gagnez <b>28% de commission</b> (25%+2%+1%), versée automatiquement.</p>
+    </div>
+    <div class="welcome-rule">
+      <div class="welcome-num">4</div>
+      <p>Chaque investissement rapporte un gain quotidien à réclamer sur la page <b>Vitesse</b>, à partir du lendemain.</p>
+    </div>
+    <div class="welcome-rule">
+      <div class="welcome-num">5</div>
+      <p>Retirez dès <b>1 000 FCFA</b> vers Mobile Money, jusqu'à <b>3 retraits par jour</b> entre 10h et 17h.</p>
+    </div>
+
+    <button class="welcome-ok" onclick="closeWelcome()">D'accord</button>
+    <button class="welcome-tg" onclick="window.open('https://t.me/+W9beSCzenhUxYTVk','_blank')">
+      <svg viewBox="0 0 24 24"><path d="M21.9 3.4 2.6 11c-1 .4-1 1.9.1 2.2l4.9 1.5 1.9 6c.2.7 1.1.9 1.7.4l2.7-2.4 4.8 3.5c.8.6 1.9.1 2.1-.9l3.2-15.2c.2-1.1-.8-2-1.9-1.7ZM8.5 13.9l9.6-6.9c.3-.2.6.2.3.4l-8 8.1-.3 3.3-1.6-4.9Z"/></svg>
+      Contacter sur Telegram
+    </button>
+  </div>
 </div>
 
 <header>
@@ -355,6 +437,17 @@
     await loadHistory();
 
     document.getElementById('loading-screen').style.display = 'none';
+
+    let welcomePending = false;
+    try { welcomePending = localStorage.getItem('romandex_welcome_pending') === '1'; } catch(e){}
+    if(welcomePending){
+      document.getElementById('welcome-overlay').classList.add('show');
+      try { localStorage.removeItem('romandex_welcome_pending'); } catch(e){}
+    }
+  }
+
+  function closeWelcome(){
+    document.getElementById('welcome-overlay').classList.remove('show');
   }
 
   function renderProfile(initial){
