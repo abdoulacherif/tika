@@ -78,7 +78,7 @@
   }
   .submit-btn:disabled{opacity:0.6; cursor:wait;}
 
-  .msg{font-family:'Rajdhani',sans-serif; font-size:13px; padding:10px 12px; border-radius:4px; margin-bottom:14px; display:none; line-height:1.5;}
+  .msg{font-family:'Rajdhani',sans-serif; font-size:12px; padding:10px 12px; border-radius:4px; margin-bottom:14px; display:none; line-height:1.5; word-break:break-word;}
   .msg.show{display:block;}
   .msg.err{background:rgba(214,40,57,0.14); color:#ff8a94; border:1px solid rgba(214,40,57,0.35);}
   .msg.ok{background:rgba(227,178,60,0.12); color:var(--gold); border:1px solid rgba(227,178,60,0.35);}
@@ -212,14 +212,12 @@
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRqd2F1dXRkcGRhaHp4cGhocnhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4ODg3MTQsImV4cCI6MjEwMDQ2NDcxNH0.KTZte9pS5JUu1gZJ4i7KXIDc4hHFjJhDlZcoy6begnA';
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // ⚠️ Remplace par ta vraie clé PUBLIQUE LeekPay (pk_live_xxx) — jamais la clé secrète ici.
   const LEEKPAY_PUBLIC_KEY = 'pk_live_aWmHUDEt1X4cjvdPM9vl88VcvRfLkO8K';
 
-  // ⚠️ Remplace par ta vraie clé x-api-key SoleasPay (disponible sur leur dashboard).
   const SOLEASPAY_API_KEY = 'RY4_Pz69OhEuFqSVH_ptZU_HottxXFvhYzyp5l4Ovb8-AP';
   const SOLEASPAY_BASE_URL = 'https://soleaspay.com';
   const SOLEASPAY_SUPPORTED_COUNTRIES = ['CM','CI','BF','BJ','TG'];
-  const COUNTRY_CURRENCY = { SN:'XOF', CM:'XAF', TG:'XOF', BJ:'XOF', CI:'XOF', NE:'XOF', BF:'XOF' };
+  const COUNTRY_CURRENCY = { SN:'XOF', CM:'XAF', TG:'XOF', BJ:'XOF', CI:'XOF', NE:'XOF', BF:'XOF', ML:'XOF' };
 
   const OPERATORS_LEEKPAY = {
     SN: ['Orange Money', 'Wave', 'Free Money'],
@@ -232,9 +230,6 @@
     ML: ['Orange Money', 'Moov Money'],
   };
 
-  // Correspondance réelle vérifiée sur l'API SoleasPay (leur doc PDF est incomplète) :
-  // https://soleaspay.com/api/services-list — un identifiant "service" différent par pays ET par opérateur.
-  // Le Sénégal, le Niger et le Mali n'ont aucun service actif chez SoleasPay pour le moment.
   const OPERATORS_SOLEASPAY = {
     CM: { 'MTN Mobile Money': 1, 'Orange Money': 2 },
     CI: { 'Orange Money': 29, 'MTN Money': 30, 'Moov Money': 31, 'Wave': 32 },
@@ -275,7 +270,6 @@
       return;
     }
 
-    // SoleasPay
     if(!country){
       sel.innerHTML = '<option value="" disabled selected>Choisissez d\'abord un pays</option>';
       feeNote.textContent = 'Paiement via SoleasPay · Dépôt minimum : 3 000 FCFA';
@@ -419,6 +413,7 @@
     }
 
     let result;
+    let rawText = '';
     try {
       const response = await fetch(SOLEASPAY_BASE_URL + '/api/agent/bills/v3', {
         method: 'POST',
@@ -440,21 +435,24 @@
           failureUrl: location.origin + '/recharge.html'
         })
       });
-      result = await response.json();
 
-      if(!result || result.success === false){
-        showMsg("Erreur SoleasPay : " + (result && result.message || 'demande refusée'), true);
+      rawText = await response.text();
+      try { result = JSON.parse(rawText); } catch(parseErr) { result = null; }
+
+      console.log('Statut HTTP SoleasPay :', response.status);
+      console.log('Réponse brute SoleasPay :', rawText);
+
+      if(!response.ok || !result || result.success === false){
+        showMsg(`DIAGNOSTIC — HTTP ${response.status} — Réponse : ${rawText || '(vide)'}`, true);
         btn.disabled = false; btn.textContent = 'Recharger';
         return false;
       }
     } catch(err){
-      showMsg("Impossible de contacter SoleasPay : " + err.message, true);
+      showMsg("Impossible de contacter SoleasPay (réseau/CORS) : " + err.message, true);
       btn.disabled = false; btn.textContent = 'Recharger';
       return false;
     }
 
-    // Statut "en attente" par sécurité : la confirmation définitive passe par un callback serveur
-    // que ce site (statique) ne peut pas recevoir directement. Validation manuelle par l'admin.
     const { error: txErr } = await sb.from('transactions').insert({
       user_id: userId, type: 'deposit', amount: amount, status: 'pending', method: `SoleasPay · ${operator} · ${orderId}`
     });
@@ -466,7 +464,7 @@
       return false;
     }
 
-    showMsg(`Demande envoyée ! Validez le paiement de ${fmt(amount)} FCFA sur votre téléphone (${phone}). Votre solde sera crédité après confirmation.`, false);
+    showMsg(`Demande envoyée ! Réponse SoleasPay : ${rawText}`, false);
     document.getElementById('recharge-form').reset();
     return false;
   }
