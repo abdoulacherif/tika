@@ -189,7 +189,7 @@
 
   <div class="section">
     <div class="reward-card">
-      <div class="txt"><b>Récompense journalière</b>100 FCFA à réclamer chaque jour</div>
+      <div class="txt"><b>Récompense journalière</b>50 FCFA à réclamer chaque jour</div>
       <button class="claim-btn" id="claim-btn" onclick="claimDailyReward()">Réclamer</button>
     </div>
   </div>
@@ -290,11 +290,11 @@
     btn.disabled = true; btn.textContent = 'En cours…';
 
     const { error: txErr } = await sb.from('transactions').insert({
-      user_id: userId, type: 'daily_reward', amount: 100, status: 'completed'
+      user_id: userId, type: 'daily_reward', amount: 50, status: 'completed'
     });
     if(txErr){ btn.disabled = false; btn.textContent = 'Réclamer'; alert("Erreur : " + txErr.message); return; }
 
-    const newBalance = Number(profile.balance) + 100;
+    const newBalance = Number(profile.balance) + 50;
     const { error: updErr } = await sb.from('profiles').update({ balance: newBalance }).eq('id', userId);
     if(updErr){ alert("Erreur solde : " + updErr.message); return; }
 
