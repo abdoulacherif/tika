@@ -213,8 +213,10 @@
       return false;
     }
 
-    showMsg(`Compte créé ! Bonus de 500F crédité. Votre code de parrainage : ${myCode}`, false);
+    showMsg(`Compte créé ! Bonus de 500F crédité. Redirection…`, false);
     document.getElementById('signup-form').reset();
+    try { localStorage.setItem('romandex_welcome_pending', '1'); } catch(e){}
+    setTimeout(() => { window.location.href = 'dashboard.html'; }, 900);
     return false;
   }
 </script>
