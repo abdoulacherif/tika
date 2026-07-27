@@ -214,7 +214,7 @@
 
   const LEEKPAY_PUBLIC_KEY = 'pk_live_aWmHUDEt1X4cjvdPM9vl88VcvRfLkO8K';
 
-  const SOLEASPAY_API_KEY = 'RY4_Pz69OhEuFqSVH_ptZU_HottxXFvhYzyp5l4Ovb8-AP';
+  const SOLEASPAY_API_KEY = 'ccu802I-8gGwP_w0yEn29Qs482ZLina67IOPrAi1GUA-AP';
   const SOLEASPAY_BASE_URL = 'https://soleaspay.com';
   const SOLEASPAY_SUPPORTED_COUNTRIES = ['CM','CI','BF','BJ','TG'];
   const COUNTRY_CURRENCY = { SN:'XOF', CM:'XAF', TG:'XOF', BJ:'XOF', CI:'XOF', NE:'XOF', BF:'XOF', ML:'XOF' };
@@ -413,7 +413,6 @@
     }
 
     let result;
-    let rawText = '';
     try {
       const response = await fetch(SOLEASPAY_BASE_URL + '/api/agent/bills/v3', {
         method: 'POST',
@@ -436,19 +435,19 @@
         })
       });
 
-      rawText = await response.text();
+      const rawText = await response.text();
       try { result = JSON.parse(rawText); } catch(parseErr) { result = null; }
 
-      console.log('Statut HTTP SoleasPay :', response.status);
-      console.log('Réponse brute SoleasPay :', rawText);
+      // Détail technique conservé uniquement dans la console développeur, jamais montré au client.
+      console.log('SoleasPay —', response.status, rawText);
 
       if(!response.ok || !result || result.success === false){
-        showMsg(`DIAGNOSTIC — HTTP ${response.status} — Réponse : ${rawText || '(vide)'}`, true);
+        showMsg("Le paiement n'a pas pu être initié pour le moment. Réessayez dans un instant ou choisissez LeekPay.", true);
         btn.disabled = false; btn.textContent = 'Recharger';
         return false;
       }
     } catch(err){
-      showMsg("Impossible de contacter SoleasPay (réseau/CORS) : " + err.message, true);
+      showMsg("Impossible de contacter le service de paiement. Vérifiez votre connexion et réessayez.", true);
       btn.disabled = false; btn.textContent = 'Recharger';
       return false;
     }
@@ -460,11 +459,11 @@
     btn.disabled = false; btn.textContent = 'Recharger';
 
     if(txErr){
-      showMsg("Demande envoyée à SoleasPay mais erreur d'enregistrement : " + txErr.message, true);
+      showMsg("Demande envoyée mais une erreur est survenue lors de l'enregistrement. Contactez le support si le solde n'est pas mis à jour.", true);
       return false;
     }
 
-    showMsg(`Demande envoyée ! Réponse SoleasPay : ${rawText}`, false);
+    showMsg(`Demande envoyée ! Validez le paiement de ${fmt(amount)} FCFA sur votre téléphone (${phone}). Votre solde sera crédité après confirmation.`, false);
     document.getElementById('recharge-form').reset();
     return false;
   }
