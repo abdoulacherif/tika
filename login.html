@@ -134,6 +134,16 @@
       <button type="submit" class="submit" id="submit-btn">Se connecter</button>
     </form>
 
+    <div class="switch" style="margin-top:12px;"><a onclick="toggleForgot()" style="cursor:pointer;">Mot de passe oublié ?</a></div>
+
+    <div id="forgot-box" style="display:none; margin-top:14px; padding-top:14px; border-top:1px solid var(--line);">
+      <div class="field">
+        <label>Email pour réinitialiser</label>
+        <input type="email" id="forgot-email" placeholder="vous@exemple.com">
+      </div>
+      <button type="button" class="submit" id="forgot-btn" onclick="handleForgotPassword()" style="background:var(--steel); border:1px solid var(--line);">Envoyer le lien de réinitialisation</button>
+    </div>
+
     <div class="switch">Pas encore de compte ? <a href="signup.html">S'inscrire</a></div>
   </div>
 </main>
@@ -171,6 +181,33 @@
     try { localStorage.setItem('romandex_welcome_pending', '1'); } catch(e){}
     setTimeout(() => { window.location.href = 'dashboard.html'; }, 900);
     return false;
+  }
+
+  function toggleForgot(){
+    const box = document.getElementById('forgot-box');
+    box.style.display = box.style.display === 'none' ? 'block' : 'none';
+  }
+
+  async function handleForgotPassword(){
+    const btn = document.getElementById('forgot-btn');
+    const email = document.getElementById('forgot-email').value.trim();
+
+    if(!email){ showMsg('Renseignez votre email.', true); return; }
+
+    btn.disabled = true; btn.textContent = 'Envoi…';
+
+    const { error } = await sb.auth.resetPasswordForEmail(email, {
+      redirectTo: location.origin + '/reset-password.html'
+    });
+
+    btn.disabled = false; btn.textContent = 'Envoyer le lien de réinitialisation';
+
+    if(error){
+      showMsg("Erreur : " + error.message, true);
+      return;
+    }
+
+    showMsg('Si un compte existe avec cet email, un lien de réinitialisation vient d\'être envoyé.', false);
   }
 </script>
 </body>
