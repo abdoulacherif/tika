@@ -51,6 +51,26 @@
   .tab-panel{display:none;}
   .tab-panel.active{display:block;}
 
+  .status-filters{display:flex; gap:6px; margin-bottom:14px;}
+  .filter-btn{
+    font-family:'Rajdhani',sans-serif; font-weight:600; text-transform:uppercase; letter-spacing:0.03em; font-size:11px;
+    background:none; border:1px solid var(--line); color:var(--chrome-dim); padding:7px 12px; border-radius:16px; cursor:pointer;
+  }
+  .filter-btn.active{background:rgba(227,178,60,0.14); border-color:var(--gold); color:var(--gold);}
+
+  .ref-pair{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    background:var(--steel); border:1px solid var(--line); border-radius:8px; padding:13px 14px; margin-bottom:8px;
+  }
+  .ref-pair .left{display:flex; align-items:center; gap:10px; min-width:0;}
+  .ref-pair .who{font-family:'Rajdhani',sans-serif; font-size:13px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .ref-pair .arrow{color:var(--chrome-dim); flex-shrink:0;}
+  .ref-pair .lvl{
+    flex-shrink:0; font-family:'Rajdhani',sans-serif; font-size:10px; text-transform:uppercase;
+    background:rgba(214,40,57,0.14); color:#ff8a94; padding:3px 8px; border-radius:10px;
+  }
+  .ref-pair .date{font-size:10px; color:var(--chrome-dim); margin-top:2px;}
+
   .search-box{
     width:100%; background:var(--steel); border:1px solid var(--line); color:var(--white);
     padding:11px 13px; font-family:'Space Mono',monospace; font-size:13px; border-radius:6px; outline:none; margin-bottom:14px;
@@ -152,7 +172,8 @@
 
   <div class="tabs">
     <button class="tab-btn active" data-tab="withdrawals" onclick="switchTab('withdrawals')">Retraits</button>
-    <button class="tab-btn" data-tab="transactions" onclick="switchTab('transactions')">Recharges & investissements</button>
+    <button class="tab-btn" data-tab="transactions" onclick="switchTab('transactions')">Dépôts</button>
+    <button class="tab-btn" data-tab="referrals" onclick="switchTab('referrals')">Parrainage</button>
     <button class="tab-btn" data-tab="users" onclick="switchTab('users')">Utilisateurs</button>
   </div>
 
@@ -161,7 +182,17 @@
   </div>
 
   <div class="tab-panel" id="panel-transactions">
+    <div class="status-filters" id="deposit-filters">
+      <button class="filter-btn active" data-status="all" onclick="filterDeposits('all')">Tous</button>
+      <button class="filter-btn" data-status="pending" onclick="filterDeposits('pending')">En attente</button>
+      <button class="filter-btn" data-status="completed" onclick="filterDeposits('completed')">Validés</button>
+      <button class="filter-btn" data-status="failed" onclick="filterDeposits('failed')">Refusés</button>
+    </div>
     <div id="tx-list"><div class="empty">Chargement…</div></div>
+  </div>
+
+  <div class="tab-panel" id="panel-referrals">
+    <div id="referrals-list"><div class="empty">Chargement…</div></div>
   </div>
 
   <div class="tab-panel" id="panel-users">
@@ -221,6 +252,7 @@
     renderStats();
     renderWithdrawals();
     renderTransactions();
+    renderReferrals();
     renderUsers();
   }
 
@@ -302,12 +334,23 @@
     renderWithdrawals(); renderTransactions(); renderUsers(); renderStats();
   }
 
+  let currentDepositFilter = 'all';
+
+  function filterDeposits(status){
+    currentDepositFilter = status;
+    document.querySelectorAll('#deposit-filters .filter-btn').forEach(b => b.classList.toggle('active', b.dataset.status === status));
+    renderTransactions();
+  }
+
   function renderTransactions(){
     const el = document.getElementById('tx-list');
-    const list = allTx.filter(t => t.type === 'deposit');
+    let list = allTx.filter(t => t.type === 'deposit');
+    if(currentDepositFilter !== 'all'){
+      list = list.filter(t => t.status === currentDepositFilter);
+    }
 
     if(list.length === 0){
-      el.innerHTML = '<div class="empty">Aucune recharge ou investissement.</div>';
+      el.innerHTML = '<div class="empty">Aucun dépôt dans cette catégorie.</div>';
       return;
     }
 
@@ -388,6 +431,36 @@
     return allProfiles.filter(p => p.referred_by === code);
   }
 
+  function renderReferrals(){
+    const el = document.getElementById('referrals-list');
+    const pairs = allProfiles.filter(p => p.referred_by);
+
+    if(pairs.length === 0){
+      el.innerHTML = '<div class="empty">Aucune relation de parrainage pour le moment.</div>';
+      return;
+    }
+
+    el.innerHTML = pairs.map(filleul => {
+      const parrain = allProfiles.find(p => p.referral_code === filleul.referred_by);
+      return `
+        <div class="ref-pair">
+          <div class="left">
+            <div>
+              <div class="who">${parrain ? parrain.email : filleul.referred_by}</div>
+              <div class="date">parraine</div>
+            </div>
+            <div class="arrow">→</div>
+            <div>
+              <div class="who">${filleul.email}</div>
+              <div class="date">Inscrit le ${new Date(filleul.created_at).toLocaleDateString('fr-FR')}</div>
+            </div>
+          </div>
+          <div class="lvl">VIP ${filleul.vip_level}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
   function renderUsers(){
     const el = document.getElementById('users-list');
     const q = document.getElementById('user-search').value.trim().toLowerCase();
@@ -405,6 +478,12 @@
     el.innerHTML = list.map(u => {
       const referrer = u.referred_by ? allProfiles.find(p => p.referral_code === u.referred_by) : null;
       const refs = referralsOf(u.referral_code);
+      const totalInvested = allTx.filter(t => t.user_id === u.id && t.type === 'deposit' && t.status === 'completed')
+        .reduce((s,t) => s + Number(t.amount), 0);
+      const totalWithdrawn = allTx.filter(t => t.user_id === u.id && t.type === 'withdrawal' && t.status === 'completed')
+        .reduce((s,t) => s + Number(t.amount), 0);
+      const totalCommissions = allTx.filter(t => t.user_id === u.id && t.type === 'referral_commission' && t.status === 'completed')
+        .reduce((s,t) => s + Number(t.amount), 0);
       return `
       <div class="user-card">
         <div class="user-top" onclick="toggleEdit('${u.id}')">
@@ -418,7 +497,8 @@
           </div>
         </div>
         <div class="referrals-mini">
-          Parrain : ${referrer ? referrer.email : '—'} (${u.referred_by || 'aucun'}) · Filleuls : ${refs.length}
+          Parrain : ${referrer ? referrer.email : '—'} (${u.referred_by || 'aucun'}) · Filleuls : ${refs.length}<br>
+          Total investi : ${fmt(totalInvested)}F · Total retiré : ${fmt(totalWithdrawn)}F · Commissions reçues : ${fmt(totalCommissions)}F
         </div>
 
         <div class="user-edit" id="edit-${u.id}">
