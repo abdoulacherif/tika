@@ -420,12 +420,14 @@
           'x-api-key': SOLEASPAY_API_KEY,
           'operation': '2',
           'service': String(serviceId),
+          'otp': '',
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          wallet: phone,
+          wallet: Number(phone.replace(/\D/g, '')),
           amount: amount,
           currency: currency,
+          order_id: orderId,
           orderId: orderId,
           description: `Recharge ROMANDEX`,
           payer: clientName,
