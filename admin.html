@@ -134,6 +134,19 @@
     font-family:'Rajdhani',sans-serif; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; font-size:12px;
     background:var(--red); color:#fff; border:none; padding:9px 16px; border-radius:4px; cursor:pointer;
   }
+  .vip-activate-row{
+    display:flex; gap:8px; margin-top:12px; padding-top:12px; border-top:1px solid var(--line);
+  }
+  .vip-activate-row select{
+    flex:1; background:var(--black); border:1px solid var(--line); color:var(--white);
+    padding:8px 10px; font-family:'Space Mono',monospace; font-size:13px; border-radius:4px;
+  }
+  .vip-activate-row button{
+    font-family:'Rajdhani',sans-serif; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; font-size:11px;
+    background:var(--gold); color:#1a1400; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; white-space:nowrap;
+  }
+  .vip-activate-row button:disabled{opacity:0.5; cursor:default;}
+  .vip-activate-note{font-size:10px; color:var(--chrome-dim); margin-top:6px; line-height:1.4;}
   .referrals-mini{font-size:11px; color:var(--chrome-dim); margin-top:8px; line-height:1.6;}
 
   .empty{color:var(--chrome-dim); font-size:13px; text-align:center; padding:20px 0;}
@@ -516,6 +529,14 @@
           </div>
           <label class="checkbox-row"><input type="checkbox" id="f-admin-${u.id}" ${u.is_admin ? 'checked' : ''}> Administrateur</label>
           <button class="save-btn" onclick="saveUser('${u.id}')">Enregistrer</button>
+
+          <div class="vip-activate-row">
+            <select id="f-vip-activate-${u.id}">
+              ${[1,2,3,4,5,6,7,8,9,10].map(l => `<option value="${l}">VIP ${l}</option>`).join('')}
+            </select>
+            <button onclick="activateVip('${u.id}')" id="activate-btn-${u.id}">Activer VIP</button>
+          </div>
+          <div class="vip-activate-note">Active un investissement gratuitement (visible sur Vitesse), sans débiter le solde ni verser de commission de parrainage.</div>
         </div>
       </div>
     `; }).join('');
@@ -541,6 +562,29 @@
 
     showMsg('Utilisateur mis à jour.', false);
     renderUsers(); renderStats();
+  }
+
+  async function activateVip(userId){
+    const btn = document.getElementById('activate-btn-' + userId);
+    const level = Number(document.getElementById('f-vip-activate-' + userId).value);
+
+    btn.disabled = true; btn.textContent = 'Activation…';
+
+    const { data, error } = await sb.rpc('admin_activate_vip', { p_user_id: userId, p_level: level });
+
+    btn.disabled = false; btn.textContent = 'Activer VIP';
+
+    if(error){ showMsg("Erreur : " + error.message, true); return; }
+    if(!data || !data.success){
+      showMsg("Impossible d'activer ce palier VIP.", true);
+      return;
+    }
+
+    const p = allProfiles.find(p => p.id === userId);
+    if(p) p.vip_level = Math.max(p.vip_level, level);
+
+    showMsg(`VIP ${level} activé pour ${p ? p.email : userId} — sans débit ni commission.`, false);
+    await loadAll();
   }
 
   init();
