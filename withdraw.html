@@ -43,6 +43,28 @@
   .balance-note .lbl{font-family:'Rajdhani',sans-serif; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--chrome-dim);}
   .balance-note .amt{font-family:'Rajdhani',sans-serif; font-weight:700; font-size:20px; margin-top:2px;}
 
+  .niger-shortcut{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    background:var(--steel); border:1px solid var(--line); border-radius:8px; padding:13px 16px; margin-bottom:12px;
+    cursor:pointer; transition:border-color .15s ease;
+  }
+  .niger-shortcut.active{border-color:var(--gold);}
+  .niger-shortcut .ns-left{display:flex; align-items:center; gap:10px;}
+  .niger-shortcut .ns-flag{font-size:20px;}
+  .niger-shortcut .ns-name{font-family:'Rajdhani',sans-serif; font-weight:700; text-transform:uppercase; font-size:14px;}
+  .niger-shortcut .ns-tag{font-size:11px; color:var(--chrome-dim); margin-top:1px;}
+  .niger-shortcut .ns-check{
+    width:20px; height:20px; border-radius:50%; border:1px solid var(--line); flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .niger-shortcut.active .ns-check{border-color:var(--gold); background:var(--gold);}
+  .niger-shortcut.active .ns-check::after{content:''; width:8px; height:8px; border-radius:50%; background:var(--black);}
+  .other-country-link{
+    display:none; font-family:'Rajdhani',sans-serif; font-size:12px; text-transform:uppercase; letter-spacing:0.05em;
+    color:var(--chrome-dim); text-align:right; margin:-6px 0 12px; cursor:pointer;
+  }
+  .other-country-link.show{display:block;}
+
   .form-card{background:var(--steel); border:1px solid var(--line); border-radius:8px; padding:16px;}
   .field{margin-bottom:12px;}
   .field label{display:block; font-family:'Rajdhani',sans-serif; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--chrome-dim); margin-bottom:5px;}
@@ -110,14 +132,25 @@
     <div><div class="lbl">Solde disponible</div><div class="amt" id="balance-amt">—</div></div>
   </div>
 
+  <div class="niger-shortcut" id="niger-shortcut" onclick="toggleNiger()">
+    <div class="ns-left">
+      <div class="ns-flag">🇳🇪</div>
+      <div>
+        <div class="ns-name">Retrait Niger</div>
+        <div class="ns-tag">Nita / Amana ta</div>
+      </div>
+    </div>
+    <div class="ns-check"></div>
+  </div>
+  <div class="other-country-link" id="other-country-link" onclick="toggleNiger()">← Choisir un autre pays</div>
+
   <div class="form-card">
     <div class="msg" id="withdraw-msg"></div>
     <form id="withdraw-form" onsubmit="return handleWithdraw(event)">
-      <div class="field">
+      <div class="field" id="field-country">
         <label>Pays</label>
         <select id="wd-country" onchange="updateOperators()" required>
           <option value="" disabled selected>Sélectionnez votre pays</option>
-          <option value="NE">🇳🇪 Niger</option>
           <option value="SN">🇸🇳 Sénégal</option>
           <option value="CM">🇨🇲 Cameroun</option>
           <option value="TG">🇹🇬 Togo</option>
@@ -177,9 +210,11 @@
 
   let profile = null;
   let userId = null;
+  let nigerMode = false;
+
+  const OPERATORS_NIGER = ['Nita', 'Amana ta'];
 
   const OPERATORS = {
-    NE: ['Airtel Money', 'Orange Money', 'Moov Money'],
     SN: ['Orange Money', 'Wave', 'Free Money'],
     CM: ['MTN Mobile Money', 'Orange Money'],
     TG: ['T-Money (Togocel)', 'Moov Flooz'],
@@ -191,11 +226,32 @@
   function fmt(n){ return Math.round(n).toLocaleString('fr-FR'); }
 
   function updateOperators(){
-    const country = document.getElementById('wd-country').value;
     const sel = document.getElementById('wd-operator');
+    if(nigerMode){
+      sel.innerHTML = '<option value="" disabled selected>Choisissez un opérateur</option>' +
+        OPERATORS_NIGER.map(o => `<option value="${o}">${o}</option>`).join('');
+      return;
+    }
+    const country = document.getElementById('wd-country').value;
     const ops = OPERATORS[country] || [];
     sel.innerHTML = '<option value="" disabled selected>Choisissez un opérateur</option>' +
       ops.map(o => `<option value="${o}">${o}</option>`).join('');
+  }
+
+  function toggleNiger(){
+    nigerMode = !nigerMode;
+    const shortcut = document.getElementById('niger-shortcut');
+    const fieldCountry = document.getElementById('field-country');
+    const otherLink = document.getElementById('other-country-link');
+    const countrySel = document.getElementById('wd-country');
+
+    shortcut.classList.toggle('active', nigerMode);
+    fieldCountry.style.display = nigerMode ? 'none' : 'block';
+    otherLink.classList.toggle('show', nigerMode);
+    countrySel.required = !nigerMode;
+
+    document.getElementById('wd-operator').value = '';
+    updateOperators();
   }
 
   async function init(){
@@ -223,7 +279,7 @@
     e.preventDefault();
     const btn = document.getElementById('wd-submit');
     const msgEl = document.getElementById('withdraw-msg');
-    const country = document.getElementById('wd-country').value;
+    const country = nigerMode ? 'NE' : document.getElementById('wd-country').value;
     const operator = document.getElementById('wd-operator').value;
     const phone = document.getElementById('wd-phone').value.trim();
     const amount = Number(document.getElementById('wd-amount').value);
@@ -268,6 +324,7 @@
     msgEl.textContent = `Demande de retrait envoyée : ${fmt(amount)} FCFA (frais ${fmt(data.fee)} FCFA) vers ${operator} ${phone}. Traitement sous 24h.`;
     msgEl.className = 'msg show ok';
     document.getElementById('withdraw-form').reset();
+    if(nigerMode){ toggleNiger(); }
     if(profile.country){ document.getElementById('wd-country').value = profile.country; updateOperators(); }
     btn.disabled = false; btn.textContent = 'Demander le retrait';
     return false;
