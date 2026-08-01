@@ -65,6 +65,18 @@
   }
   .other-country-link.show{display:block;}
 
+  .vip-required{
+    background:var(--steel); border:1px solid var(--line); border-radius:10px; padding:32px 20px;
+    text-align:center; margin-bottom:16px;
+  }
+  .vip-required-icon{font-size:30px; margin-bottom:10px;}
+  .vip-required-title{font-family:'Rajdhani',sans-serif; font-weight:700; text-transform:uppercase; font-size:17px; margin-bottom:6px;}
+  .vip-required-text{color:var(--chrome-dim); font-size:13px; line-height:1.5; margin-bottom:18px;}
+  .vip-required-btn{
+    display:inline-block; font-family:'Rajdhani',sans-serif; font-weight:600; text-transform:uppercase; letter-spacing:0.05em;
+    font-size:13px; background:var(--red); color:#fff; padding:11px 22px; border-radius:4px;
+  }
+
   .form-card{background:var(--steel); border:1px solid var(--line); border-radius:8px; padding:16px;}
   .field{margin-bottom:12px;}
   .field label{display:block; font-family:'Rajdhani',sans-serif; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--chrome-dim); margin-bottom:5px;}
@@ -132,22 +144,30 @@
     <div><div class="lbl">Solde disponible</div><div class="amt" id="balance-amt">—</div></div>
   </div>
 
-  <div class="niger-shortcut" id="niger-shortcut" onclick="toggleNiger()">
-    <div class="ns-left">
-      <div class="ns-flag">🇳🇪</div>
-      <div>
-        <div class="ns-name">Retrait Niger</div>
-        <div class="ns-tag">Nita / Amana ta</div>
-      </div>
-    </div>
-    <div class="ns-check"></div>
+  <div class="vip-required" id="vip-required" style="display:none;">
+    <div class="vip-required-icon">🔒</div>
+    <div class="vip-required-title">Aucun plan VIP actif</div>
+    <div class="vip-required-text">Vous devez activer un palier VIP pour pouvoir effectuer un retrait.</div>
+    <a href="invest.html" class="vip-required-btn">Voir les plans VIP</a>
   </div>
-  <div class="other-country-link" id="other-country-link" onclick="toggleNiger()">← Choisir un autre pays</div>
 
-  <div class="form-card">
-    <div class="msg" id="withdraw-msg"></div>
-    <form id="withdraw-form" onsubmit="return handleWithdraw(event)">
-      <div class="field" id="field-country">
+  <div id="withdraw-content">
+    <div class="niger-shortcut" id="niger-shortcut" onclick="toggleNiger()">
+      <div class="ns-left">
+        <div class="ns-flag">🇳🇪</div>
+        <div>
+          <div class="ns-name">Retrait Niger</div>
+          <div class="ns-tag">Nita / Amana ta</div>
+        </div>
+      </div>
+      <div class="ns-check"></div>
+    </div>
+    <div class="other-country-link" id="other-country-link" onclick="toggleNiger()">← Choisir un autre pays</div>
+
+    <div class="form-card">
+      <div class="msg" id="withdraw-msg"></div>
+      <form id="withdraw-form" onsubmit="return handleWithdraw(event)">
+        <div class="field" id="field-country">
         <label>Pays</label>
         <select id="wd-country" onchange="updateOperators()" required>
           <option value="" disabled selected>Sélectionnez votre pays</option>
@@ -179,7 +199,8 @@
       </div>
       <div class="fee-note">Frais de retrait : 10% · Disponible de 10h00 à 17h00 · 3 retraits maximum par jour</div>
       <button type="submit" class="submit-btn" id="wd-submit">Demander le retrait</button>
-    </form>
+      </form>
+    </div>
   </div>
 </main>
 
@@ -264,6 +285,15 @@
     profile = prof;
 
     document.getElementById('balance-amt').textContent = fmt(profile.balance) + ' FCFA';
+
+    const hasVip = !!profile.vip_level && profile.vip_level > 0;
+    if(!hasVip){
+      document.getElementById('vip-required').style.display = 'block';
+      document.getElementById('withdraw-content').style.display = 'none';
+      document.getElementById('loading-screen').style.display = 'none';
+      return;
+    }
+
     if(profile.country){ document.getElementById('wd-country').value = profile.country; updateOperators(); }
     if(profile.phone){ document.getElementById('wd-phone').value = profile.phone; }
 
