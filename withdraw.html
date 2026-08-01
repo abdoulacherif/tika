@@ -117,12 +117,12 @@
         <label>Pays</label>
         <select id="wd-country" onchange="updateOperators()" required>
           <option value="" disabled selected>Sélectionnez votre pays</option>
+          <option value="NE">🇳🇪 Niger</option>
           <option value="SN">🇸🇳 Sénégal</option>
           <option value="CM">🇨🇲 Cameroun</option>
           <option value="TG">🇹🇬 Togo</option>
           <option value="BJ">🇧🇯 Bénin</option>
           <option value="CI">🇨🇮 Côte d'Ivoire</option>
-          <option value="NE">🇳🇪 Niger</option>
           <option value="BF">🇧🇫 Burkina Faso</option>
           <option value="ML">🇲🇱 Mali</option>
         </select>
@@ -179,12 +179,12 @@
   let userId = null;
 
   const OPERATORS = {
+    NE: ['Airtel Money', 'Orange Money', 'Moov Money'],
     SN: ['Orange Money', 'Wave', 'Free Money'],
     CM: ['MTN Mobile Money', 'Orange Money'],
     TG: ['T-Money (Togocel)', 'Moov Flooz'],
     BJ: ['MTN Mobile Money', 'Moov Money'],
     CI: ['Orange Money', 'MTN Money', 'Moov Money', 'Wave'],
-    NE: ['Airtel Money', 'Orange Money', 'Moov Money'],
     BF: ['Orange Money', 'Moov Money'],
   };
 
