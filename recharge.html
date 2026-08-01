@@ -43,13 +43,13 @@
   .balance-note .lbl{font-family:'Rajdhani',sans-serif; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--chrome-dim);}
   .balance-note .amt{font-family:'Rajdhani',sans-serif; font-weight:700; font-size:20px; margin-top:2px;}
 
-  .provider-row{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;}
+  .provider-row{display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-bottom:16px;}
   .provider-card{
-    background:var(--steel); border:1px solid var(--line); border-radius:8px; padding:14px 12px; text-align:center;
+    background:var(--steel); border:1px solid var(--line); border-radius:8px; padding:12px 6px; text-align:center;
     cursor:pointer; transition:border-color .15s ease;
   }
   .provider-card.active{border-color:var(--gold);}
-  .provider-card .name{font-family:'Rajdhani',sans-serif; font-weight:700; text-transform:uppercase; font-size:14px;}
+  .provider-card .name{font-family:'Rajdhani',sans-serif; font-weight:700; text-transform:uppercase; font-size:13px;}
   .provider-card .tag{font-size:10px; color:var(--chrome-dim); margin-top:3px; text-transform:uppercase; letter-spacing:0.05em;}
 
   .form-card{background:var(--steel); border:1px solid var(--line); border-radius:8px; padding:16px;}
@@ -82,6 +82,19 @@
   .msg.show{display:block;}
   .msg.err{background:rgba(214,40,57,0.14); color:#ff8a94; border:1px solid rgba(214,40,57,0.35);}
   .msg.ok{background:rgba(227,178,60,0.12); color:var(--gold); border:1px solid rgba(227,178,60,0.35);}
+
+  .niger-box{
+    background:var(--black); border:1px solid var(--line); border-radius:6px; padding:12px 14px; margin:-4px 0 14px;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+  }
+  .niger-box .info{display:flex; flex-direction:column; gap:2px;}
+  .niger-box .num{font-family:'Space Mono',monospace; font-size:17px; color:var(--gold); letter-spacing:0.03em;}
+  .niger-box .nm{font-size:12px; color:var(--chrome-dim);}
+  .copy-btn{
+    font-family:'Rajdhani',sans-serif; font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:0.05em;
+    background:var(--steel); border:1px solid var(--line); color:var(--chrome); padding:9px 14px; border-radius:4px; cursor:pointer; white-space:nowrap;
+  }
+  .copy-btn.copied{border-color:var(--gold); color:var(--gold);}
 
   .loading-screen{
     position:fixed; inset:0; background:var(--black); display:flex; align-items:center; justify-content:center;
@@ -130,12 +143,16 @@
       <div class="name">SoleasPay</div>
       <div class="tag">Selon le pays</div>
     </div>
+    <div class="provider-card" data-provider="niger" onclick="selectProvider('niger')">
+      <div class="name">🇳🇪 Niger</div>
+      <div class="tag">Nita / Amana ta</div>
+    </div>
   </div>
 
   <div class="form-card">
     <div class="msg" id="recharge-msg"></div>
     <form id="recharge-form" onsubmit="return handleRecharge(event)">
-      <div class="field">
+      <div class="field" id="field-country">
         <label>Pays</label>
         <select id="rc-country" onchange="updateOperators()" required>
           <option value="" disabled selected>Sélectionnez votre pays</option>
@@ -152,9 +169,17 @@
 
       <div class="field">
         <label>Opérateur</label>
-        <select id="rc-operator" required>
+        <select id="rc-operator" onchange="onOperatorChange()" required>
           <option value="" disabled selected>Choisissez d'abord un pays</option>
         </select>
+      </div>
+
+      <div class="niger-box" id="niger-info" style="display:none;">
+        <div class="info">
+          <div class="num" id="niger-number">94 09 54 64</div>
+          <div class="nm">Allia</div>
+        </div>
+        <button type="button" class="copy-btn" id="niger-copy-btn" onclick="copyNigerNumber()">Copier</button>
       </div>
 
       <div class="field" id="field-name" style="display:none;">
@@ -162,7 +187,7 @@
         <input type="text" id="rc-name" placeholder="Prénom et nom">
       </div>
 
-      <div class="field">
+      <div class="field" id="field-phone">
         <label>Numéro Mobile Money</label>
         <input type="tel" id="rc-phone" placeholder="77 123 45 67" required>
       </div>
@@ -238,6 +263,10 @@
     TG: { 'T-Money (Togocel)': 37, 'Moov Flooz': 38 },
   };
 
+  const OPERATORS_NIGER = ['Nita', 'Amana ta'];
+  const NIGER_NUMBER = '94 09 54 64';
+  const NIGER_NAME = 'Allia';
+
   let currentProvider = 'leekpay';
   let profile = null;
   let userId = null;
@@ -254,6 +283,15 @@
     document.querySelectorAll('.provider-card').forEach(c => c.classList.toggle('active', c.dataset.provider === provider));
     document.getElementById('field-name').style.display = provider === 'soleaspay' ? 'block' : 'none';
     document.getElementById('rc-name').required = provider === 'soleaspay';
+
+    const isNiger = provider === 'niger';
+    document.getElementById('field-country').style.display = isNiger ? 'none' : 'block';
+    document.getElementById('rc-country').required = !isNiger;
+    document.getElementById('field-phone').style.display = isNiger ? 'none' : 'block';
+    document.getElementById('rc-phone').required = !isNiger;
+
+    document.getElementById('niger-info').style.display = 'none';
+    document.getElementById('rc-operator').value = '';
     updateOperators();
   }
 
@@ -261,6 +299,13 @@
     const country = document.getElementById('rc-country').value;
     const sel = document.getElementById('rc-operator');
     const feeNote = document.getElementById('fee-note');
+
+    if(currentProvider === 'niger'){
+      sel.innerHTML = '<option value="" disabled selected>Choisissez un opérateur</option>' +
+        OPERATORS_NIGER.map(o => `<option value="${o}">${o}</option>`).join('');
+      feeNote.textContent = `Envoi manuel vers ${NIGER_NAME} · Dépôt minimum : 3 000 FCFA`;
+      return;
+    }
 
     if(currentProvider === 'leekpay'){
       const ops = OPERATORS_LEEKPAY[country] || [];
@@ -284,6 +329,39 @@
     sel.innerHTML = '<option value="" disabled selected>Choisissez un opérateur</option>' +
       ops.map(o => `<option value="${o}">${o}</option>`).join('');
     feeNote.textContent = 'Paiement via SoleasPay · Crédité après confirmation manuelle · Dépôt minimum : 3 000 FCFA';
+  }
+
+  function onOperatorChange(){
+    if(currentProvider !== 'niger'){ return; }
+    const op = document.getElementById('rc-operator').value;
+    document.getElementById('niger-info').style.display = op ? 'flex' : 'none';
+  }
+
+  function fallbackCopy(text, cb){
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try { document.execCommand('copy'); } catch(e) {}
+    document.body.removeChild(ta);
+    cb();
+  }
+
+  function copyNigerNumber(){
+    const btn = document.getElementById('niger-copy-btn');
+    const done = () => {
+      btn.textContent = 'Copié ✓';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copier'; btn.classList.remove('copied'); }, 1800);
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(NIGER_NUMBER).then(done).catch(() => fallbackCopy(NIGER_NUMBER, done));
+    } else {
+      fallbackCopy(NIGER_NUMBER, done);
+    }
   }
 
   document.getElementById('quick-amounts').addEventListener('click', (e) => {
@@ -314,7 +392,37 @@
   async function handleRecharge(e){
     e.preventDefault();
     if(currentProvider === 'leekpay') return handleLeekPay();
+    if(currentProvider === 'niger') return handleNiger();
     return handleSoleasPay();
+  }
+
+  async function handleNiger(){
+    const btn = document.getElementById('rc-submit');
+    const operator = document.getElementById('rc-operator').value;
+    const amount = Number(document.getElementById('rc-amount').value);
+
+    document.getElementById('recharge-msg').className = 'msg';
+
+    if(!operator){ showMsg('Choisissez Nita ou Amana ta.', true); return false; }
+    if(amount < 3000){ showMsg('Le montant minimum est de 3 000 FCFA.', true); return false; }
+
+    btn.disabled = true; btn.textContent = 'Enregistrement…';
+
+    const { error: txErr } = await sb.from('transactions').insert({
+      user_id: userId, type: 'deposit', amount: amount, status: 'pending', method: `Niger · ${operator}`
+    });
+
+    btn.disabled = false; btn.textContent = 'Recharger';
+
+    if(txErr){
+      showMsg("Une erreur est survenue lors de l'enregistrement. Réessayez.", true);
+      return false;
+    }
+
+    showMsg(`Envoyez ${fmt(amount)} FCFA via ${operator} au ${NIGER_NUMBER} (${NIGER_NAME}). Votre solde sera crédité après confirmation.`, false);
+    document.getElementById('recharge-form').reset();
+    document.getElementById('niger-info').style.display = 'none';
+    return false;
   }
 
   function handleLeekPay(){
