@@ -2,6 +2,7 @@ package com.abdoula.screenrecorder
 
 import android.Manifest
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
@@ -11,11 +12,14 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.Button
+import android.widget.ImageButton
+import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
 
@@ -67,9 +71,66 @@ class MainActivity : AppCompatActivity() {
             requestOverlayPermission()
         }
 
-        findViewById<Button>(R.id.galleryButton).setOnClickListener {
-            startActivity(Intent(this, GalleryActivity::class.java))
+        findViewById<ImageButton>(R.id.menuButton).setOnClickListener { view ->
+            showTopMenu(view)
         }
+
+        setupBottomNav()
+    }
+
+    private fun setupBottomNav() {
+        val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
+        bottomNav.selectedItemId = R.id.nav_home
+
+        bottomNav.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_home -> true
+                R.id.nav_gallery -> {
+                    startActivity(Intent(this, GalleryActivity::class.java))
+                    true
+                }
+                R.id.nav_tools -> {
+                    showComingSoonDialog(
+                        "Outils avancés",
+                        "Taille du trait, formes supplémentaires, filtres vidéo… Ces outils arrivent dans la version Pro."
+                    )
+                    // Reste sur Accueil visuellement
+                    bottomNav.postDelayed({ bottomNav.selectedItemId = R.id.nav_home }, 150)
+                    true
+                }
+                R.id.nav_settings -> {
+                    showComingSoonDialog(
+                        "Réglages & Version Pro",
+                        "Bientôt : qualité vidéo réglable, export sans filigrane, stockage cloud. Passe à la version Pro pour tout débloquer dès sa sortie."
+                    )
+                    bottomNav.postDelayed({ bottomNav.selectedItemId = R.id.nav_home }, 150)
+                    true
+                }
+                else -> false
+            }
+        }
+    }
+
+    private fun showComingSoonDialog(title: String, message: String) {
+        AlertDialog.Builder(this)
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton("OK", null)
+            .show()
+    }
+
+    private fun showTopMenu(anchor: android.view.View) {
+        val popup = PopupMenu(this, anchor)
+        popup.menu.add("À propos")
+        popup.menu.add("Passer à la version Pro")
+        popup.setOnMenuItemClickListener { item ->
+            when (item.title) {
+                "À propos" -> showComingSoonDialog("Screen Recorder", "Version 1.0 — développé pour enregistrer et annoter ton écran facilement.")
+                "Passer à la version Pro" -> showComingSoonDialog("Version Pro", "Les fonctionnalités payantes arrivent bientôt.")
+            }
+            true
+        }
+        popup.show()
     }
 
     override fun onResume() {
