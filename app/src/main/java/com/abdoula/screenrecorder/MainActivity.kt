@@ -66,6 +66,10 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.overlayPermButton).setOnClickListener {
             requestOverlayPermission()
         }
+
+        findViewById<Button>(R.id.galleryButton).setOnClickListener {
+            startActivity(Intent(this, GalleryActivity::class.java))
+        }
     }
 
     override fun onResume() {
