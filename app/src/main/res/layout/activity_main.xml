@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#121212">
+    android:background="@drawable/bg_gradient_screen">
 
     <LinearLayout
         android:id="@+id/topBar"
@@ -11,23 +11,35 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:background="#1E1E1E"
         android:paddingStart="20dp"
         android:paddingEnd="8dp"
-        android:paddingTop="18dp"
-        android:paddingBottom="18dp"
+        android:paddingTop="24dp"
+        android:paddingBottom="12dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <TextView
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Screen Recorder"
-            android:textColor="#FFFFFF"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Screen Recorder"
+                android:textColor="#FFFFFF"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Capture. Annote. Partage."
+                android:textColor="#9E9E9E"
+                android:textSize="12sp" />
+        </LinearLayout>
 
         <ImageButton
             android:id="@+id/menuButton"
@@ -42,7 +54,10 @@
         android:id="@+id/contentScroll"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:padding="20dp"
+        android:clipToPadding="false"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="20dp"
         app:layout_constraintTop_toBottomOf="@id/topBar"
         app:layout_constraintBottom_toTopOf="@id/bottomNav"
         app:layout_constraintStart_toStartOf="parent"
@@ -51,77 +66,170 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/bg_card"
-            android:padding="24dp">
+            android:orientation="vertical">
 
+            <!-- Ligne de statistiques -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="28dp">
+                android:layout_marginBottom="16dp">
 
-                <View
-                    android:id="@+id/statusDot"
-                    android:layout_width="14dp"
-                    android:layout_height="14dp"
-                    android:background="#757575"
-                    android:layout_marginEnd="10dp" />
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="@drawable/bg_stat_purple">
 
-                <TextView
-                    android:id="@+id/statusText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Prêt à enregistrer"
-                    android:textColor="#FFFFFF"
-                    android:textSize="18sp" />
+                    <TextView
+                        android:id="@+id/statCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textColor="#FFFFFF"
+                        android:textSize="24sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Vidéos"
+                        android:textColor="#E0D6FF"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="@drawable/bg_stat_blue">
+
+                    <TextView
+                        android:id="@+id/statSize"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0 Mo"
+                        android:textColor="#FFFFFF"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Espace utilisé"
+                        android:textColor="#D6EBFF"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="@drawable/bg_stat_green">
+
+                    <TextView
+                        android:id="@+id/statLast"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="—"
+                        android:textColor="#FFFFFF"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Dernière fois"
+                        android:textColor="#D6FFE8"
+                        android:textSize="12sp" />
+                </LinearLayout>
             </LinearLayout>
 
-            <Button
-                android:id="@+id/overlayPermButton"
+            <!-- Carte principale d'enregistrement -->
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:background="@drawable/bg_button_primary"
-                android:textColor="#FFFFFF"
-                android:textAllCaps="false"
-                android:textSize="15sp"
-                android:text="1. Autoriser l'affichage par-dessus" />
-
-            <Button
-                android:id="@+id/cameraToggleButton"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginTop="14dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
                 android:background="@drawable/bg_card"
-                android:textColor="#FFFFFF"
-                android:textAllCaps="false"
-                android:textSize="15sp"
-                android:text="📷 Caméra flottante : désactivée" />
+                android:padding="24dp">
 
-            <Button
-                android:id="@+id/startButton"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginTop="14dp"
-                android:background="@drawable/bg_button_primary"
-                android:textColor="#FFFFFF"
-                android:textAllCaps="false"
-                android:textSize="15sp"
-                android:text="2. Démarrer l'enregistrement" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="24dp">
 
-            <Button
-                android:id="@+id/stopButton"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginTop="14dp"
-                android:background="@drawable/bg_button_danger"
-                android:textColor="#FFFFFF"
-                android:textAllCaps="false"
-                android:textSize="15sp"
-                android:text="Arrêter l'enregistrement"
-                android:enabled="false"
-                android:alpha="0.5" />
+                    <View
+                        android:id="@+id/statusDot"
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:background="#757575"
+                        android:layout_marginEnd="10dp" />
+
+                    <TextView
+                        android:id="@+id/statusText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Prêt à enregistrer"
+                        android:textColor="#FFFFFF"
+                        android:textSize="17sp" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/overlayPermButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="54dp"
+                    android:background="@drawable/bg_stat_blue"
+                    android:textColor="#FFFFFF"
+                    android:textAllCaps="false"
+                    android:textSize="14sp"
+                    android:text="1. Autoriser l'affichage par-dessus" />
+
+                <Button
+                    android:id="@+id/cameraToggleButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="54dp"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_stat_green"
+                    android:textColor="#FFFFFF"
+                    android:textAllCaps="false"
+                    android:textSize="14sp"
+                    android:text="📷 Caméra flottante : désactivée" />
+
+                <Button
+                    android:id="@+id/startButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="54dp"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_stat_purple"
+                    android:textColor="#FFFFFF"
+                    android:textAllCaps="false"
+                    android:textSize="15sp"
+                    android:text="2. Démarrer l'enregistrement" />
+
+                <Button
+                    android:id="@+id/stopButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="54dp"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_button_danger"
+                    android:textColor="#FFFFFF"
+                    android:textAllCaps="false"
+                    android:textSize="15sp"
+                    android:text="Arrêter l'enregistrement"
+                    android:enabled="false"
+                    android:alpha="0.5" />
+
+            </LinearLayout>
 
         </LinearLayout>
     </ScrollView>
