@@ -18,7 +18,8 @@ data class DrawnShape(
     val startY: Float = 0f,
     val endX: Float = 0f,
     val endY: Float = 0f,
-    val color: Int = Color.RED
+    val color: Int = Color.RED,
+    val text: String? = null
 )
 
 class DrawingOverlayView(context: Context, attrs: AttributeSet? = null) : View(context, attrs) {
@@ -26,9 +27,11 @@ class DrawingOverlayView(context: Context, attrs: AttributeSet? = null) : View(c
     var currentTool: ShapeTool = ShapeTool.ARROW
     var currentColor: Int = Color.RED
 
-    // Appelé automatiquement quand une forme vient d'être terminée,
-    // pour que le service puisse redonner la main au téléphone
+    // Appelé quand une forme (flèche/cercle/rectangle/trait) vient d'être terminée
     var onShapeFinished: (() -> Unit)? = null
+
+    // Appelé quand l'outil texte est utilisé : demande au service d'ouvrir la saisie
+    var onTextRequested: ((x: Float, y: Float) -> Unit)? = null
 
     private val shapes = mutableListOf<DrawnShape>()
     private var currentPath: Path? = null
@@ -41,6 +44,12 @@ class DrawingOverlayView(context: Context, attrs: AttributeSet? = null) : View(c
         isAntiAlias = true
         strokeCap = Paint.Cap.ROUND
         strokeJoin = Paint.Join.ROUND
+    }
+
+    private val textPaint = Paint().apply {
+        style = Paint.Style.FILL
+        isAntiAlias = true
+        textSize = 48f
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -68,6 +77,11 @@ class DrawingOverlayView(context: Context, attrs: AttributeSet? = null) : View(c
                             shapes.add(DrawnShape(ShapeTool.PEN, path = it, color = currentColor))
                         }
                         currentPath = null
+                        onShapeFinished?.invoke()
+                    }
+                    ShapeTool.TEXT -> {
+                        // On ne dessine rien tout de suite : on demande le texte au service
+                        onTextRequested?.invoke(startX, startY)
                     }
                     else -> {
                         shapes.add(
@@ -78,14 +92,21 @@ class DrawingOverlayView(context: Context, attrs: AttributeSet? = null) : View(c
                                 color = currentColor
                             )
                         )
+                        onShapeFinished?.invoke()
                     }
                 }
                 invalidate()
-                // La forme est terminée : on redonne automatiquement la main au téléphone
-                onShapeFinished?.invoke()
             }
         }
         return true
+    }
+
+    // Appelée par le service une fois que l'utilisateur a validé son texte
+    fun addTextShape(text: String) {
+        if (text.isNotBlank()) {
+            shapes.add(DrawnShape(ShapeTool.TEXT, startX = startX, startY = startY, color = currentColor, text = text))
+            invalidate()
+        }
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -103,7 +124,10 @@ class DrawingOverlayView(context: Context, attrs: AttributeSet? = null) : View(c
                     canvas.drawRect(shape.startX, shape.startY, shape.endX, shape.endY, paint)
                 }
                 ShapeTool.ARROW -> drawArrow(canvas, shape.startX, shape.startY, shape.endX, shape.endY, paint)
-                ShapeTool.TEXT -> {}
+                ShapeTool.TEXT -> {
+                    textPaint.color = shape.color
+                    shape.text?.let { canvas.drawText(it, shape.startX, shape.startY, textPaint) }
+                }
             }
         }
 
