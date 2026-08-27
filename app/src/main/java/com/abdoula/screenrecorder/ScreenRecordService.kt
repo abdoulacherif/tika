@@ -27,6 +27,7 @@ class ScreenRecordService : Service() {
 
     companion object {
         const val ACTION_STOP = "com.abdoula.screenrecorder.STOP"
+        var isRunning = false
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -108,6 +109,7 @@ class ScreenRecordService : Service() {
         )
 
         mediaRecorder?.start()
+        isRunning = true
     }
 
     private fun getOutputFile(): java.io.File {
@@ -119,6 +121,7 @@ class ScreenRecordService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        isRunning = false
         try {
             mediaRecorder?.stop()
             mediaRecorder?.reset()
