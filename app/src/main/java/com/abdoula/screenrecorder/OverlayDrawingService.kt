@@ -11,15 +11,18 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.widget.Button
+import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.TextView
 
 class OverlayDrawingService : Service() {
 
     private lateinit var windowManager: WindowManager
+    private var toolbarWrapper: HorizontalScrollView? = null
     private var toolbarView: LinearLayout? = null
     private var drawingView: DrawingOverlayView? = null
     private var drawingEnabled = false
+    private var toolbarParams: WindowManager.LayoutParams? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -37,6 +40,8 @@ class OverlayDrawingService : Service() {
     private fun addDrawingLayer() {
         drawingView = DrawingOverlayView(this).apply {
             setLayerType(View.LAYER_TYPE_HARDWARE, null)
+            // Dès qu'une forme est terminée, on redonne automatiquement la main au téléphone
+            onShapeFinished = { disableDrawingMode() }
         }
 
         val params = WindowManager.LayoutParams(
@@ -68,10 +73,10 @@ class OverlayDrawingService : Service() {
         )
         params.gravity = Gravity.TOP or Gravity.START
         params.x = 0
-        params.y = 100
+        params.y = 250
+        toolbarParams = params
 
-        // Poignée de déplacement séparée des boutons : c'est ELLE qu'on fait glisser,
-        // les boutons gardent uniquement leur clic (plus de conflit clic/glisser)
+        // Poignée de déplacement séparée des boutons
         val dragHandle = TextView(this).apply {
             text = "⠿⠿"
             textSize = 20f
@@ -81,27 +86,29 @@ class OverlayDrawingService : Service() {
         makeDraggable(dragHandle, params)
         toolbarView?.addView(dragHandle)
 
-        val buttons = listOf(
+        val toolButtons = listOf(
             "✏️" to { setTool(ShapeTool.PEN) },
             "➡️" to { setTool(ShapeTool.ARROW) },
             "⭕" to { setTool(ShapeTool.CIRCLE) },
-            "▭" to { setTool(ShapeTool.RECTANGLE) },
-            "↩️" to { drawingView?.undo() },
-            "🗑️" to { drawingView?.clearAll() },
-            "✋" to { toggleDrawingMode() }
+            "▭" to { setTool(ShapeTool.RECTANGLE) }
         )
-
-        for ((label, action) in buttons) {
-            val button = Button(this).apply {
-                text = label
-                textSize = 18f
-                minWidth = 0
-                minimumWidth = 0
-                setPadding(20, 16, 20, 16)
-                setOnClickListener { action() }
-            }
-            toolbarView?.addView(button)
+        for ((label, action) in toolButtons) {
+            toolbarView?.addView(makeButton(label, action))
         }
+
+        // Choix de couleur
+        val colors = listOf(
+            "🔴" to Color.RED,
+            "🔵" to Color.BLUE,
+            "🟢" to Color.GREEN,
+            "🟡" to Color.YELLOW
+        )
+        for ((label, color) in colors) {
+            toolbarView?.addView(makeButton(label) { drawingView?.currentColor = color })
+        }
+
+        toolbarView?.addView(makeButton("↩️") { drawingView?.undo() })
+        toolbarView?.addView(makeButton("🗑️") { drawingView?.clearAll() })
 
         // Bouton STOP bien visible et distinct, en rouge
         val stopButton = Button(this).apply {
@@ -117,16 +124,44 @@ class OverlayDrawingService : Service() {
         }
         toolbarView?.addView(stopButton)
 
-        windowManager.addView(toolbarView, params)
+        // La barre défile horizontalement si l'écran est trop étroit pour tous les boutons
+        toolbarWrapper = HorizontalScrollView(this).apply {
+            isHorizontalScrollBarEnabled = false
+            addView(toolbarView)
+        }
+
+        windowManager.addView(toolbarWrapper, params)
+    }
+
+    private fun makeButton(label: String, action: () -> Unit): Button {
+        return Button(this).apply {
+            text = label
+            textSize = 18f
+            minWidth = 0
+            minimumWidth = 0
+            setPadding(20, 16, 20, 16)
+            setOnClickListener { action() }
+        }
     }
 
     private fun setTool(tool: ShapeTool) {
         drawingView?.currentTool = tool
-        if (!drawingEnabled) toggleDrawingMode()
+        enableDrawingMode()
     }
 
-    private fun toggleDrawingMode() {
-        drawingEnabled = !drawingEnabled
+    // Le calque capture le prochain geste tactile pour dessiner UNE forme
+    private fun enableDrawingMode() {
+        drawingEnabled = true
+        updateDrawingTouchability()
+    }
+
+    // Redonne immédiatement le contrôle du téléphone (après une forme, ou via ✋)
+    private fun disableDrawingMode() {
+        drawingEnabled = false
+        updateDrawingTouchability()
+    }
+
+    private fun updateDrawingTouchability() {
         val params = drawingView?.layoutParams as? WindowManager.LayoutParams ?: return
         params.flags = if (drawingEnabled) {
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
@@ -154,7 +189,7 @@ class OverlayDrawingService : Service() {
                 MotionEvent.ACTION_MOVE -> {
                     params.x = initialX + (event.rawX - touchX).toInt()
                     params.y = initialY + (event.rawY - touchY).toInt()
-                    windowManager.updateViewLayout(toolbarView, params)
+                    windowManager.updateViewLayout(toolbarWrapper, params)
                     true
                 }
                 else -> false
@@ -164,7 +199,7 @@ class OverlayDrawingService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        toolbarView?.let { windowManager.removeView(it) }
+        toolbarWrapper?.let { windowManager.removeView(it) }
         drawingView?.let { windowManager.removeView(it) }
     }
 
