@@ -25,7 +25,16 @@ class ScreenRecordService : Service() {
 
     private val channelId = "screen_record_channel"
 
+    companion object {
+        const val ACTION_STOP = "com.abdoula.screenrecorder.STOP"
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.action == ACTION_STOP) {
+            stopSelf()
+            return START_NOT_STICKY
+        }
+
         val resultCode = intent?.getIntExtra("resultCode", Activity.RESULT_CANCELED) ?: return START_NOT_STICKY
         val data = intent.getParcelableExtra<Intent>("data") ?: return START_NOT_STICKY
 
@@ -47,10 +56,19 @@ class ScreenRecordService : Service() {
             (getSystemService(NOTIFICATION_SERVICE) as NotificationManager).createNotificationChannel(channel)
         }
 
+        val stopIntent = Intent(this, ScreenRecordService::class.java).apply { action = ACTION_STOP }
+        val stopPendingIntent = PendingIntent.getService(
+            this, 0, stopIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
         val notification: Notification = NotificationCompat.Builder(this, channelId)
             .setContentTitle("Enregistrement en cours")
-            .setContentText("Ton écran est en train d'être enregistré")
+            .setContentText("Appuie ici pour arrêter")
             .setSmallIcon(android.R.drawable.presence_video_online)
+            .setContentIntent(stopPendingIntent)
+            .addAction(android.R.drawable.ic_media_pause, "Arrêter", stopPendingIntent)
+            .setOngoing(true)
             .build()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -109,6 +127,7 @@ class ScreenRecordService : Service() {
         mediaRecorder?.release()
         virtualDisplay?.release()
         mediaProjection?.stop()
+        stopService(Intent(this, OverlayDrawingService::class.java))
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
