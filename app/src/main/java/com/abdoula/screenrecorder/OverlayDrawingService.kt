@@ -50,6 +50,11 @@ class OverlayDrawingService : Service() {
         else
             WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
 
+    // IMPORTANT : FLAG_SECURE rend ces calques invisibles pour tout enregistrement d'écran
+    // (screenshot ou vidéo) tout en restant visibles pour toi sur l'écran en direct.
+    // C'est ce qui empêche la bulle/le panneau d'apparaître DANS la vidéo enregistrée.
+    private fun secureFlag(): Int = WindowManager.LayoutParams.FLAG_SECURE
+
     // ---------- Calque de dessin ----------
 
     private fun addDrawingLayer() {
@@ -64,7 +69,8 @@ class OverlayDrawingService : Service() {
             WindowManager.LayoutParams.MATCH_PARENT,
             overlayType(),
             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                secureFlag(),
             PixelFormat.TRANSLUCENT
         )
         params.gravity = Gravity.TOP or Gravity.START
@@ -85,7 +91,7 @@ class OverlayDrawingService : Service() {
         val params = WindowManager.LayoutParams(
             140, 140,
             overlayType(),
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or secureFlag(),
             PixelFormat.TRANSLUCENT
         )
         params.gravity = Gravity.TOP or Gravity.START
@@ -144,7 +150,6 @@ class OverlayDrawingService : Service() {
                     if (!moved) {
                         val now = System.currentTimeMillis()
                         if (now - lastTapTime < 300) {
-                            // Double-tap détecté : on minimise/restaure la bulle
                             toggleMinimized()
                             lastTapTime = 0
                         } else {
@@ -163,7 +168,7 @@ class OverlayDrawingService : Service() {
         }
     }
 
-    // ---------- Minimiser la bulle (double-tap) : elle devient un petit onglet discret ----------
+    // ---------- Minimiser la bulle (double-tap) ----------
 
     private fun toggleMinimized() {
         if (bubbleMinimized) restoreBubble() else minimizeBubble()
@@ -278,7 +283,7 @@ class OverlayDrawingService : Service() {
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
             overlayType(),
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or secureFlag(),
             PixelFormat.TRANSLUCENT
         )
         params.gravity = Gravity.TOP or Gravity.START
@@ -341,9 +346,11 @@ class OverlayDrawingService : Service() {
     private fun updateDrawingTouchability() {
         val params = drawingView?.layoutParams as? WindowManager.LayoutParams ?: return
         params.flags = if (drawingEnabled) {
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or secureFlag()
         } else {
-            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                secureFlag()
         }
         windowManager.updateViewLayout(drawingView, params)
     }
