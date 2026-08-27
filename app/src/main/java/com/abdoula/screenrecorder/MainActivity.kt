@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.media.projection.MediaProjectionManager
 import android.net.Uri
 import android.os.Build
@@ -20,6 +21,9 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var projectionManager: MediaProjectionManager
     private lateinit var statusText: TextView
+    private lateinit var statusDot: android.view.View
+    private lateinit var startButton: Button
+    private lateinit var stopButton: Button
 
     private val screenCaptureLauncher =
         registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()) { result ->
@@ -34,7 +38,7 @@ class MainActivity : AppCompatActivity() {
                     startService(Intent(this, OverlayDrawingService::class.java))
                 }
 
-                statusText.text = "Enregistrement en cours…"
+                updateUiRecording(true)
                 moveTaskToBack(true)
             } else {
                 Toast.makeText(this, "Permission d'enregistrement refusée", Toast.LENGTH_SHORT).show()
@@ -47,19 +51,43 @@ class MainActivity : AppCompatActivity() {
 
         projectionManager = getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         statusText = findViewById(R.id.statusText)
+        statusDot = findViewById(R.id.statusDot)
+        startButton = findViewById(R.id.startButton)
+        stopButton = findViewById(R.id.stopButton)
 
-        findViewById<Button>(R.id.startButton).setOnClickListener {
-            requestPermissionsThenStart()
-        }
+        startButton.setOnClickListener { requestPermissionsThenStart() }
 
-        findViewById<Button>(R.id.stopButton).setOnClickListener {
+        stopButton.setOnClickListener {
             stopService(Intent(this, ScreenRecordService::class.java))
             stopService(Intent(this, OverlayDrawingService::class.java))
-            statusText.text = "Arrêté"
+            updateUiRecording(false)
         }
 
         findViewById<Button>(R.id.overlayPermButton).setOnClickListener {
             requestOverlayPermission()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateUiRecording(ScreenRecordService.isRunning)
+    }
+
+    private fun updateUiRecording(recording: Boolean) {
+        if (recording) {
+            statusText.text = "Enregistrement en cours…"
+            statusDot.setBackgroundColor(Color.parseColor("#E53935"))
+            startButton.isEnabled = false
+            startButton.alpha = 0.5f
+            stopButton.isEnabled = true
+            stopButton.alpha = 1f
+        } else {
+            statusText.text = "Prêt à enregistrer"
+            statusDot.setBackgroundColor(Color.parseColor("#757575"))
+            startButton.isEnabled = true
+            startButton.alpha = 1f
+            stopButton.isEnabled = false
+            stopButton.alpha = 0.5f
         }
     }
 
