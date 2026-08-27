@@ -91,7 +91,6 @@ class ScreenRecordService : Service() {
         val outputFile = getOutputFile()
 
         mediaRecorder = MediaRecorder().apply {
-            // Micro : capture ta voix + le son ambiant pendant l'enregistrement
             setAudioSource(MediaRecorder.AudioSource.MIC)
             setVideoSource(MediaRecorder.VideoSource.SURFACE)
 
@@ -116,6 +115,10 @@ class ScreenRecordService : Service() {
             DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC,
             mediaRecorder!!.surface, null, null
         )
+
+        mediaRecorder?.start()
+        isRunning = true
+    }
 
     private fun getOutputFile(): java.io.File {
         val dir = getExternalFilesDir(Environment.DIRECTORY_MOVIES)
