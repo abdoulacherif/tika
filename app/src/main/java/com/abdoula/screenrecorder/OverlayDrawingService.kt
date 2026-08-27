@@ -8,9 +8,11 @@ import android.os.Build
 import android.os.IBinder
 import android.view.Gravity
 import android.view.MotionEvent
+import android.view.View
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.LinearLayout
+import android.widget.TextView
 
 class OverlayDrawingService : Service() {
 
@@ -33,7 +35,9 @@ class OverlayDrawingService : Service() {
             WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
 
     private fun addDrawingLayer() {
-        drawingView = DrawingOverlayView(this)
+        drawingView = DrawingOverlayView(this).apply {
+            setLayerType(View.LAYER_TYPE_HARDWARE, null)
+        }
 
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
@@ -51,31 +55,8 @@ class OverlayDrawingService : Service() {
     private fun addToolbar() {
         toolbarView = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
-            setBackgroundColor(Color.parseColor("#CC222222"))
-            setPadding(12, 12, 12, 12)
-        }
-
-        val buttons = listOf(
-            "✏️" to { setTool(ShapeTool.PEN) },
-            "➡️" to { setTool(ShapeTool.ARROW) },
-            "⭕" to { setTool(ShapeTool.CIRCLE) },
-            "▭" to { setTool(ShapeTool.RECTANGLE) },
-            "↩️" to { drawingView?.undo() },
-            "🗑️" to { drawingView?.clearAll() },
-            "✋" to { toggleDrawingMode() },
-            "✖️" to {
-                stopService(Intent(this, ScreenRecordService::class.java))
-                stopSelf()
-            }
-        )
-
-        for ((label, action) in buttons) {
-            val button = Button(this).apply {
-                text = label
-                textSize = 16f
-                setOnClickListener { action() }
-            }
-            toolbarView?.addView(button)
+            setBackgroundColor(Color.parseColor("#E6222222"))
+            setPadding(8, 8, 8, 8)
         }
 
         val params = WindowManager.LayoutParams(
@@ -89,7 +70,52 @@ class OverlayDrawingService : Service() {
         params.x = 0
         params.y = 100
 
-        makeDraggable(toolbarView!!, params)
+        // Poignée de déplacement séparée des boutons : c'est ELLE qu'on fait glisser,
+        // les boutons gardent uniquement leur clic (plus de conflit clic/glisser)
+        val dragHandle = TextView(this).apply {
+            text = "⠿⠿"
+            textSize = 20f
+            setTextColor(Color.LTGRAY)
+            setPadding(20, 20, 24, 20)
+        }
+        makeDraggable(dragHandle, params)
+        toolbarView?.addView(dragHandle)
+
+        val buttons = listOf(
+            "✏️" to { setTool(ShapeTool.PEN) },
+            "➡️" to { setTool(ShapeTool.ARROW) },
+            "⭕" to { setTool(ShapeTool.CIRCLE) },
+            "▭" to { setTool(ShapeTool.RECTANGLE) },
+            "↩️" to { drawingView?.undo() },
+            "🗑️" to { drawingView?.clearAll() },
+            "✋" to { toggleDrawingMode() }
+        )
+
+        for ((label, action) in buttons) {
+            val button = Button(this).apply {
+                text = label
+                textSize = 18f
+                minWidth = 0
+                minimumWidth = 0
+                setPadding(20, 16, 20, 16)
+                setOnClickListener { action() }
+            }
+            toolbarView?.addView(button)
+        }
+
+        // Bouton STOP bien visible et distinct, en rouge
+        val stopButton = Button(this).apply {
+            text = "⏹ STOP"
+            textSize = 15f
+            setTextColor(Color.WHITE)
+            setBackgroundColor(Color.parseColor("#E53935"))
+            setPadding(28, 16, 28, 16)
+            setOnClickListener {
+                stopService(Intent(this@OverlayDrawingService, ScreenRecordService::class.java))
+                stopSelf()
+            }
+        }
+        toolbarView?.addView(stopButton)
 
         windowManager.addView(toolbarView, params)
     }
@@ -110,13 +136,13 @@ class OverlayDrawingService : Service() {
         windowManager.updateViewLayout(drawingView, params)
     }
 
-    private fun makeDraggable(view: LinearLayout, params: WindowManager.LayoutParams) {
+    private fun makeDraggable(handle: View, params: WindowManager.LayoutParams) {
         var initialX = 0
         var initialY = 0
         var touchX = 0f
         var touchY = 0f
 
-        view.setOnTouchListener { _, event ->
+        handle.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     initialX = params.x
@@ -128,7 +154,7 @@ class OverlayDrawingService : Service() {
                 MotionEvent.ACTION_MOVE -> {
                     params.x = initialX + (event.rawX - touchX).toInt()
                     params.y = initialY + (event.rawY - touchY).toInt()
-                    windowManager.updateViewLayout(view, params)
+                    windowManager.updateViewLayout(toolbarView, params)
                     true
                 }
                 else -> false
