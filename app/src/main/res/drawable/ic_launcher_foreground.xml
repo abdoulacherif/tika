@@ -4,7 +4,15 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+    <!-- Caméra stylisée -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M54,34m-20,0a20,20 0,1 1,40 0a20,20 0,1 1,-40 0" />
+        android:pathData="M30,40 L68,40 A8,8 0,0 1,76 48 L76,72 A8,8 0,0 1,68 80 L30,80 A8,8 0,0 1,22 72 L22,48 A8,8 0,0 1,30 40 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M76,54 L90,46 L90,74 L76,66 Z" />
+    <!-- Point d'enregistrement -->
+    <path
+        android:fillColor="#E53935"
+        android:pathData="M49,60m-11,0a11,11 0,1 1,22 0a11,11 0,1 1,-22 0" />
 </vector>
