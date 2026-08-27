@@ -71,6 +71,17 @@
             android:enabled="false"
             android:alpha="0.5" />
 
+        <Button
+            android:id="@+id/galleryButton"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_card"
+            android:textColor="#FFFFFF"
+            android:textAllCaps="false"
+            android:textSize="15sp"
+            android:text="🎬 Mes enregistrements" />
+
     </LinearLayout>
 
 </LinearLayout>
