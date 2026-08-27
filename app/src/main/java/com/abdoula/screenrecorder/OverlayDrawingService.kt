@@ -1,5 +1,6 @@
 package com.abdoula.screenrecorder
 
+import android.app.AlertDialog
 import android.app.Service
 import android.content.Intent
 import android.graphics.Color
@@ -11,6 +12,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.widget.Button
+import android.widget.EditText
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -40,8 +42,8 @@ class OverlayDrawingService : Service() {
     private fun addDrawingLayer() {
         drawingView = DrawingOverlayView(this).apply {
             setLayerType(View.LAYER_TYPE_HARDWARE, null)
-            // Dès qu'une forme est terminée, on redonne automatiquement la main au téléphone
             onShapeFinished = { disableDrawingMode() }
+            onTextRequested = { x, y -> showTextInputDialog() }
         }
 
         val params = WindowManager.LayoutParams(
@@ -55,6 +57,30 @@ class OverlayDrawingService : Service() {
         params.gravity = Gravity.TOP or Gravity.START
 
         windowManager.addView(drawingView, params)
+    }
+
+    private fun showTextInputDialog() {
+        val input = EditText(this).apply {
+            hint = "Ton texte…"
+            setTextColor(Color.WHITE)
+            setHintTextColor(Color.LTGRAY)
+        }
+
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("Ajouter du texte")
+            .setView(input)
+            .setPositiveButton("Ajouter") { _, _ ->
+                drawingView?.addTextShape(input.text.toString())
+                disableDrawingMode()
+            }
+            .setNegativeButton("Annuler") { _, _ ->
+                disableDrawingMode()
+            }
+            .create()
+
+        // Nécessaire pour qu'une boîte de dialogue s'affiche depuis un Service (pas une Activity)
+        dialog.window?.setType(overlayType())
+        dialog.show()
     }
 
     private fun addToolbar() {
@@ -76,7 +102,6 @@ class OverlayDrawingService : Service() {
         params.y = 250
         toolbarParams = params
 
-        // Poignée de déplacement séparée des boutons
         val dragHandle = TextView(this).apply {
             text = "⠿⠿"
             textSize = 20f
@@ -90,13 +115,13 @@ class OverlayDrawingService : Service() {
             "✏️" to { setTool(ShapeTool.PEN) },
             "➡️" to { setTool(ShapeTool.ARROW) },
             "⭕" to { setTool(ShapeTool.CIRCLE) },
-            "▭" to { setTool(ShapeTool.RECTANGLE) }
+            "▭" to { setTool(ShapeTool.RECTANGLE) },
+            "🔤" to { setTool(ShapeTool.TEXT) }
         )
         for ((label, action) in toolButtons) {
             toolbarView?.addView(makeButton(label, action))
         }
 
-        // Choix de couleur
         val colors = listOf(
             "🔴" to Color.RED,
             "🔵" to Color.BLUE,
@@ -110,7 +135,6 @@ class OverlayDrawingService : Service() {
         toolbarView?.addView(makeButton("↩️") { drawingView?.undo() })
         toolbarView?.addView(makeButton("🗑️") { drawingView?.clearAll() })
 
-        // Bouton STOP bien visible et distinct, en rouge
         val stopButton = Button(this).apply {
             text = "⏹ STOP"
             textSize = 15f
@@ -124,7 +148,6 @@ class OverlayDrawingService : Service() {
         }
         toolbarView?.addView(stopButton)
 
-        // La barre défile horizontalement si l'écran est trop étroit pour tous les boutons
         toolbarWrapper = HorizontalScrollView(this).apply {
             isHorizontalScrollBarEnabled = false
             addView(toolbarView)
@@ -149,13 +172,11 @@ class OverlayDrawingService : Service() {
         enableDrawingMode()
     }
 
-    // Le calque capture le prochain geste tactile pour dessiner UNE forme
     private fun enableDrawingMode() {
         drawingEnabled = true
         updateDrawingTouchability()
     }
 
-    // Redonne immédiatement le contrôle du téléphone (après une forme, ou via ✋)
     private fun disableDrawingMode() {
         drawingEnabled = false
         updateDrawingTouchability()
