@@ -25,6 +25,14 @@ class ScreenRecordService : Service() {
 
     private val channelId = "screen_record_channel"
 
+    // Obligatoire sur Android 14+ : sans callback enregistré, le système peut
+    // couper la capture silencieusement et produire une vidéo noire ou vide.
+    private val projectionCallback = object : MediaProjection.Callback() {
+        override fun onStop() {
+            isRunning = false
+        }
+    }
+
     companion object {
         const val ACTION_STOP = "com.abdoula.screenrecorder.STOP"
         var isRunning = false
@@ -43,6 +51,7 @@ class ScreenRecordService : Service() {
 
         val projectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         mediaProjection = projectionManager.getMediaProjection(resultCode, data)
+        mediaProjection?.registerCallback(projectionCallback, null)
 
         startRecording()
 
@@ -80,12 +89,12 @@ class ScreenRecordService : Service() {
     }
 
     private fun startRecording() {
-        val metrics = DisplayMetrics()
-        val windowManager = getSystemService(Context.WINDOW_SERVICE) as android.view.WindowManager
-        windowManager.defaultDisplay.getRealMetrics(metrics)
+        val metrics = resources.displayMetrics
 
-        val width = metrics.widthPixels
-        val height = metrics.heightPixels
+        // Les encodeurs vidéo (H264) exigent des dimensions PAIRES : on arrondit
+        // à l'entier pair inférieur pour éviter un flux corrompu/noir.
+        val width = (metrics.widthPixels / 2) * 2
+        val height = (metrics.heightPixels / 2) * 2
         val density = metrics.densityDpi
 
         val outputFile = getOutputFile()
@@ -137,6 +146,7 @@ class ScreenRecordService : Service() {
         }
         mediaRecorder?.release()
         virtualDisplay?.release()
+        mediaProjection?.unregisterCallback(projectionCallback)
         mediaProjection?.stop()
         stopService(Intent(this, OverlayDrawingService::class.java))
         stopService(Intent(this, CameraBubbleService::class.java))
