@@ -13,24 +13,29 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.EditText
-import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.TextView
+import kotlin.math.abs
 
 class OverlayDrawingService : Service() {
 
     private lateinit var windowManager: WindowManager
-    private var toolbarWrapper: HorizontalScrollView? = null
-    private var toolbarView: LinearLayout? = null
+
+    private var bubbleView: TextView? = null
+    private var bubbleParams: WindowManager.LayoutParams? = null
+
+    private var panelView: LinearLayout? = null
+    private var panelParams: WindowManager.LayoutParams? = null
+    private var panelVisible = false
+
     private var drawingView: DrawingOverlayView? = null
     private var drawingEnabled = false
-    private var toolbarParams: WindowManager.LayoutParams? = null
 
     override fun onCreate() {
         super.onCreate()
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
         addDrawingLayer()
-        addToolbar()
+        addBubble()
     }
 
     private fun overlayType(): Int =
@@ -39,11 +44,13 @@ class OverlayDrawingService : Service() {
         else
             WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
 
+    // ---------- Calque de dessin (plein écran, invisible tant qu'on ne dessine pas) ----------
+
     private fun addDrawingLayer() {
         drawingView = DrawingOverlayView(this).apply {
             setLayerType(View.LAYER_TYPE_HARDWARE, null)
             onShapeFinished = { disableDrawingMode() }
-            onTextRequested = { x, y -> showTextInputDialog() }
+            onTextRequested = { _, _ -> showTextInputDialog() }
         }
 
         val params = WindowManager.LayoutParams(
@@ -57,6 +64,165 @@ class OverlayDrawingService : Service() {
         params.gravity = Gravity.TOP or Gravity.START
 
         windowManager.addView(drawingView, params)
+    }
+
+    // ---------- Bulle flottante ----------
+
+    private fun addBubble() {
+        bubbleView = TextView(this).apply {
+            text = "🎬"
+            textSize = 24f
+            gravity = Gravity.CENTER
+            setBackgroundColor(Color.parseColor("#7C4DFF"))
+        }
+
+        val params = WindowManager.LayoutParams(
+            140, 140,
+            overlayType(),
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+            PixelFormat.TRANSLUCENT
+        )
+        params.gravity = Gravity.TOP or Gravity.START
+        params.x = 20
+        params.y = 300
+        bubbleParams = params
+
+        makeBubbleDraggableAndClickable(bubbleView!!, params)
+
+        windowManager.addView(bubbleView, params)
+    }
+
+    private fun makeBubbleDraggableAndClickable(view: View, params: WindowManager.LayoutParams) {
+        var initialX = 0
+        var initialY = 0
+        var touchX = 0f
+        var touchY = 0f
+        var moved = false
+
+        view.setOnTouchListener { _, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    initialX = params.x
+                    initialY = params.y
+                    touchX = event.rawX
+                    touchY = event.rawY
+                    moved = false
+                    true
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    val dx = (event.rawX - touchX).toInt()
+                    val dy = (event.rawY - touchY).toInt()
+                    if (abs(dx) > 12 || abs(dy) > 12) moved = true
+                    params.x = initialX + dx
+                    params.y = initialY + dy
+                    windowManager.updateViewLayout(bubbleView, params)
+                    repositionPanelIfVisible()
+                    true
+                }
+                MotionEvent.ACTION_UP -> {
+                    if (!moved) togglePanel()
+                    true
+                }
+                else -> false
+            }
+        }
+    }
+
+    // ---------- Panneau d'outils (s'ouvre/se ferme depuis la bulle) ----------
+
+    private fun togglePanel() {
+        if (panelVisible) hidePanel() else showPanel()
+    }
+
+    private fun showPanel() {
+        if (panelView == null) buildPanel()
+        repositionPanelIfVisible(forceShow = true)
+        panelVisible = true
+    }
+
+    private fun hidePanel() {
+        panelView?.visibility = View.GONE
+        panelVisible = false
+    }
+
+    private fun repositionPanelIfVisible(forceShow: Boolean = false) {
+        if (!panelVisible && !forceShow) return
+        val bp = bubbleParams ?: return
+        val pp = panelParams ?: return
+        pp.x = bp.x + 160
+        pp.y = bp.y
+        panelView?.visibility = View.VISIBLE
+        windowManager.updateViewLayout(panelView, pp)
+    }
+
+    private fun buildPanel() {
+        panelView = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(Color.parseColor("#EE1E1E1E"))
+            setPadding(16, 16, 16, 16)
+        }
+
+        val row1 = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+        listOf(
+            "✏️" to { setTool(ShapeTool.PEN) },
+            "➡️" to { setTool(ShapeTool.ARROW) },
+            "⭕" to { setTool(ShapeTool.CIRCLE) },
+            "▭" to { setTool(ShapeTool.RECTANGLE) },
+            "🔤" to { setTool(ShapeTool.TEXT) }
+        ).forEach { (label, action) -> row1.addView(makeButton(label, action)) }
+        panelView?.addView(row1)
+
+        val row2 = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+        listOf(
+            "🔴" to Color.RED, "🔵" to Color.BLUE, "🟢" to Color.GREEN, "🟡" to Color.YELLOW
+        ).forEach { (label, color) ->
+            row2.addView(makeButton(label) { drawingView?.currentColor = color })
+        }
+        panelView?.addView(row2)
+
+        val row3 = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+        row3.addView(makeButton("↩️") { drawingView?.undo() })
+        row3.addView(makeButton("🗑️") { drawingView?.clearAll() })
+        panelView?.addView(row3)
+
+        val stopButton = Button(this).apply {
+            text = "⏹ Arrêter l'enregistrement"
+            textSize = 13f
+            setTextColor(Color.WHITE)
+            setBackgroundColor(Color.parseColor("#E53935"))
+            setOnClickListener {
+                stopService(Intent(this@OverlayDrawingService, ScreenRecordService::class.java))
+                stopSelf()
+            }
+        }
+        panelView?.addView(stopButton)
+
+        val params = WindowManager.LayoutParams(
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            overlayType(),
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+            PixelFormat.TRANSLUCENT
+        )
+        params.gravity = Gravity.TOP or Gravity.START
+        panelParams = params
+
+        windowManager.addView(panelView, params)
+        panelView?.visibility = View.GONE
+    }
+
+    private fun makeButton(label: String, action: () -> Unit): Button {
+        return Button(this).apply {
+            text = label
+            textSize = 16f
+            minWidth = 0
+            minimumWidth = 0
+            setPadding(16, 12, 16, 12)
+            setOnClickListener {
+                action()
+                hidePanel()
+            }
+        }
     }
 
     private fun showTextInputDialog() {
@@ -73,98 +239,11 @@ class OverlayDrawingService : Service() {
                 drawingView?.addTextShape(input.text.toString())
                 disableDrawingMode()
             }
-            .setNegativeButton("Annuler") { _, _ ->
-                disableDrawingMode()
-            }
+            .setNegativeButton("Annuler") { _, _ -> disableDrawingMode() }
             .create()
 
-        // Nécessaire pour qu'une boîte de dialogue s'affiche depuis un Service (pas une Activity)
         dialog.window?.setType(overlayType())
         dialog.show()
-    }
-
-    private fun addToolbar() {
-        toolbarView = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            setBackgroundColor(Color.parseColor("#E6222222"))
-            setPadding(8, 8, 8, 8)
-        }
-
-        val params = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            overlayType(),
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-            PixelFormat.TRANSLUCENT
-        )
-        params.gravity = Gravity.TOP or Gravity.START
-        params.x = 0
-        params.y = 250
-        toolbarParams = params
-
-        val dragHandle = TextView(this).apply {
-            text = "⠿⠿"
-            textSize = 20f
-            setTextColor(Color.LTGRAY)
-            setPadding(20, 20, 24, 20)
-        }
-        makeDraggable(dragHandle, params)
-        toolbarView?.addView(dragHandle)
-
-        val toolButtons = listOf(
-            "✏️" to { setTool(ShapeTool.PEN) },
-            "➡️" to { setTool(ShapeTool.ARROW) },
-            "⭕" to { setTool(ShapeTool.CIRCLE) },
-            "▭" to { setTool(ShapeTool.RECTANGLE) },
-            "🔤" to { setTool(ShapeTool.TEXT) }
-        )
-        for ((label, action) in toolButtons) {
-            toolbarView?.addView(makeButton(label, action))
-        }
-
-        val colors = listOf(
-            "🔴" to Color.RED,
-            "🔵" to Color.BLUE,
-            "🟢" to Color.GREEN,
-            "🟡" to Color.YELLOW
-        )
-        for ((label, color) in colors) {
-            toolbarView?.addView(makeButton(label) { drawingView?.currentColor = color })
-        }
-
-        toolbarView?.addView(makeButton("↩️") { drawingView?.undo() })
-        toolbarView?.addView(makeButton("🗑️") { drawingView?.clearAll() })
-
-        val stopButton = Button(this).apply {
-            text = "⏹ STOP"
-            textSize = 15f
-            setTextColor(Color.WHITE)
-            setBackgroundColor(Color.parseColor("#E53935"))
-            setPadding(28, 16, 28, 16)
-            setOnClickListener {
-                stopService(Intent(this@OverlayDrawingService, ScreenRecordService::class.java))
-                stopSelf()
-            }
-        }
-        toolbarView?.addView(stopButton)
-
-        toolbarWrapper = HorizontalScrollView(this).apply {
-            isHorizontalScrollBarEnabled = false
-            addView(toolbarView)
-        }
-
-        windowManager.addView(toolbarWrapper, params)
-    }
-
-    private fun makeButton(label: String, action: () -> Unit): Button {
-        return Button(this).apply {
-            text = label
-            textSize = 18f
-            minWidth = 0
-            minimumWidth = 0
-            setPadding(20, 16, 20, 16)
-            setOnClickListener { action() }
-        }
     }
 
     private fun setTool(tool: ShapeTool) {
@@ -192,35 +271,10 @@ class OverlayDrawingService : Service() {
         windowManager.updateViewLayout(drawingView, params)
     }
 
-    private fun makeDraggable(handle: View, params: WindowManager.LayoutParams) {
-        var initialX = 0
-        var initialY = 0
-        var touchX = 0f
-        var touchY = 0f
-
-        handle.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    initialX = params.x
-                    initialY = params.y
-                    touchX = event.rawX
-                    touchY = event.rawY
-                    true
-                }
-                MotionEvent.ACTION_MOVE -> {
-                    params.x = initialX + (event.rawX - touchX).toInt()
-                    params.y = initialY + (event.rawY - touchY).toInt()
-                    windowManager.updateViewLayout(toolbarWrapper, params)
-                    true
-                }
-                else -> false
-            }
-        }
-    }
-
     override fun onDestroy() {
         super.onDestroy()
-        toolbarWrapper?.let { windowManager.removeView(it) }
+        bubbleView?.let { windowManager.removeView(it) }
+        panelView?.let { windowManager.removeView(it) }
         drawingView?.let { windowManager.removeView(it) }
     }
 
