@@ -91,12 +91,21 @@ class ScreenRecordService : Service() {
         val outputFile = getOutputFile()
 
         mediaRecorder = MediaRecorder().apply {
+            // Micro : capture ta voix + le son ambiant pendant l'enregistrement
+            setAudioSource(MediaRecorder.AudioSource.MIC)
             setVideoSource(MediaRecorder.VideoSource.SURFACE)
+
             setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+
+            setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+            setAudioEncodingBitRate(128_000)
+            setAudioSamplingRate(44_100)
+
             setVideoEncoder(MediaRecorder.VideoEncoder.H264)
             setVideoSize(width, height)
             setVideoEncodingBitRate(8_000_000)
             setVideoFrameRate(30)
+
             setOutputFile(outputFile.absolutePath)
             prepare()
         }
@@ -131,6 +140,7 @@ class ScreenRecordService : Service() {
         virtualDisplay?.release()
         mediaProjection?.stop()
         stopService(Intent(this, OverlayDrawingService::class.java))
+        stopService(Intent(this, CameraBubbleService::class.java))
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
