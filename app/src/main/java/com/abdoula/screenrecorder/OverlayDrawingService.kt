@@ -63,7 +63,10 @@ class OverlayDrawingService : Service() {
             "↩️" to { drawingView?.undo() },
             "🗑️" to { drawingView?.clearAll() },
             "✋" to { toggleDrawingMode() },
-            "✖️" to { stopSelf() }
+            "✖️" to {
+                stopService(Intent(this, ScreenRecordService::class.java))
+                stopSelf()
+            }
         )
 
         for ((label, action) in buttons) {
