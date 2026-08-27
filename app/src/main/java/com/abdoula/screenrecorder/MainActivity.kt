@@ -10,6 +10,7 @@ import android.media.projection.MediaProjectionManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.Settings
 import android.widget.Button
 import android.widget.ImageButton
@@ -20,6 +21,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -29,6 +32,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var startButton: Button
     private lateinit var stopButton: Button
     private lateinit var cameraToggleButton: Button
+
+    private lateinit var statCount: TextView
+    private lateinit var statSize: TextView
+    private lateinit var statLast: TextView
 
     private var cameraEnabled = false
 
@@ -68,6 +75,10 @@ class MainActivity : AppCompatActivity() {
         startButton = findViewById(R.id.startButton)
         stopButton = findViewById(R.id.stopButton)
         cameraToggleButton = findViewById(R.id.cameraToggleButton)
+
+        statCount = findViewById(R.id.statCount)
+        statSize = findViewById(R.id.statSize)
+        statLast = findViewById(R.id.statLast)
 
         startButton.setOnClickListener { requestPermissionsThenStart() }
 
@@ -169,6 +180,25 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         updateUiRecording(ScreenRecordService.isRunning)
+        loadStats()
+    }
+
+    private fun loadStats() {
+        val dir = getExternalFilesDir(Environment.DIRECTORY_MOVIES)
+        val files = dir?.listFiles { f -> f.extension == "mp4" } ?: emptyArray()
+
+        statCount.text = files.size.toString()
+
+        val totalBytes = files.sumOf { it.length() }
+        val totalMb = totalBytes / (1024 * 1024)
+        statSize.text = if (totalMb > 1024) String.format("%.1f Go", totalMb / 1024.0) else "$totalMb Mo"
+
+        val latest = files.maxByOrNull { it.lastModified() }
+        statLast.text = if (latest != null) {
+            SimpleDateFormat("dd/MM HH:mm", Locale.getDefault()).format(Date(latest.lastModified()))
+        } else {
+            "—"
+        }
     }
 
     private fun updateUiRecording(recording: Boolean) {
