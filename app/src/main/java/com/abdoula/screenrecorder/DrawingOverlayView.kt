@@ -26,6 +26,10 @@ class DrawingOverlayView(context: Context, attrs: AttributeSet? = null) : View(c
     var currentTool: ShapeTool = ShapeTool.ARROW
     var currentColor: Int = Color.RED
 
+    // Appelé automatiquement quand une forme vient d'être terminée,
+    // pour que le service puisse redonner la main au téléphone
+    var onShapeFinished: (() -> Unit)? = null
+
     private val shapes = mutableListOf<DrawnShape>()
     private var currentPath: Path? = null
     private var startX = 0f
@@ -77,6 +81,8 @@ class DrawingOverlayView(context: Context, attrs: AttributeSet? = null) : View(c
                     }
                 }
                 invalidate()
+                // La forme est terminée : on redonne automatiquement la main au téléphone
+                onShapeFinished?.invoke()
             }
         }
         return true
