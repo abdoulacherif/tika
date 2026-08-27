@@ -66,14 +66,14 @@ class OverlayDrawingService : Service() {
         windowManager.addView(drawingView, params)
     }
 
-    // ---------- Bulle flottante ----------
+    // ---------- Bulle flottante (ronde) ----------
 
     private fun addBubble() {
         bubbleView = TextView(this).apply {
             text = "🎬"
             textSize = 24f
             gravity = Gravity.CENTER
-            setBackgroundColor(Color.parseColor("#7C4DFF"))
+            setBackground(resources.getDrawable(R.drawable.bg_bubble, null))
         }
 
         val params = WindowManager.LayoutParams(
