@@ -28,6 +28,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var statusDot: android.view.View
     private lateinit var startButton: Button
     private lateinit var stopButton: Button
+    private lateinit var cameraToggleButton: Button
+
+    private var cameraEnabled = false
 
     private val screenCaptureLauncher =
         registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()) { result ->
@@ -40,6 +43,12 @@ class MainActivity : AppCompatActivity() {
 
                 if (Settings.canDrawOverlays(this)) {
                     startService(Intent(this, OverlayDrawingService::class.java))
+
+                    if (cameraEnabled && ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                        == PackageManager.PERMISSION_GRANTED
+                    ) {
+                        ContextCompat.startForegroundService(this, Intent(this, CameraBubbleService::class.java))
+                    }
                 }
 
                 updateUiRecording(true)
@@ -58,12 +67,14 @@ class MainActivity : AppCompatActivity() {
         statusDot = findViewById(R.id.statusDot)
         startButton = findViewById(R.id.startButton)
         stopButton = findViewById(R.id.stopButton)
+        cameraToggleButton = findViewById(R.id.cameraToggleButton)
 
         startButton.setOnClickListener { requestPermissionsThenStart() }
 
         stopButton.setOnClickListener {
             stopService(Intent(this, ScreenRecordService::class.java))
             stopService(Intent(this, OverlayDrawingService::class.java))
+            stopService(Intent(this, CameraBubbleService::class.java))
             updateUiRecording(false)
         }
 
@@ -71,11 +82,34 @@ class MainActivity : AppCompatActivity() {
             requestOverlayPermission()
         }
 
+        cameraToggleButton.setOnClickListener { toggleCamera() }
+
         findViewById<ImageButton>(R.id.menuButton).setOnClickListener { view ->
             showTopMenu(view)
         }
 
         setupBottomNav()
+    }
+
+    private fun toggleCamera() {
+        if (!cameraEnabled) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), 200)
+                return
+            }
+        }
+        cameraEnabled = !cameraEnabled
+        cameraToggleButton.text = if (cameraEnabled) "📷 Caméra flottante : activée" else "📷 Caméra flottante : désactivée"
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 200 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            cameraEnabled = true
+            cameraToggleButton.text = "📷 Caméra flottante : activée"
+        }
     }
 
     private fun setupBottomNav() {
@@ -92,9 +126,8 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_tools -> {
                     showComingSoonDialog(
                         "Outils avancés",
-                        "Taille du trait, formes supplémentaires, filtres vidéo… Ces outils arrivent dans la version Pro."
+                        "Taille du trait, formes supplémentaires, son interne du téléphone… Ces outils arrivent dans la version Pro."
                     )
-                    // Reste sur Accueil visuellement
                     bottomNav.postDelayed({ bottomNav.selectedItemId = R.id.nav_home }, 150)
                     true
                 }
