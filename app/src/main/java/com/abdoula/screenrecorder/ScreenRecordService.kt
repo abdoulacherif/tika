@@ -113,13 +113,9 @@ class ScreenRecordService : Service() {
         virtualDisplay = mediaProjection?.createVirtualDisplay(
             "ScreenRecord",
             width, height, density,
-            DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
+            DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC,
             mediaRecorder!!.surface, null, null
         )
-
-        mediaRecorder?.start()
-        isRunning = true
-    }
 
     private fun getOutputFile(): java.io.File {
         val dir = getExternalFilesDir(Environment.DIRECTORY_MOVIES)
