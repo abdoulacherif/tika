@@ -312,11 +312,11 @@ class MainActivity : AppCompatActivity() {
         popup.setOnMenuItemClickListener { item ->
             when (item.title) {
                 "⭐ Passer à la version Pro" -> showComingSoonDialog("Version Pro", "Les fonctionnalités payantes arrivent bientôt.")
-                "🗑️ Vidéos supprimées" -> showComingSoonDialog("Vidéos supprimées", "La corbeille (récupération des vidéos supprimées) arrive dans une prochaine version.")
+                "🗑️ Vidéos supprimées" -> startActivity(Intent(this, TrashActivity::class.java))
                 "💬 Envoyer un commentaire" -> sendFeedbackEmail()
                 "📤 Partager l'application" -> shareApp()
-                "❓ Questions fréquentes" -> showComingSoonDialog("Questions fréquentes", "Une page d'aide complète arrive bientôt.")
-                "ℹ️ À propos" -> showComingSoonDialog("Screen Recorder", "Version 1.1 — développé pour enregistrer et annoter ton écran facilement.")
+                "❓ Questions fréquentes" -> startActivity(Intent(this, FaqActivity::class.java))
+                "ℹ️ À propos" -> startActivity(Intent(this, AboutActivity::class.java))
             }
             true
         }
