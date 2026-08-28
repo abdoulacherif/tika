@@ -16,6 +16,7 @@ import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
@@ -77,16 +78,9 @@ class GalleryActivity : AppCompatActivity() {
                 this@GalleryActivity, "$packageName.fileprovider", file
             )
 
-            view.findViewById<ImageButton>(R.id.playButton).setOnClickListener {
-                val intent = Intent(Intent.ACTION_VIEW).apply {
-                    setDataAndType(uri, "video/mp4")
-                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                }
-                try {
-                    startActivity(intent)
-                } catch (e: Exception) {
-                    Toast.makeText(context, "Aucune appli pour lire la vidéo", Toast.LENGTH_SHORT).show()
-                }
+            // Toute la ligne (miniature + nom) lance la lecture au tap
+            view.findViewById<LinearLayout>(R.id.itemClickArea).setOnClickListener {
+                playVideo(uri)
             }
 
             view.findViewById<ImageButton>(R.id.trimButton).setOnClickListener {
@@ -123,6 +117,18 @@ class GalleryActivity : AppCompatActivity() {
             }
 
             return view
+        }
+    }
+
+    private fun playVideo(uri: Uri) {
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(uri, "video/mp4")
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        try {
+            startActivity(intent)
+        } catch (e: Exception) {
+            Toast.makeText(this, "Aucune appli pour lire la vidéo", Toast.LENGTH_SHORT).show()
         }
     }
 
