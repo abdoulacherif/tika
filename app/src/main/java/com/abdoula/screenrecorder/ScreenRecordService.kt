@@ -112,13 +112,25 @@ class ScreenRecordService : Service() {
 
     private fun startRecording() {
         val metrics = resources.displayMetrics
-        val quality = SettingsManager.getQuality(this)
-        val scale = SettingsManager.getScaleForQuality(quality)
-        val bitrate = SettingsManager.getBitrateForQuality(quality)
-
-        val width = ((metrics.widthPixels * scale).toInt() / 2) * 2
-        val height = ((metrics.heightPixels * scale).toInt() / 2) * 2
+        val deviceWidth = metrics.widthPixels
+        val deviceHeight = metrics.heightPixels
         val density = metrics.densityDpi
+
+        val targetHeight = SettingsManager.getResolutionHeight(this)
+
+        val width: Int
+        val height: Int
+        if (targetHeight == 0 || targetHeight >= deviceHeight) {
+            width = (deviceWidth / 2) * 2
+            height = (deviceHeight / 2) * 2
+        } else {
+            val scale = targetHeight.toDouble() / deviceHeight.toDouble()
+            height = (targetHeight / 2) * 2
+            width = ((deviceWidth * scale).toInt() / 2) * 2
+        }
+
+        val bitrate = SettingsManager.resolveBitrate(this, height)
+        val frameRate = SettingsManager.resolveFrameRate(this)
 
         val outputFile = getOutputFile()
 
@@ -136,7 +148,7 @@ class ScreenRecordService : Service() {
             setVideoEncoder(MediaRecorder.VideoEncoder.H264)
             setVideoSize(width, height)
             setVideoEncodingBitRate(bitrate)
-            setVideoFrameRate(30)
+            setVideoFrameRate(frameRate)
 
             setOutputFile(outputFile.absolutePath)
             prepare()
