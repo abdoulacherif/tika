@@ -1,17 +1,25 @@
 package com.abdoula.screenrecorder
 
 import android.content.Intent
+import android.graphics.Bitmap
+import android.media.ThumbnailUtils
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
+import android.os.Handler
+import android.os.Looper
+import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageView
 import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import java.io.File
@@ -20,6 +28,7 @@ class GalleryActivity : AppCompatActivity() {
 
     private lateinit var listView: ListView
     private lateinit var emptyText: TextView
+    private val mainHandler = Handler(Looper.getMainLooper())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,6 +68,11 @@ class GalleryActivity : AppCompatActivity() {
             val file = files[position]
             view.findViewById<TextView>(R.id.fileName).text = file.name
 
+            val thumbView = view.findViewById<ImageView>(R.id.thumbnail)
+            thumbView.setImageBitmap(null)
+            thumbView.tag = file.absolutePath
+            loadThumbnailAsync(file, thumbView)
+
             val uri: Uri = FileProvider.getUriForFile(
                 this@GalleryActivity, "$packageName.fileprovider", file
             )
@@ -73,6 +87,16 @@ class GalleryActivity : AppCompatActivity() {
                 } catch (e: Exception) {
                     Toast.makeText(context, "Aucune appli pour lire la vidéo", Toast.LENGTH_SHORT).show()
                 }
+            }
+
+            view.findViewById<Button>(R.id.trimButton).setOnClickListener {
+                val intent = Intent(this@GalleryActivity, TrimActivity::class.java)
+                intent.putExtra("videoPath", file.absolutePath)
+                startActivity(intent)
+            }
+
+            view.findViewById<Button>(R.id.renameButton).setOnClickListener {
+                showRenameDialog(file)
             }
 
             view.findViewById<Button>(R.id.shareButton).setOnClickListener {
@@ -92,5 +116,48 @@ class GalleryActivity : AppCompatActivity() {
 
             return view
         }
+    }
+
+    private fun loadThumbnailAsync(file: File, imageView: ImageView) {
+        Thread {
+            val bitmap: Bitmap? = try {
+                @Suppress("DEPRECATION")
+                ThumbnailUtils.createVideoThumbnail(file.absolutePath, MediaStore.Video.Thumbnails.MINI_KIND)
+            } catch (e: Exception) {
+                null
+            }
+            mainHandler.post {
+                // On vérifie que la vue n'a pas été recyclée pour une autre vidéo
+                // entre-temps (défilement rapide de la liste).
+                if (imageView.tag == file.absolutePath && bitmap != null) {
+                    imageView.setImageBitmap(bitmap)
+                }
+            }
+        }.start()
+    }
+
+    private fun showRenameDialog(file: File) {
+        val nameWithoutExt = file.nameWithoutExtension
+        val input = EditText(this).apply {
+            setText(nameWithoutExt)
+            setSelection(text.length)
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("Renommer la vidéo")
+            .setView(input)
+            .setPositiveButton("Renommer") { _, _ ->
+                val newName = input.text.toString().trim()
+                if (newName.isNotEmpty()) {
+                    val newFile = File(file.parent, "$newName.mp4")
+                    if (file.renameTo(newFile)) {
+                        loadVideos()
+                    } else {
+                        Toast.makeText(this, "Impossible de renommer (nom déjà utilisé ?)", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            .setNegativeButton("Annuler", null)
+            .show()
     }
 }
