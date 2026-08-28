@@ -8,8 +8,9 @@ object SettingsManager {
     private const val KEY_BITRATE_MBPS = "bitrate_mbps"
     private const val KEY_FRAMERATE = "frame_rate"
     private const val KEY_WATERMARK = "watermark_enabled"
+    private const val KEY_WATERMARK_TEXT = "watermark_text"
+    private const val KEY_HIDE_BUBBLE = "hide_bubble_recording"
 
-    // 0 = Automatique (résolution native de l'écran)
     fun getResolutionHeight(context: Context): Int {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         return prefs.getInt(KEY_RESOLUTION_HEIGHT, 0)
@@ -20,7 +21,6 @@ object SettingsManager {
         prefs.edit().putInt(KEY_RESOLUTION_HEIGHT, height).apply()
     }
 
-    // 0 = Automatique (calculé selon la résolution choisie)
     fun getBitrateMbps(context: Context): Int {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         return prefs.getInt(KEY_BITRATE_MBPS, 0)
@@ -31,7 +31,6 @@ object SettingsManager {
         prefs.edit().putInt(KEY_BITRATE_MBPS, mbps).apply()
     }
 
-    // 0 = Automatique (30 FPS)
     fun getFrameRate(context: Context): Int {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         return prefs.getInt(KEY_FRAMERATE, 0)
@@ -52,8 +51,26 @@ object SettingsManager {
         prefs.edit().putBoolean(KEY_WATERMARK, enabled).apply()
     }
 
-    // Calcule le bitrate effectif : la valeur choisie, ou une valeur par
-    // défaut cohérente avec la résolution si réglé sur Automatique.
+    fun getWatermarkText(context: Context): String {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        return prefs.getString(KEY_WATERMARK_TEXT, "🎬 Screen Recorder") ?: "🎬 Screen Recorder"
+    }
+
+    fun setWatermarkText(context: Context, text: String) {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        prefs.edit().putString(KEY_WATERMARK_TEXT, text).apply()
+    }
+
+    fun isBubbleHiddenDuringRecording(context: Context): Boolean {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        return prefs.getBoolean(KEY_HIDE_BUBBLE, false)
+    }
+
+    fun setBubbleHiddenDuringRecording(context: Context, hidden: Boolean) {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        prefs.edit().putBoolean(KEY_HIDE_BUBBLE, hidden).apply()
+    }
+
     fun resolveBitrate(context: Context, effectiveHeight: Int): Int {
         val chosen = getBitrateMbps(context)
         if (chosen > 0) return chosen * 1_000_000
