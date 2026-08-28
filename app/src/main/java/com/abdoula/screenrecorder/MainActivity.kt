@@ -27,6 +27,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -319,11 +320,25 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun shareApp() {
-        val intent = Intent(Intent.ACTION_SEND).apply {
-            type = "text/plain"
-            putExtra(Intent.EXTRA_TEXT, "Découvre Screen Recorder, l'appli pour enregistrer et annoter ton écran !")
+        try {
+            val apkFile = File(applicationInfo.sourceDir)
+            val apkCopy = File(cacheDir, "ScreenRecorder.apk")
+            apkFile.copyTo(apkCopy, overwrite = true)
+
+            val uri = androidx.core.content.FileProvider.getUriForFile(
+                this, "$packageName.fileprovider", apkCopy
+            )
+
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "application/vnd.android.package-archive"
+                putExtra(Intent.EXTRA_STREAM, uri)
+                putExtra(Intent.EXTRA_TEXT, "Installe Screen Recorder : enregistre et annote ton écran facilement !")
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            startActivity(Intent.createChooser(intent, "Partager l'application"))
+        } catch (e: Exception) {
+            Toast.makeText(this, "Impossible de partager l'appli pour le moment", Toast.LENGTH_SHORT).show()
         }
-        startActivity(Intent.createChooser(intent, "Partager l'application"))
     }
 
     // ---------- Statistiques et état ----------
