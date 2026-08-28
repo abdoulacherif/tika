@@ -17,9 +17,7 @@ import android.os.CountDownTimer
 import android.os.Environment
 import android.provider.Settings
 import android.widget.Button
-import android.widget.CheckBox
 import android.widget.ImageButton
-import android.widget.LinearLayout
 import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
@@ -164,14 +162,14 @@ class MainActivity : AppCompatActivity() {
             }
         }
         cameraEnabled = !cameraEnabled
-        cameraToggleButton.text = if (cameraEnabled) "📷 Caméra flottante : activée" else "📷 Caméra flottante : désactivée"
+        cameraToggleButton.text = if (cameraEnabled) "📷\nCaméra : on" else "📷\nCaméra : off"
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == 200 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             cameraEnabled = true
-            cameraToggleButton.text = "📷 Caméra flottante : activée"
+            cameraToggleButton.text = "📷\nCaméra : on"
         }
     }
 
@@ -192,7 +190,7 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 R.id.nav_settings -> {
-                    showSettingsDialog()
+                    startActivity(Intent(this, SettingsActivity::class.java))
                     bottomNav.postDelayed({ bottomNav.selectedItemId = R.id.nav_home }, 150)
                     true
                 }
@@ -234,49 +232,6 @@ class MainActivity : AppCompatActivity() {
         } catch (e: SecurityException) {
             Toast.makeText(this, "Autorise les alarmes exactes dans les réglages système pour cette appli", Toast.LENGTH_LONG).show()
         }
-    }
-
-    // ---------- Réglages (qualité + filigrane) ----------
-
-    private fun showSettingsDialog() {
-        val container = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(48, 24, 48, 24)
-        }
-
-        val qualityLabel = TextView(this).apply {
-            text = "Qualité d'enregistrement"
-            setTextColor(Color.WHITE)
-            textSize = 15f
-        }
-        container.addView(qualityLabel)
-
-        val current = SettingsManager.getQuality(this)
-        val qualityButton = Button(this).apply {
-            text = if (current == "720") "720p (fichiers plus légers)" else "1080p (qualité maximale)"
-            setOnClickListener {
-                val newQuality = if (SettingsManager.getQuality(this@MainActivity) == "720") "1080" else "720"
-                SettingsManager.setQuality(this@MainActivity, newQuality)
-                text = if (newQuality == "720") "720p (fichiers plus légers)" else "1080p (qualité maximale)"
-            }
-        }
-        container.addView(qualityButton)
-
-        val watermarkCheck = CheckBox(this).apply {
-            text = "Afficher le filigrane Screen Recorder"
-            setTextColor(Color.WHITE)
-            isChecked = SettingsManager.isWatermarkEnabled(this@MainActivity)
-            setOnCheckedChangeListener { _, checked ->
-                SettingsManager.setWatermarkEnabled(this@MainActivity, checked)
-            }
-        }
-        container.addView(watermarkCheck)
-
-        AlertDialog.Builder(this)
-            .setTitle("Réglages")
-            .setView(container)
-            .setPositiveButton("Fermer", null)
-            .show()
     }
 
     private fun showComingSoonDialog(title: String, message: String) {
