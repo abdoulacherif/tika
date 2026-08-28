@@ -45,6 +45,18 @@
             android:exported="false" />
 
         <service
+
+<activity
+            android:name=".AboutActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".FaqActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".TrashActivity"
+            android:exported="false" />
             android:name=".ScreenRecordService"
             android:exported="false"
             android:foregroundServiceType="mediaProjection" />
