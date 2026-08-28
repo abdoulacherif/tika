@@ -60,8 +60,6 @@ class ScreenRecordService : Service() {
         return START_NOT_STICKY
     }
 
-    // Demande au système de garder le micro réservé à notre appli pendant tout
-    // l'enregistrement, pour éviter qu'une notification ou un appel le coupe.
     private fun requestAudioFocus() {
         val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         val attributes = AudioAttributes.Builder()
@@ -114,16 +112,17 @@ class ScreenRecordService : Service() {
 
     private fun startRecording() {
         val metrics = resources.displayMetrics
-        val width = (metrics.widthPixels / 2) * 2
-        val height = (metrics.heightPixels / 2) * 2
+        val quality = SettingsManager.getQuality(this)
+        val scale = SettingsManager.getScaleForQuality(quality)
+        val bitrate = SettingsManager.getBitrateForQuality(quality)
+
+        val width = ((metrics.widthPixels * scale).toInt() / 2) * 2
+        val height = ((metrics.heightPixels * scale).toInt() / 2) * 2
         val density = metrics.densityDpi
 
         val outputFile = getOutputFile()
 
         mediaRecorder = MediaRecorder().apply {
-            // VOICE_COMMUNICATION : source plus stable que MIC sur les puces
-            // d'entrée de gamme, avec réduction d'écho/bruit intégrée par le
-            // système — moins sujette aux coupures.
             setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
             setVideoSource(MediaRecorder.VideoSource.SURFACE)
 
@@ -136,7 +135,7 @@ class ScreenRecordService : Service() {
 
             setVideoEncoder(MediaRecorder.VideoEncoder.H264)
             setVideoSize(width, height)
-            setVideoEncodingBitRate(8_000_000)
+            setVideoEncodingBitRate(bitrate)
             setVideoFrameRate(30)
 
             setOutputFile(outputFile.absolutePath)
