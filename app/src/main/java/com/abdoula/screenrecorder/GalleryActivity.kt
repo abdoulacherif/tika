@@ -99,6 +99,14 @@ class GalleryActivity : AppCompatActivity() {
                 showRenameDialog(file)
             }
 
+            view.findViewById<Button>(R.id.whatsappButton).setOnClickListener {
+                shareToApp(uri, "com.whatsapp")
+            }
+
+            view.findViewById<Button>(R.id.telegramButton).setOnClickListener {
+                shareToApp(uri, "org.telegram.messenger")
+            }
+
             view.findViewById<Button>(R.id.shareButton).setOnClickListener {
                 val intent = Intent(Intent.ACTION_SEND).apply {
                     type = "video/mp4"
@@ -118,6 +126,20 @@ class GalleryActivity : AppCompatActivity() {
         }
     }
 
+    private fun shareToApp(uri: Uri, packageName: String) {
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "video/mp4"
+            putExtra(Intent.EXTRA_STREAM, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            setPackage(packageName)
+        }
+        try {
+            startActivity(intent)
+        } catch (e: Exception) {
+            Toast.makeText(this, "Application non installée", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private fun loadThumbnailAsync(file: File, imageView: ImageView) {
         Thread {
             val bitmap: Bitmap? = try {
@@ -127,8 +149,6 @@ class GalleryActivity : AppCompatActivity() {
                 null
             }
             mainHandler.post {
-                // On vérifie que la vue n'a pas été recyclée pour une autre vidéo
-                // entre-temps (défilement rapide de la liste).
                 if (imageView.tag == file.absolutePath && bitmap != null) {
                     imageView.setImageBitmap(bitmap)
                 }
