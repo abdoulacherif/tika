@@ -50,10 +50,11 @@ class OverlayDrawingService : Service() {
         else
             WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
 
-    // IMPORTANT : FLAG_SECURE rend ces calques invisibles pour tout enregistrement d'écran
-    // (screenshot ou vidéo) tout en restant visibles pour toi sur l'écran en direct.
-    // C'est ce qui empêche la bulle/le panneau d'apparaître DANS la vidéo enregistrée.
-    private fun secureFlag(): Int = WindowManager.LayoutParams.FLAG_SECURE
+    // FLAG_SECURE désactivé : sur certains téléphones (chipsets d'entrée de gamme,
+    // comme Itel), ce drapeau rend TOUT l'enregistrement noir au lieu de juste
+    // cacher ce calque. On accepte que la bulle/le panneau apparaissent dans la
+    // vidéo, pour garantir que l'enregistrement fonctionne partout.
+    private fun secureFlag(): Int = 0
 
     // ---------- Calque de dessin ----------
 
