@@ -2,7 +2,10 @@ package com.abdoula.screenrecorder
 
 import android.Manifest
 import android.app.Activity
+import android.app.AlarmManager
 import android.app.AlertDialog
+import android.app.PendingIntent
+import android.app.TimePickerDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
@@ -14,7 +17,9 @@ import android.os.CountDownTimer
 import android.os.Environment
 import android.provider.Settings
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
@@ -101,10 +106,19 @@ class MainActivity : AppCompatActivity() {
         }
 
         setupBottomNav()
+
+        if (intent?.getBooleanExtra("autoStart", false) == true) {
+            startCountdownThenRecord()
+        }
     }
 
-    // Compte à rebours 3-2-1 avant de demander la permission d'enregistrement,
-    // le temps de se positionner (ouvrir l'appli à filmer, etc.)
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        if (intent.getBooleanExtra("autoStart", false)) {
+            startCountdownThenRecord()
+        }
+    }
+
     private fun startCountdownThenRecord() {
         if (!Settings.canDrawOverlays(this)) {
             requestOverlayPermission()
@@ -170,15 +184,12 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 R.id.nav_tools -> {
-                    showComingSoonDialog(
-                        "Outils avancés",
-                        "Taille du trait, formes supplémentaires, son interne du téléphone… Ces outils arrivent dans la version Pro."
-                    )
+                    showScheduleDialog()
                     bottomNav.postDelayed({ bottomNav.selectedItemId = R.id.nav_home }, 150)
                     true
                 }
                 R.id.nav_settings -> {
-                    showQualityDialog()
+                    showSettingsDialog()
                     bottomNav.postDelayed({ bottomNav.selectedItemId = R.id.nav_home }, 150)
                     true
                 }
@@ -187,20 +198,81 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun showQualityDialog() {
+    // ---------- Enregistrement programmé ----------
+
+    private fun showScheduleDialog() {
+        val now = Calendar.getInstance()
+        TimePickerDialog(this, { _, hour, minute ->
+            scheduleRecording(hour, minute)
+        }, now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE), true).show()
+    }
+
+    private fun scheduleRecording(hour: Int, minute: Int) {
+        val calendar = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, hour)
+            set(Calendar.MINUTE, minute)
+            set(Calendar.SECOND, 0)
+            if (before(Calendar.getInstance())) add(Calendar.DAY_OF_YEAR, 1)
+        }
+
+        val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
+        val intent = Intent(this, RecordingAlarmReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
+            this, 1, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        try {
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent
+            )
+            val timeStr = String.format("%02d:%02d", hour, minute)
+            Toast.makeText(this, "Enregistrement programmé à $timeStr", Toast.LENGTH_LONG).show()
+        } catch (e: SecurityException) {
+            Toast.makeText(this, "Autorise les alarmes exactes dans les réglages système pour cette appli", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    // ---------- Réglages (qualité + filigrane) ----------
+
+    private fun showSettingsDialog() {
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(48, 24, 48, 24)
+        }
+
+        val qualityLabel = TextView(this).apply {
+            text = "Qualité d'enregistrement"
+            setTextColor(Color.WHITE)
+            textSize = 15f
+        }
+        container.addView(qualityLabel)
+
         val current = SettingsManager.getQuality(this)
-        val options = arrayOf("720p (fichiers plus légers)", "1080p (qualité maximale)")
-        val checkedItem = if (current == "720") 0 else 1
+        val qualityButton = Button(this).apply {
+            text = if (current == "720") "720p (fichiers plus légers)" else "1080p (qualité maximale)"
+            setOnClickListener {
+                val newQuality = if (SettingsManager.getQuality(this@MainActivity) == "720") "1080" else "720"
+                SettingsManager.setQuality(this@MainActivity, newQuality)
+                text = if (newQuality == "720") "720p (fichiers plus légers)" else "1080p (qualité maximale)"
+            }
+        }
+        container.addView(qualityButton)
+
+        val watermarkCheck = CheckBox(this).apply {
+            text = "Afficher le filigrane Screen Recorder"
+            setTextColor(Color.WHITE)
+            isChecked = SettingsManager.isWatermarkEnabled(this@MainActivity)
+            setOnCheckedChangeListener { _, checked ->
+                SettingsManager.setWatermarkEnabled(this@MainActivity, checked)
+            }
+        }
+        container.addView(watermarkCheck)
 
         AlertDialog.Builder(this)
-            .setTitle("Qualité d'enregistrement")
-            .setSingleChoiceItems(options, checkedItem) { dialog, which ->
-                val newQuality = if (which == 0) "720" else "1080"
-                SettingsManager.setQuality(this, newQuality)
-                Toast.makeText(this, "Qualité réglée sur ${options[which]}", Toast.LENGTH_SHORT).show()
-                dialog.dismiss()
-            }
-            .setNegativeButton("Fermer", null)
+            .setTitle("Réglages")
+            .setView(container)
+            .setPositiveButton("Fermer", null)
             .show()
     }
 
