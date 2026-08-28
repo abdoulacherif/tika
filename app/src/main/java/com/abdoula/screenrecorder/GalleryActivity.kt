@@ -13,8 +13,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.ListView
 import android.widget.TextView
@@ -77,7 +77,7 @@ class GalleryActivity : AppCompatActivity() {
                 this@GalleryActivity, "$packageName.fileprovider", file
             )
 
-            view.findViewById<Button>(R.id.playButton).setOnClickListener {
+            view.findViewById<ImageButton>(R.id.playButton).setOnClickListener {
                 val intent = Intent(Intent.ACTION_VIEW).apply {
                     setDataAndType(uri, "video/mp4")
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -89,25 +89,25 @@ class GalleryActivity : AppCompatActivity() {
                 }
             }
 
-            view.findViewById<Button>(R.id.trimButton).setOnClickListener {
+            view.findViewById<ImageButton>(R.id.trimButton).setOnClickListener {
                 val intent = Intent(this@GalleryActivity, TrimActivity::class.java)
                 intent.putExtra("videoPath", file.absolutePath)
                 startActivity(intent)
             }
 
-            view.findViewById<Button>(R.id.renameButton).setOnClickListener {
+            view.findViewById<ImageButton>(R.id.renameButton).setOnClickListener {
                 showRenameDialog(file)
             }
 
-            view.findViewById<Button>(R.id.whatsappButton).setOnClickListener {
+            view.findViewById<ImageButton>(R.id.whatsappButton).setOnClickListener {
                 shareToApp(uri, "com.whatsapp")
             }
 
-            view.findViewById<Button>(R.id.telegramButton).setOnClickListener {
+            view.findViewById<ImageButton>(R.id.telegramButton).setOnClickListener {
                 shareToApp(uri, "org.telegram.messenger")
             }
 
-            view.findViewById<Button>(R.id.shareButton).setOnClickListener {
+            view.findViewById<ImageButton>(R.id.shareButton).setOnClickListener {
                 val intent = Intent(Intent.ACTION_SEND).apply {
                     type = "video/mp4"
                     putExtra(Intent.EXTRA_STREAM, uri)
@@ -116,7 +116,7 @@ class GalleryActivity : AppCompatActivity() {
                 startActivity(Intent.createChooser(intent, "Partager la vidéo"))
             }
 
-            view.findViewById<Button>(R.id.deleteButton).setOnClickListener {
+            view.findViewById<ImageButton>(R.id.deleteButton).setOnClickListener {
                 file.delete()
                 Toast.makeText(context, "Vidéo supprimée", Toast.LENGTH_SHORT).show()
                 loadVideos()
