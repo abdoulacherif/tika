@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/bg_stat_purple"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="🎬 Screen Recorder"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/widgetStats"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0 vidéo enregistrée"
+        android:textColor="#E0D6FF"
+        android:textSize="11sp"
+        android:layout_marginBottom="10dp" />
+
+    <TextView
+        android:id="@+id/widgetStartButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="● Enregistrer"
+        android:textColor="#7C4DFF"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:padding="10dp"
+        android:background="@drawable/bg_card" />
+
+</LinearLayout>
