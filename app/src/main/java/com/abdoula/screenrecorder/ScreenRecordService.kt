@@ -6,13 +6,15 @@ import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
+import android.media.AudioAttributes
+import android.media.AudioFocusRequest
+import android.media.AudioManager
 import android.media.MediaRecorder
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
 import android.os.Build
 import android.os.Environment
 import android.os.IBinder
-import android.util.DisplayMetrics
 import androidx.core.app.NotificationCompat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -22,11 +24,10 @@ class ScreenRecordService : Service() {
     private var mediaProjection: MediaProjection? = null
     private var virtualDisplay: VirtualDisplay? = null
     private var mediaRecorder: MediaRecorder? = null
+    private var audioFocusRequest: AudioFocusRequest? = null
 
     private val channelId = "screen_record_channel"
 
-    // Obligatoire sur Android 14+ : sans callback enregistré, le système peut
-    // couper la capture silencieusement et produire une vidéo noire ou vide.
     private val projectionCallback = object : MediaProjection.Callback() {
         override fun onStop() {
             isRunning = false
@@ -48,6 +49,7 @@ class ScreenRecordService : Service() {
         val data = intent.getParcelableExtra<Intent>("data") ?: return START_NOT_STICKY
 
         startForegroundNotification()
+        requestAudioFocus()
 
         val projectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         mediaProjection = projectionManager.getMediaProjection(resultCode, data)
@@ -56,6 +58,28 @@ class ScreenRecordService : Service() {
         startRecording()
 
         return START_NOT_STICKY
+    }
+
+    // Demande au système de garder le micro réservé à notre appli pendant tout
+    // l'enregistrement, pour éviter qu'une notification ou un appel le coupe.
+    private fun requestAudioFocus() {
+        val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        val attributes = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_MEDIA)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+            .build()
+
+        audioFocusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+            .setAudioAttributes(attributes)
+            .setAcceptsDelayedFocusGain(false)
+            .build()
+
+        audioManager.requestAudioFocus(audioFocusRequest!!)
+    }
+
+    private fun releaseAudioFocus() {
+        val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        audioFocusRequest?.let { audioManager.abandonAudioFocusRequest(it) }
     }
 
     private fun startForegroundNotification() {
@@ -90,9 +114,6 @@ class ScreenRecordService : Service() {
 
     private fun startRecording() {
         val metrics = resources.displayMetrics
-
-        // Les encodeurs vidéo (H264) exigent des dimensions PAIRES : on arrondit
-        // à l'entier pair inférieur pour éviter un flux corrompu/noir.
         val width = (metrics.widthPixels / 2) * 2
         val height = (metrics.heightPixels / 2) * 2
         val density = metrics.densityDpi
@@ -100,7 +121,10 @@ class ScreenRecordService : Service() {
         val outputFile = getOutputFile()
 
         mediaRecorder = MediaRecorder().apply {
-            setAudioSource(MediaRecorder.AudioSource.MIC)
+            // VOICE_COMMUNICATION : source plus stable que MIC sur les puces
+            // d'entrée de gamme, avec réduction d'écho/bruit intégrée par le
+            // système — moins sujette aux coupures.
+            setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
             setVideoSource(MediaRecorder.VideoSource.SURFACE)
 
             setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
@@ -108,6 +132,7 @@ class ScreenRecordService : Service() {
             setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
             setAudioEncodingBitRate(128_000)
             setAudioSamplingRate(44_100)
+            setAudioChannels(1)
 
             setVideoEncoder(MediaRecorder.VideoEncoder.H264)
             setVideoSize(width, height)
@@ -148,6 +173,7 @@ class ScreenRecordService : Service() {
         virtualDisplay?.release()
         mediaProjection?.unregisterCallback(projectionCallback)
         mediaProjection?.stop()
+        releaseAudioFocus()
         stopService(Intent(this, OverlayDrawingService::class.java))
         stopService(Intent(this, CameraBubbleService::class.java))
     }
