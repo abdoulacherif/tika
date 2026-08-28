@@ -37,11 +37,14 @@ class OverlayDrawingService : Service() {
     private var drawingView: DrawingOverlayView? = null
     private var drawingEnabled = false
 
+    private var watermarkView: TextView? = null
+
     override fun onCreate() {
         super.onCreate()
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
         addDrawingLayer()
         addBubble()
+        addWatermarkIfEnabled()
     }
 
     private fun overlayType(): Int =
@@ -50,11 +53,34 @@ class OverlayDrawingService : Service() {
         else
             WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
 
-    // FLAG_SECURE désactivé : sur certains téléphones (chipsets d'entrée de gamme,
-    // comme Itel), ce drapeau rend TOUT l'enregistrement noir au lieu de juste
-    // cacher ce calque. On accepte que la bulle/le panneau apparaissent dans la
-    // vidéo, pour garantir que l'enregistrement fonctionne partout.
     private fun secureFlag(): Int = 0
+
+    // ---------- Filigrane (visible dans la vidéo, tant que le drapeau secure est désactivé) ----------
+
+    private fun addWatermarkIfEnabled() {
+        if (!SettingsManager.isWatermarkEnabled(this)) return
+
+        watermarkView = TextView(this).apply {
+            text = "🎬 Screen Recorder"
+            textSize = 12f
+            setTextColor(Color.parseColor("#AAFFFFFF"))
+            setBackgroundColor(Color.parseColor("#40000000"))
+            setPadding(16, 8, 16, 8)
+        }
+
+        val params = WindowManager.LayoutParams(
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            overlayType(),
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            PixelFormat.TRANSLUCENT
+        )
+        params.gravity = Gravity.BOTTOM or Gravity.END
+        params.x = 20
+        params.y = 20
+
+        windowManager.addView(watermarkView, params)
+    }
 
     // ---------- Calque de dessin ----------
 
@@ -169,8 +195,6 @@ class OverlayDrawingService : Service() {
         }
     }
 
-    // ---------- Minimiser la bulle (double-tap) ----------
-
     private fun toggleMinimized() {
         if (bubbleMinimized) restoreBubble() else minimizeBubble()
     }
@@ -201,8 +225,6 @@ class OverlayDrawingService : Service() {
         params.x = 20
         windowManager.updateViewLayout(bubbleView, params)
     }
-
-    // ---------- Panneau d'outils ----------
 
     private fun togglePanel() {
         if (panelVisible) hidePanel() else showPanel()
@@ -362,6 +384,7 @@ class OverlayDrawingService : Service() {
         bubbleView?.let { windowManager.removeView(it) }
         panelView?.let { windowManager.removeView(it) }
         drawingView?.let { windowManager.removeView(it) }
+        watermarkView?.let { windowManager.removeView(it) }
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
