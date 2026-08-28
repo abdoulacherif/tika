@@ -10,6 +10,7 @@ import android.media.projection.MediaProjectionManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.os.Environment
 import android.provider.Settings
 import android.widget.Button
@@ -80,7 +81,7 @@ class MainActivity : AppCompatActivity() {
         statSize = findViewById(R.id.statSize)
         statLast = findViewById(R.id.statLast)
 
-        startButton.setOnClickListener { requestPermissionsThenStart() }
+        startButton.setOnClickListener { startCountdownThenRecord() }
 
         stopButton.setOnClickListener {
             stopService(Intent(this, ScreenRecordService::class.java))
@@ -100,6 +101,40 @@ class MainActivity : AppCompatActivity() {
         }
 
         setupBottomNav()
+    }
+
+    // Compte à rebours 3-2-1 avant de demander la permission d'enregistrement,
+    // le temps de se positionner (ouvrir l'appli à filmer, etc.)
+    private fun startCountdownThenRecord() {
+        if (!Settings.canDrawOverlays(this)) {
+            requestOverlayPermission()
+            Toast.makeText(this, "Autorise l'affichage par-dessus d'abord, puis relance", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        val countdownText = TextView(this).apply {
+            textSize = 72f
+            setTextColor(Color.WHITE)
+            gravity = android.view.Gravity.CENTER
+        }
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(countdownText)
+            .setCancelable(false)
+            .create()
+        dialog.show()
+
+        object : CountDownTimer(3500, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                val secondsLeft = (millisUntilFinished / 1000) + 1
+                countdownText.text = if (secondsLeft > 3) "3" else secondsLeft.toString()
+            }
+
+            override fun onFinish() {
+                dialog.dismiss()
+                requestPermissionsThenStart()
+            }
+        }.start()
     }
 
     private fun toggleCamera() {
@@ -143,16 +178,30 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 R.id.nav_settings -> {
-                    showComingSoonDialog(
-                        "Réglages & Version Pro",
-                        "Bientôt : qualité vidéo réglable, export sans filigrane, stockage cloud. Passe à la version Pro pour tout débloquer dès sa sortie."
-                    )
+                    showQualityDialog()
                     bottomNav.postDelayed({ bottomNav.selectedItemId = R.id.nav_home }, 150)
                     true
                 }
                 else -> false
             }
         }
+    }
+
+    private fun showQualityDialog() {
+        val current = SettingsManager.getQuality(this)
+        val options = arrayOf("720p (fichiers plus légers)", "1080p (qualité maximale)")
+        val checkedItem = if (current == "720") 0 else 1
+
+        AlertDialog.Builder(this)
+            .setTitle("Qualité d'enregistrement")
+            .setSingleChoiceItems(options, checkedItem) { dialog, which ->
+                val newQuality = if (which == 0) "720" else "1080"
+                SettingsManager.setQuality(this, newQuality)
+                Toast.makeText(this, "Qualité réglée sur ${options[which]}", Toast.LENGTH_SHORT).show()
+                dialog.dismiss()
+            }
+            .setNegativeButton("Fermer", null)
+            .show()
     }
 
     private fun showComingSoonDialog(title: String, message: String) {
@@ -220,12 +269,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun requestPermissionsThenStart() {
-        if (!Settings.canDrawOverlays(this)) {
-            requestOverlayPermission()
-            Toast.makeText(this, "Autorise l'affichage par-dessus d'abord, puis relance", Toast.LENGTH_LONG).show()
-            return
-        }
-
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
             != PackageManager.PERMISSION_GRANTED
         ) {
