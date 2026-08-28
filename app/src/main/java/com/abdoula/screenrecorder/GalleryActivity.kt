@@ -187,6 +187,12 @@ class GalleryActivity : AppCompatActivity() {
                 }
             }
 
+            view.findViewById<ImageButton>(R.id.subtitleButton).setOnClickListener {
+                val intent = Intent(this@GalleryActivity, SubtitleActivity::class.java)
+                intent.putExtra("videoPath", file.absolutePath)
+                startActivity(intent)
+            }
+
             view.findViewById<ImageButton>(R.id.musicButton).setOnClickListener {
                 pendingMusicTargetFile = file
                 musicPickerLauncher.launch(arrayOf("audio/*"))
