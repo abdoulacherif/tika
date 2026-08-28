@@ -21,16 +21,33 @@ import android.widget.ListView
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.*
 
 class GalleryActivity : AppCompatActivity() {
 
     private lateinit var listView: ListView
     private lateinit var emptyText: TextView
+    private lateinit var selectModeButton: TextView
+    private lateinit var mergeBar: LinearLayout
+    private lateinit var selectionCountText: TextView
     private val mainHandler = Handler(Looper.getMainLooper())
+
+    private var selectionMode = false
+    private val selectedFiles = mutableSetOf<File>()
+    private var pendingMusicTargetFile: File? = null
+
+    private val musicPickerLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        val target = pendingMusicTargetFile
+        if (uri != null && target != null) {
+            applyMusic(target, uri)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,8 +55,85 @@ class GalleryActivity : AppCompatActivity() {
 
         listView = findViewById(R.id.videoListView)
         emptyText = findViewById(R.id.emptyText)
+        selectModeButton = findViewById(R.id.selectModeButton)
+        mergeBar = findViewById(R.id.mergeBar)
+        selectionCountText = findViewById(R.id.selectionCountText)
+
+        selectModeButton.setOnClickListener { toggleSelectionMode() }
+        findViewById<android.widget.Button>(R.id.mergeConfirmButton).setOnClickListener { confirmMerge() }
 
         loadVideos()
+    }
+
+    private fun toggleSelectionMode() {
+        selectionMode = !selectionMode
+        selectedFiles.clear()
+        selectModeButton.text = if (selectionMode) "Annuler" else "Sélectionner"
+        mergeBar.visibility = if (selectionMode) View.VISIBLE else View.GONE
+        updateSelectionCount()
+        loadVideos()
+    }
+
+    private fun updateSelectionCount() {
+        selectionCountText.text = "${selectedFiles.size} sélectionnée(s)"
+    }
+
+    private fun confirmMerge() {
+        if (selectedFiles.size < 2) {
+            Toast.makeText(this, "Choisis au moins 2 vidéos à fusionner", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val orderedFiles = selectedFiles.sortedBy { it.lastModified() }
+        val progressBar = ProgressBar(this)
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("Fusion en cours…")
+            .setView(progressBar)
+            .setCancelable(false)
+            .create()
+        dialog.show()
+
+        Thread {
+            val dir = getExternalFilesDir(Environment.DIRECTORY_MOVIES)
+            val timestamp = SimpleDateFormat("HHmmss", Locale.getDefault()).format(Date())
+            val outputFile = File(dir, "fusion_$timestamp.mp4")
+            val success = VideoMerger.merge(orderedFiles.map { it.absolutePath }, outputFile.absolutePath)
+
+            mainHandler.post {
+                dialog.dismiss()
+                if (success) {
+                    Toast.makeText(this, "Vidéos fusionnées : ${outputFile.name}", Toast.LENGTH_LONG).show()
+                    toggleSelectionMode()
+                } else {
+                    Toast.makeText(this, "La fusion a échoué (vidéos de formats différents ?)", Toast.LENGTH_LONG).show()
+                }
+            }
+        }.start()
+    }
+
+    private fun applyMusic(videoFile: File, musicUri: Uri) {
+        val progressBar = ProgressBar(this)
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("Ajout de la musique…")
+            .setView(progressBar)
+            .setCancelable(false)
+            .create()
+        dialog.show()
+
+        Thread {
+            val outputFile = File(videoFile.parent, "${videoFile.nameWithoutExtension}_musique.mp4")
+            val success = AudioReplacer.replaceAudio(this, videoFile.absolutePath, musicUri, outputFile.absolutePath)
+
+            mainHandler.post {
+                dialog.dismiss()
+                if (success) {
+                    Toast.makeText(this, "Musique ajoutée : ${outputFile.name}", Toast.LENGTH_LONG).show()
+                    loadVideos()
+                } else {
+                    Toast.makeText(this, "Impossible d'ajouter cette musique", Toast.LENGTH_LONG).show()
+                }
+            }
+        }.start()
     }
 
     private fun loadVideos() {
@@ -75,12 +169,27 @@ class GalleryActivity : AppCompatActivity() {
             thumbView.tag = file.absolutePath
             loadThumbnailAsync(file, thumbView)
 
+            val checkIcon = view.findViewById<ImageView>(R.id.checkIcon)
+            checkIcon.visibility = if (selectionMode) View.VISIBLE else View.GONE
+            checkIcon.alpha = if (selectedFiles.contains(file)) 1f else 0.25f
+
             val uri: Uri = FileProvider.getUriForFile(
                 this@GalleryActivity, "$packageName.fileprovider", file
             )
 
             view.findViewById<LinearLayout>(R.id.itemClickArea).setOnClickListener {
-                playVideo(uri)
+                if (selectionMode) {
+                    if (selectedFiles.contains(file)) selectedFiles.remove(file) else selectedFiles.add(file)
+                    updateSelectionCount()
+                    notifyDataSetChanged()
+                } else {
+                    playVideo(uri)
+                }
+            }
+
+            view.findViewById<ImageButton>(R.id.musicButton).setOnClickListener {
+                pendingMusicTargetFile = file
+                musicPickerLauncher.launch(arrayOf("audio/*"))
             }
 
             view.findViewById<ImageButton>(R.id.compressButton).setOnClickListener {
