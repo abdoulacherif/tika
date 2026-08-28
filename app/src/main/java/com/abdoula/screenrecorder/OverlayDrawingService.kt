@@ -16,6 +16,7 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
 import kotlin.math.abs
@@ -55,8 +56,6 @@ class OverlayDrawingService : Service() {
 
     private fun secureFlag(): Int = 0
 
-    // ---------- Filigrane (visible dans la vidéo, tant que le drapeau secure est désactivé) ----------
-
     private fun addWatermarkIfEnabled() {
         if (!SettingsManager.isWatermarkEnabled(this)) return
 
@@ -82,8 +81,6 @@ class OverlayDrawingService : Service() {
         windowManager.addView(watermarkView, params)
     }
 
-    // ---------- Calque de dessin ----------
-
     private fun addDrawingLayer() {
         drawingView = DrawingOverlayView(this).apply {
             setLayerType(View.LAYER_TYPE_HARDWARE, null)
@@ -104,8 +101,6 @@ class OverlayDrawingService : Service() {
 
         windowManager.addView(drawingView, params)
     }
-
-    // ---------- Bulle flottante ----------
 
     private fun addBubble() {
         bubbleView = TextView(this).apply {
@@ -266,41 +261,44 @@ class OverlayDrawingService : Service() {
         }
 
         val row1 = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
-        listOf(
-            "✏️" to { setTool(ShapeTool.PEN) },
-            "➡️" to { setTool(ShapeTool.ARROW) },
-            "⭕" to { setTool(ShapeTool.CIRCLE) },
-            "▭" to { setTool(ShapeTool.RECTANGLE) },
-            "🔤" to { setTool(ShapeTool.TEXT) }
-        ).forEach { (label, action) -> row1.addView(makeButton(label, action)) }
+        row1.addView(makeIconButton(R.drawable.ic_pen, R.drawable.bg_round_purple) { setTool(ShapeTool.PEN) })
+        row1.addView(makeIconButton(R.drawable.ic_arrow, R.drawable.bg_round_blue) { setTool(ShapeTool.ARROW) })
+        row1.addView(makeIconButton(R.drawable.ic_circle_tool, R.drawable.bg_round_green) { setTool(ShapeTool.CIRCLE) })
+        row1.addView(makeIconButton(R.drawable.ic_rect_tool, R.drawable.bg_round_orange) { setTool(ShapeTool.RECTANGLE) })
+        row1.addView(makeIconButton(R.drawable.ic_text_tool, R.drawable.bg_round_purple) { setTool(ShapeTool.TEXT) })
         panelView?.addView(row1)
 
-        val row2 = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
-        listOf(
-            "🔴" to Color.RED, "🔵" to Color.parseColor("#2196F3"),
-            "🟢" to Color.parseColor("#4CAF50"), "🟡" to Color.parseColor("#FFC107")
-        ).forEach { (label, color) ->
-            row2.addView(makeButton(label) { drawingView?.currentColor = color })
+        val row2 = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(0, 12, 0, 0)
         }
+        listOf(Color.RED, Color.parseColor("#2196F3"), Color.parseColor("#4CAF50"), Color.parseColor("#FFC107"))
+            .forEach { color -> row2.addView(makeColorSwatch(color) { drawingView?.currentColor = color }) }
         panelView?.addView(row2)
 
-        val row3 = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
-        row3.addView(makeButton("↩️") { drawingView?.undo() })
-        row3.addView(makeButton("🗑️") { drawingView?.clearAll() })
-        row3.addView(makeButton("➖") { minimizeBubble() })
+        val row3 = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(0, 12, 0, 0)
+        }
+        row3.addView(makeIconButton(R.drawable.ic_undo, R.drawable.bg_round_blue) { drawingView?.undo() })
+        row3.addView(makeIconButton(R.drawable.ic_trash, R.drawable.bg_round_red) { drawingView?.clearAll() })
+        row3.addView(makeIconButton(R.drawable.ic_minimize, R.drawable.bg_round_purple) { minimizeBubble() })
         panelView?.addView(row3)
 
         val stopButton = Button(this).apply {
-            text = "⏹ Arrêter l'enregistrement"
+            text = "⏹  Arrêter l'enregistrement"
             textSize = 13f
             setTextColor(Color.WHITE)
-            background = gradientRoundedRect(intArrayOf(Color.parseColor("#E53935"), Color.parseColor("#B71C1C")), 16f)
-            setOnClickListener {
-                stopService(Intent(this@OverlayDrawingService, ScreenRecordService::class.java))
-                stopSelf()
-            }
+            background = gradientRoundedRect(intArrayOf(Color.parseColor("#E53935"), Color.parseColor("#B71C1C")), 24f)
+            setPadding(24, 20, 24, 20)
         }
-        panelView?.addView(stopButton)
+        stopButton.setOnClickListener {
+            stopService(Intent(this@OverlayDrawingService, ScreenRecordService::class.java))
+            stopSelf()
+        }
+        val stopParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        stopParams.topMargin = 16
+        panelView?.addView(stopButton, stopParams)
 
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
@@ -316,13 +314,26 @@ class OverlayDrawingService : Service() {
         panelView?.visibility = View.GONE
     }
 
-    private fun makeButton(label: String, action: () -> Unit): Button {
-        return Button(this).apply {
-            text = label
-            textSize = 16f
-            minWidth = 0
-            minimumWidth = 0
-            setPadding(16, 12, 16, 12)
+    private fun makeIconButton(iconRes: Int, bgRes: Int, action: () -> Unit): ImageButton {
+        return ImageButton(this).apply {
+            setImageResource(iconRes)
+            setBackgroundResource(bgRes)
+            val size = 96
+            layoutParams = LinearLayout.LayoutParams(size, size).apply { setMargins(6, 0, 6, 0) }
+            setPadding(20, 20, 20, 20)
+            scaleType = android.widget.ImageView.ScaleType.FIT_CENTER
+            setOnClickListener {
+                action()
+                hidePanel()
+            }
+        }
+    }
+
+    private fun makeColorSwatch(color: Int, action: () -> Unit): View {
+        return View(this).apply {
+            background = gradientOval(intArrayOf(color, color))
+            val size = 72
+            layoutParams = LinearLayout.LayoutParams(size, size).apply { setMargins(6, 0, 6, 0) }
             setOnClickListener {
                 action()
                 hidePanel()
