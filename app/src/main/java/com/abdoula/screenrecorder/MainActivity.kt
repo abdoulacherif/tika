@@ -126,22 +126,20 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        val countdownText = TextView(this).apply {
-            textSize = 72f
-            setTextColor(Color.WHITE)
-            gravity = android.view.Gravity.CENTER
-        }
+        val countdownLayout = layoutInflater.inflate(R.layout.dialog_countdown, null)
+        val countdownNumber = countdownLayout.findViewById<TextView>(R.id.countdownNumber)
 
         val dialog = AlertDialog.Builder(this)
-            .setView(countdownText)
+            .setView(countdownLayout)
             .setCancelable(false)
             .create()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
         dialog.show()
 
         object : CountDownTimer(3500, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 val secondsLeft = (millisUntilFinished / 1000) + 1
-                countdownText.text = if (secondsLeft > 3) "3" else secondsLeft.toString()
+                countdownNumber.text = if (secondsLeft > 3) "3" else secondsLeft.toString()
             }
 
             override fun onFinish() {
@@ -284,19 +282,51 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
+    // ---------- Menu ☰ ----------
+
     private fun showTopMenu(anchor: android.view.View) {
         val popup = PopupMenu(this, anchor)
-        popup.menu.add("À propos")
-        popup.menu.add("Passer à la version Pro")
+        popup.menu.add("⭐ Passer à la version Pro")
+        popup.menu.add("🗑️ Vidéos supprimées")
+        popup.menu.add("💬 Envoyer un commentaire")
+        popup.menu.add("📤 Partager l'application")
+        popup.menu.add("❓ Questions fréquentes")
+        popup.menu.add("ℹ️ À propos")
         popup.setOnMenuItemClickListener { item ->
             when (item.title) {
-                "À propos" -> showComingSoonDialog("Screen Recorder", "Version 1.0 — développé pour enregistrer et annoter ton écran facilement.")
-                "Passer à la version Pro" -> showComingSoonDialog("Version Pro", "Les fonctionnalités payantes arrivent bientôt.")
+                "⭐ Passer à la version Pro" -> showComingSoonDialog("Version Pro", "Les fonctionnalités payantes arrivent bientôt.")
+                "🗑️ Vidéos supprimées" -> showComingSoonDialog("Vidéos supprimées", "La corbeille (récupération des vidéos supprimées) arrive dans une prochaine version.")
+                "💬 Envoyer un commentaire" -> sendFeedbackEmail()
+                "📤 Partager l'application" -> shareApp()
+                "❓ Questions fréquentes" -> showComingSoonDialog("Questions fréquentes", "Une page d'aide complète arrive bientôt.")
+                "ℹ️ À propos" -> showComingSoonDialog("Screen Recorder", "Version 1.0 — développé pour enregistrer et annoter ton écran facilement.")
             }
             true
         }
         popup.show()
     }
+
+    private fun sendFeedbackEmail() {
+        val intent = Intent(Intent.ACTION_SENDTO).apply {
+            data = Uri.parse("mailto:")
+            putExtra(Intent.EXTRA_SUBJECT, "Retour sur Screen Recorder")
+        }
+        try {
+            startActivity(intent)
+        } catch (e: Exception) {
+            Toast.makeText(this, "Aucune appli mail installée", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun shareApp() {
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, "Découvre Screen Recorder, l'appli pour enregistrer et annoter ton écran !")
+        }
+        startActivity(Intent.createChooser(intent, "Partager l'application"))
+    }
+
+    // ---------- Statistiques et état ----------
 
     override fun onResume() {
         super.onResume()
