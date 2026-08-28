@@ -44,7 +44,7 @@ class OverlayDrawingService : Service() {
         super.onCreate()
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
         addDrawingLayer()
-        addBubble()
+        if (!SettingsManager.isBubbleHiddenDuringRecording(this)) addBubble()
         addWatermarkIfEnabled()
     }
 
@@ -60,7 +60,7 @@ class OverlayDrawingService : Service() {
         if (!SettingsManager.isWatermarkEnabled(this)) return
 
         watermarkView = TextView(this).apply {
-            text = "🎬 Screen Recorder"
+            text = SettingsManager.getWatermarkText(this@OverlayDrawingService)
             textSize = 12f
             setTextColor(Color.parseColor("#AAFFFFFF"))
             setBackgroundColor(Color.parseColor("#40000000"))
