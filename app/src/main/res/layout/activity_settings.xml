@@ -116,7 +116,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="AUTRES"
+            android:text="PERSONNALISATION"
             android:textColor="#7C4DFF"
             android:textSize="12sp"
             android:textStyle="bold"
@@ -126,24 +126,90 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_card"
+            android:padding="16dp"
+            android:layout_marginBottom="10dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Afficher le filigrane"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp" />
+
+                <CheckBox
+                    android:id="@+id/watermarkCheck"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/watermarkTextInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Texte du filigrane"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#888888"
+                android:layout_marginTop="10dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:background="@drawable/bg_card"
-            android:padding="16dp">
+            android:padding="16dp"
+            android:layout_marginBottom="10dp">
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Afficher le filigrane Screen Recorder"
+                android:text="Masquer la bulle d'outils pendant l'enregistrement"
                 android:textColor="#FFFFFF"
                 android:textSize="14sp" />
 
             <CheckBox
-                android:id="@+id/watermarkCheck"
+                android:id="@+id/hideBubbleCheck"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/showTapsRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_card"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Afficher le toucher à l'écran"
+                android:textColor="#FFFFFF"
+                android:textSize="15sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Active « Afficher les appuis » dans les Options développeur Android (fonction native, fiable sur tous les téléphones)"
+                android:textColor="#B388FF"
+                android:textSize="12sp"
+                android:layout_marginTop="4dp" />
         </LinearLayout>
 
     </LinearLayout>
