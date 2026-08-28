@@ -18,6 +18,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ListView
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -78,9 +79,12 @@ class GalleryActivity : AppCompatActivity() {
                 this@GalleryActivity, "$packageName.fileprovider", file
             )
 
-            // Toute la ligne (miniature + nom) lance la lecture au tap
             view.findViewById<LinearLayout>(R.id.itemClickArea).setOnClickListener {
                 playVideo(uri)
+            }
+
+            view.findViewById<ImageButton>(R.id.compressButton).setOnClickListener {
+                compressAndShare(file)
             }
 
             view.findViewById<ImageButton>(R.id.trimButton).setOnClickListener {
@@ -118,6 +122,36 @@ class GalleryActivity : AppCompatActivity() {
 
             return view
         }
+    }
+
+    private fun compressAndShare(file: File) {
+        val progressBar = ProgressBar(this)
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("Compression en cours…")
+            .setView(progressBar)
+            .setCancelable(false)
+            .create()
+        dialog.show()
+
+        Thread {
+            val outputFile = File(file.parent, "${file.nameWithoutExtension}_whatsapp.mp4")
+            val success = VideoCompressor.compress(file.absolutePath, outputFile.absolutePath)
+
+            mainHandler.post {
+                dialog.dismiss()
+                if (success) {
+                    val originalMb = file.length() / (1024 * 1024)
+                    val newMb = outputFile.length() / (1024 * 1024)
+                    Toast.makeText(this, "Compressé : ${originalMb} Mo → ${newMb} Mo", Toast.LENGTH_LONG).show()
+                    loadVideos()
+
+                    val uri = FileProvider.getUriForFile(this, "$packageName.fileprovider", outputFile)
+                    shareToApp(uri, "com.whatsapp")
+                } else {
+                    Toast.makeText(this, "La compression a échoué, réessaie avec une vidéo plus courte", Toast.LENGTH_LONG).show()
+                }
+            }
+        }.start()
     }
 
     private fun playVideo(uri: Uri) {
