@@ -1,9 +1,13 @@
 package com.abdoula.screenrecorder
 
+import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
 import android.widget.CheckBox
+import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 
@@ -12,6 +16,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var resolutionValue: TextView
     private lateinit var bitrateValue: TextView
     private lateinit var frameRateValue: TextView
+    private lateinit var watermarkTextInput: EditText
 
     private val resolutionOptions = listOf(0, 1080, 720, 640, 540, 480, 360, 240)
     private val bitrateOptions = listOf(0, 16, 14, 12, 10, 8, 6, 4, 2, 1)
@@ -24,6 +29,7 @@ class SettingsActivity : AppCompatActivity() {
         resolutionValue = findViewById(R.id.resolutionValue)
         bitrateValue = findViewById(R.id.bitrateValue)
         frameRateValue = findViewById(R.id.frameRateValue)
+        watermarkTextInput = findViewById(R.id.watermarkTextInput)
 
         findViewById<LinearLayout>(R.id.resolutionRow).setOnClickListener { showResolutionDialog() }
         findViewById<LinearLayout>(R.id.bitrateRow).setOnClickListener { showBitrateDialog() }
@@ -35,7 +41,33 @@ class SettingsActivity : AppCompatActivity() {
             SettingsManager.setWatermarkEnabled(this, checked)
         }
 
+        watermarkTextInput.setText(SettingsManager.getWatermarkText(this))
+        watermarkTextInput.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                val text = watermarkTextInput.text.toString().trim()
+                if (text.isNotEmpty()) SettingsManager.setWatermarkText(this, text)
+            }
+        }
+
+        val hideBubbleCheck = findViewById<CheckBox>(R.id.hideBubbleCheck)
+        hideBubbleCheck.isChecked = SettingsManager.isBubbleHiddenDuringRecording(this)
+        hideBubbleCheck.setOnCheckedChangeListener { _, checked ->
+            SettingsManager.setBubbleHiddenDuringRecording(this, checked)
+        }
+
+        findViewById<LinearLayout>(R.id.showTapsRow).setOnClickListener {
+            openDeveloperOptions()
+        }
+
         refreshLabels()
+    }
+
+    private fun openDeveloperOptions() {
+        try {
+            startActivity(Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS))
+        } catch (e: Exception) {
+            Toast.makeText(this, "Active d'abord le mode développeur (7 taps sur le numéro de build dans À propos du téléphone)", Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun refreshLabels() {
@@ -89,5 +121,11 @@ class SettingsActivity : AppCompatActivity() {
             }
             .setNegativeButton("Annuler", null)
             .show()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        val text = watermarkTextInput.text.toString().trim()
+        if (text.isNotEmpty()) SettingsManager.setWatermarkText(this, text)
     }
 }
