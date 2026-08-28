@@ -3,16 +3,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#121212"
+    android:background="@drawable/bg_gradient_screen"
     android:padding="20dp">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Recadrer la vidéo"
+        android:text="✂️ Recadrer la vidéo"
         android:textColor="#FFFFFF"
-        android:textSize="20sp"
-        android:layout_marginBottom="20dp" />
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
 
     <TextView
         android:id="@+id/durationText"
@@ -23,57 +24,70 @@
         android:textSize="13sp"
         android:layout_marginBottom="24dp" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Début"
-        android:textColor="#FFFFFF"
-        android:textSize="14sp" />
-
-    <TextView
-        android:id="@+id/startTimeText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="00:00"
-        android:textColor="#7C4DFF"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="4dp" />
-
-    <SeekBar
-        android:id="@+id/startSeekBar"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp" />
+        android:orientation="vertical"
+        android:background="@drawable/bg_card"
+        android:padding="20dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Fin"
-        android:textColor="#FFFFFF"
-        android:textSize="14sp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Début"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp" />
 
-    <TextView
-        android:id="@+id/endTimeText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="00:00"
-        android:textColor="#7C4DFF"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="4dp" />
+        <TextView
+            android:id="@+id/startTimeText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="00:00"
+            android:textColor="#B388FF"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="4dp" />
 
-    <SeekBar
-        android:id="@+id/endSeekBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp" />
+        <SeekBar
+            android:id="@+id/startSeekBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:progressTint="#7C4DFF"
+            android:thumbTint="#7C4DFF"
+            android:layout_marginBottom="20dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Fin"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/endTimeText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="00:00"
+            android:textColor="#B388FF"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="4dp" />
+
+        <SeekBar
+            android:id="@+id/endSeekBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:progressTint="#00C853"
+            android:thumbTint="#00C853" />
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/trimConfirmButton"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:background="@drawable/bg_button_primary"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/bg_stat_purple"
         android:textColor="#FFFFFF"
         android:textAllCaps="false"
         android:text="✂️ Recadrer et enregistrer" />
