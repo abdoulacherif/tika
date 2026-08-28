@@ -59,6 +59,20 @@
             android:minWidth="0dp" />
 
         <Button
+            android:id="@+id/whatsappButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="💬"
+            android:minWidth="0dp" />
+
+        <Button
+            android:id="@+id/telegramButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="✈️"
+            android:minWidth="0dp" />
+
+        <Button
             android:id="@+id/shareButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
