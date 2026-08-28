@@ -136,6 +136,31 @@ class GalleryActivity : AppCompatActivity() {
         }.start()
     }
 
+    private fun amplifyAudio(file: File) {
+        val progressBar = ProgressBar(this)
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("Amplification du son…")
+            .setView(progressBar)
+            .setCancelable(false)
+            .create()
+        dialog.show()
+
+        Thread {
+            val outputFile = File(file.parent, "${file.nameWithoutExtension}_fort.mp4")
+            val success = AudioAmplifier.amplify(file.absolutePath, outputFile.absolutePath)
+
+            mainHandler.post {
+                dialog.dismiss()
+                if (success) {
+                    Toast.makeText(this, "Son amplifié : ${outputFile.name}", Toast.LENGTH_LONG).show()
+                    loadVideos()
+                } else {
+                    Toast.makeText(this, "Impossible d'amplifier cette vidéo", Toast.LENGTH_LONG).show()
+                }
+            }
+        }.start()
+    }
+
     private fun loadVideos() {
         val dir = getExternalFilesDir(Environment.DIRECTORY_MOVIES)
         val files = dir?.listFiles { f -> f.extension == "mp4" }
@@ -196,6 +221,10 @@ class GalleryActivity : AppCompatActivity() {
             view.findViewById<ImageButton>(R.id.musicButton).setOnClickListener {
                 pendingMusicTargetFile = file
                 musicPickerLauncher.launch(arrayOf("audio/*"))
+            }
+
+            view.findViewById<ImageButton>(R.id.amplifyButton).setOnClickListener {
+                amplifyAudio(file)
             }
 
             view.findViewById<ImageButton>(R.id.compressButton).setOnClickListener {
