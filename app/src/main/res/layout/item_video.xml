@@ -35,56 +35,69 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="end"
-        android:layout_marginTop="8dp">
+        android:layout_marginTop="10dp">
 
-        <Button
+        <ImageButton
             android:id="@+id/playButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="▶️"
-            android:minWidth="0dp" />
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginEnd="6dp"
+            android:padding="10dp"
+            android:background="@drawable/bg_round_green"
+            android:src="@drawable/ic_play" />
 
-        <Button
+        <ImageButton
             android:id="@+id/trimButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="✂️"
-            android:minWidth="0dp" />
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginEnd="6dp"
+            android:padding="10dp"
+            android:background="@drawable/bg_round_orange"
+            android:src="@drawable/ic_scissors" />
 
-        <Button
+        <ImageButton
             android:id="@+id/renameButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="✏️"
-            android:minWidth="0dp" />
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginEnd="6dp"
+            android:padding="10dp"
+            android:background="@drawable/bg_round_purple"
+            android:src="@drawable/ic_pen" />
 
-        <Button
+        <ImageButton
             android:id="@+id/whatsappButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="💬"
-            android:minWidth="0dp" />
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginEnd="6dp"
+            android:padding="10dp"
+            android:background="@drawable/bg_round_green"
+            android:src="@drawable/ic_chat" />
 
-        <Button
+        <ImageButton
             android:id="@+id/telegramButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="✈️"
-            android:minWidth="0dp" />
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginEnd="6dp"
+            android:padding="10dp"
+            android:background="@drawable/bg_round_blue"
+            android:src="@drawable/ic_send" />
 
-        <Button
+        <ImageButton
             android:id="@+id/shareButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="📤"
-            android:minWidth="0dp" />
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginEnd="6dp"
+            android:padding="10dp"
+            android:background="@drawable/bg_round_purple"
+            android:src="@drawable/ic_share" />
 
-        <Button
+        <ImageButton
             android:id="@+id/deleteButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="🗑️"
-            android:minWidth="0dp" />
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:padding="10dp"
+            android:background="@drawable/bg_round_red"
+            android:src="@drawable/ic_trash" />
 
     </LinearLayout>
 
