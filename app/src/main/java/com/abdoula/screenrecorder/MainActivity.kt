@@ -111,6 +111,10 @@ class MainActivity : AppCompatActivity() {
         if (intent?.getBooleanExtra("autoStart", false) == true) {
             startCountdownThenRecord()
         }
+
+        UpdateChecker.checkForUpdate(BuildConfig.VERSION_CODE) { update ->
+            if (update != null) showUpdateDialog(update)
+        }
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -283,6 +287,18 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
+    private fun showUpdateDialog(update: UpdateInfo) {
+        AlertDialog.Builder(this)
+            .setTitle("🚀 Nouvelle version disponible : ${update.versionName}")
+            .setMessage(update.changelog)
+            .setPositiveButton("Télécharger") { _, _ ->
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(update.downloadUrl))
+                startActivity(intent)
+            }
+            .setNegativeButton("Plus tard", null)
+            .show()
+    }
+
     // ---------- Menu ☰ ----------
 
     private fun showTopMenu(anchor: android.view.View) {
@@ -300,7 +316,7 @@ class MainActivity : AppCompatActivity() {
                 "💬 Envoyer un commentaire" -> sendFeedbackEmail()
                 "📤 Partager l'application" -> shareApp()
                 "❓ Questions fréquentes" -> showComingSoonDialog("Questions fréquentes", "Une page d'aide complète arrive bientôt.")
-                "ℹ️ À propos" -> showComingSoonDialog("Screen Recorder", "Version 1.0 — développé pour enregistrer et annoter ton écran facilement.")
+                "ℹ️ À propos" -> showComingSoonDialog("Screen Recorder", "Version 1.1 — développé pour enregistrer et annoter ton écran facilement.")
             }
             true
         }
