@@ -230,9 +230,13 @@ class GalleryActivity : AppCompatActivity() {
             }
 
             view.findViewById<ImageButton>(R.id.deleteButton).setOnClickListener {
-                file.delete()
-                Toast.makeText(context, "Vidéo supprimée", Toast.LENGTH_SHORT).show()
-                loadVideos()
+                val trashDir = File(getExternalFilesDir(Environment.DIRECTORY_MOVIES), ".trash")
+                if (!trashDir.exists()) trashDir.mkdirs()
+                val trashedFile = File(trashDir, file.name)
+                if (file.renameTo(trashedFile)) {
+                    Toast.makeText(context, "Vidéo déplacée vers la corbeille", Toast.LENGTH_SHORT).show()
+                    loadVideos()
+                }
             }
 
             return view
