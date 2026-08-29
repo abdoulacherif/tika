@@ -41,11 +41,16 @@ class GalleryActivity : AppCompatActivity() {
     private var selectionMode = false
     private val selectedFiles = mutableSetOf<File>()
     private var pendingMusicTargetFile: File? = null
+    private var pendingMusicMode: String = "replace" // "replace" ou "mix"
 
     private val musicPickerLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         val target = pendingMusicTargetFile
         if (uri != null && target != null) {
-            applyMusic(target, uri)
+            if (pendingMusicMode == "mix") {
+                applyMusicMix(target, uri)
+            } else {
+                applyMusic(target, uri)
+            }
         }
     }
 
@@ -111,6 +116,45 @@ class GalleryActivity : AppCompatActivity() {
         }.start()
     }
 
+    // ---------- Choix Remplacer / Mélanger, avec design carte arrondie ----------
+
+    private fun showMusicChoiceDialog(file: File) {
+        val layout = layoutInflater.inflate(R.layout.dialog_music_choice, null)
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(layout)
+            .create()
+        dialog.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+
+        layout.findViewById<LinearLayout>(R.id.replaceOption).setOnClickListener {
+            dialog.dismiss()
+            pendingMusicTargetFile = file
+            pendingMusicMode = "replace"
+            musicPickerLauncher.launch(arrayOf("audio/*"))
+        }
+
+        layout.findViewById<LinearLayout>(R.id.mixOption).setOnClickListener {
+            dialog.dismiss()
+            if (!SettingsManager.isProUser(this)) {
+                AlertDialog.Builder(this)
+                    .setTitle("💎 Fonctionnalité Pro")
+                    .setMessage("Mélanger ta voix avec une musique de fond est réservé à la version Pro. Le remplacement simple reste gratuit.")
+                    .setPositiveButton("OK", null)
+                    .show()
+                return@setOnClickListener
+            }
+            pendingMusicTargetFile = file
+            pendingMusicMode = "mix"
+            musicPickerLauncher.launch(arrayOf("audio/*"))
+        }
+
+        layout.findViewById<TextView>(R.id.musicCancelText).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
     private fun applyMusic(videoFile: File, musicUri: Uri) {
         val progressBar = ProgressBar(this)
         val dialog = AlertDialog.Builder(this)
@@ -131,6 +175,31 @@ class GalleryActivity : AppCompatActivity() {
                     loadVideos()
                 } else {
                     Toast.makeText(this, "Impossible d'ajouter cette musique", Toast.LENGTH_LONG).show()
+                }
+            }
+        }.start()
+    }
+
+    private fun applyMusicMix(videoFile: File, musicUri: Uri) {
+        val progressBar = ProgressBar(this)
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("Mélange en cours…")
+            .setView(progressBar)
+            .setCancelable(false)
+            .create()
+        dialog.show()
+
+        Thread {
+            val outputFile = File(videoFile.parent, "${videoFile.nameWithoutExtension}_mixe.mp4")
+            val success = AudioMixer.mix(this, videoFile.absolutePath, musicUri, outputFile.absolutePath)
+
+            mainHandler.post {
+                dialog.dismiss()
+                if (success) {
+                    Toast.makeText(this, "Voix et musique mélangées : ${outputFile.name}", Toast.LENGTH_LONG).show()
+                    loadVideos()
+                } else {
+                    Toast.makeText(this, "Le mélange a échoué, réessaie avec une vidéo plus courte", Toast.LENGTH_LONG).show()
                 }
             }
         }.start()
@@ -219,8 +288,7 @@ class GalleryActivity : AppCompatActivity() {
             }
 
             view.findViewById<ImageButton>(R.id.musicButton).setOnClickListener {
-                pendingMusicTargetFile = file
-                musicPickerLauncher.launch(arrayOf("audio/*"))
+                showMusicChoiceDialog(file)
             }
 
             view.findViewById<ImageButton>(R.id.amplifyButton).setOnClickListener {
