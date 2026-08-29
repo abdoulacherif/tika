@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Thème sombre réutilisable pour toutes les boîtes de dialogue de l'appli,
+         cohérent avec le fond dégradé et les couleurs violettes utilisées partout. -->
+    <style name="ThemeOverlay.DarkDialog" parent="ThemeOverlay.AppCompat.Dialog.Alert">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="colorAccent">#7C4DFF</item>
+        <item name="android:textColorPrimary">#FFFFFF</item>
+        <item name="android:textColorSecondary">#B388FF</item>
+        <item name="android:background">#1E1E1E</item>
+    </style>
+</resources>
