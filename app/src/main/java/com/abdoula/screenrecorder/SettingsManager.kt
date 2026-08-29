@@ -10,6 +10,10 @@ object SettingsManager {
     private const val KEY_WATERMARK = "watermark_enabled"
     private const val KEY_WATERMARK_TEXT = "watermark_text"
     private const val KEY_HIDE_BUBBLE = "hide_bubble_recording"
+    private const val KEY_COUNTDOWN_SECONDS = "countdown_seconds"
+    private const val KEY_TRASH_ENABLED = "trash_enabled"
+    private const val KEY_BUBBLE_POSITION = "bubble_position"
+    private const val KEY_IS_PRO = "is_pro_user"
 
     fun getResolutionHeight(context: Context): Int {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -69,6 +73,51 @@ object SettingsManager {
     fun setBubbleHiddenDuringRecording(context: Context, hidden: Boolean) {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         prefs.edit().putBoolean(KEY_HIDE_BUBBLE, hidden).apply()
+    }
+
+    // Durée du compte à rebours avant le démarrage, en secondes
+    fun getCountdownSeconds(context: Context): Int {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        return prefs.getInt(KEY_COUNTDOWN_SECONDS, 3)
+    }
+
+    fun setCountdownSeconds(context: Context, seconds: Int) {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        prefs.edit().putInt(KEY_COUNTDOWN_SECONDS, seconds).apply()
+    }
+
+    // Si désactivé, la suppression est définitive (pas de passage par la corbeille)
+    fun isTrashEnabled(context: Context): Boolean {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        return prefs.getBoolean(KEY_TRASH_ENABLED, true)
+    }
+
+    fun setTrashEnabled(context: Context, enabled: Boolean) {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        prefs.edit().putBoolean(KEY_TRASH_ENABLED, enabled).apply()
+    }
+
+    // Position du bouton magique : "top_left", "top_right", "bottom_left", "bottom_right"
+    fun getBubblePosition(context: Context): String {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        return prefs.getString(KEY_BUBBLE_POSITION, "top_right") ?: "top_right"
+    }
+
+    fun setBubblePosition(context: Context, position: String) {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        prefs.edit().putString(KEY_BUBBLE_POSITION, position).apply()
+    }
+
+    // Placeholder pour le futur système de paiement (Google Play Billing).
+    // Reste à false tant que la vraie vérification d'achat n'est pas branchée.
+    fun isProUser(context: Context): Boolean {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        return prefs.getBoolean(KEY_IS_PRO, false)
+    }
+
+    fun setProUser(context: Context, isPro: Boolean) {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        prefs.edit().putBoolean(KEY_IS_PRO, isPro).apply()
     }
 
     fun resolveBitrate(context: Context, effectiveHeight: Int): Int {
