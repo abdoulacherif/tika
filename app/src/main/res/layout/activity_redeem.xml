@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/bg_gradient_screen"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="🎟️ Activer un code Pro"
+        android:textColor="#FFFFFF"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="6dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Saisis le code reçu après ton paiement"
+        android:textColor="#9E9E9E"
+        android:textSize="13sp"
+        android:layout_marginBottom="24dp" />
+
+    <EditText
+        android:id="@+id/codeInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="XXXX-XXXX-XXXX"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#666666"
+        android:textSize="18sp"
+        android:letterSpacing="0.1"
+        android:gravity="center"
+        android:background="@drawable/bg_card"
+        android:padding="18dp"
+        android:inputType="textCapCharacters"
+        android:layout_marginBottom="20dp" />
+
+    <Button
+        android:id="@+id/redeemButton"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@drawable/bg_button_primary"
+        android:textColor="#FFFFFF"
+        android:textAllCaps="false"
+        android:text="Activer" />
+
+    <TextView
+        android:id="@+id/redeemResultText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:layout_marginTop="20dp" />
+
+</LinearLayout>
