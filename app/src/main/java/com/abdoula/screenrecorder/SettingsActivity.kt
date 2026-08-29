@@ -51,7 +51,17 @@ class SettingsActivity : AppCompatActivity() {
         val watermarkCheck = findViewById<CheckBox>(R.id.watermarkCheck)
         watermarkCheck.isChecked = SettingsManager.isWatermarkEnabled(this)
         watermarkCheck.setOnCheckedChangeListener { _, checked ->
-            SettingsManager.setWatermarkEnabled(this, checked)
+            if (!checked && !SettingsManager.isProUser(this)) {
+                // Retirer le filigrane est réservé à la version Pro
+                watermarkCheck.isChecked = true
+                AlertDialog.Builder(this)
+                    .setTitle("💎 Fonctionnalité Pro")
+                    .setMessage("Retirer le filigrane est réservé à la version Pro. Toutes les autres fonctionnalités restent gratuites et illimitées.")
+                    .setPositiveButton("OK", null)
+                    .show()
+            } else {
+                SettingsManager.setWatermarkEnabled(this, checked)
+            }
         }
 
         watermarkTextInput.setText(SettingsManager.getWatermarkText(this))
