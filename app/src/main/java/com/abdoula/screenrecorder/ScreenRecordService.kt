@@ -12,10 +12,14 @@ import android.media.AudioManager
 import android.media.MediaRecorder
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
+import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import androidx.core.app.NotificationCompat
+import androidx.documentfile.provider.DocumentFile
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -27,6 +31,8 @@ class ScreenRecordService : Service() {
     private var mediaRecorder: MediaRecorder? = null
     private var audioFocusRequest: AudioFocusRequest? = null
     private var lastOutputFile: File? = null
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private var durationLimitRunnable: Runnable? = null
 
     private val channelId = "screen_record_channel"
 
@@ -188,6 +194,20 @@ class ScreenRecordService : Service() {
         mediaRecorder?.start()
         isRunning = true
         isPaused = false
+
+        scheduleDurationLimitIfNeeded()
+    }
+
+    // Arrête automatiquement l'enregistrement à 15 minutes pour les utilisateurs
+    // gratuits ; illimité pour les utilisateurs Pro (ou en période d'essai).
+    private fun scheduleDurationLimitIfNeeded() {
+        if (SettingsManager.isProUser(this)) return
+
+        val runnable = Runnable {
+            stopSelf()
+        }
+        durationLimitRunnable = runnable
+        mainHandler.postDelayed(runnable, SettingsManager.FREE_DURATION_LIMIT_MS)
     }
 
     private fun getOutputFile(): File {
@@ -201,6 +221,7 @@ class ScreenRecordService : Service() {
         super.onDestroy()
         isRunning = false
         isPaused = false
+        durationLimitRunnable?.let { mainHandler.removeCallbacks(it) }
         try {
             mediaRecorder?.stop()
             mediaRecorder?.reset()
@@ -215,8 +236,28 @@ class ScreenRecordService : Service() {
         stopService(Intent(this, CameraBubbleService::class.java))
 
         val file = lastOutputFile
-        if (file != null && SettingsManager.isPostRecordingPopupEnabled(this)) {
-            PostRecordingPopup.show(applicationContext, file)
+        if (file != null) {
+            copyToBackupFolderIfConfigured(file)
+            if (SettingsManager.isPostRecordingPopupEnabled(this)) {
+                PostRecordingPopup.show(applicationContext, file)
+            }
+        }
+    }
+
+    // Copie la vidéo vers le dossier de sauvegarde choisi (fonctionnalité Pro)
+    private fun copyToBackupFolderIfConfigured(file: File) {
+        if (!SettingsManager.isProUser(this)) return
+        val folderUriString = SettingsManager.getBackupFolderUri(this) ?: return
+
+        try {
+            val folderUri = Uri.parse(folderUriString)
+            val folder = DocumentFile.fromTreeUri(this, folderUri) ?: return
+            val newFile = folder.createFile("video/mp4", file.name) ?: return
+            contentResolver.openOutputStream(newFile.uri)?.use { output ->
+                file.inputStream().use { input -> input.copyTo(output) }
+            }
+        } catch (e: Exception) {
+            // Le dossier a peut-être été supprimé ou l'accès révoqué : on ignore silencieusement
         }
     }
 
