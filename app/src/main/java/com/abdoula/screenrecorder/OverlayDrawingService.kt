@@ -34,6 +34,7 @@ class OverlayDrawingService : Service() {
     private var panelParams: WindowManager.LayoutParams? = null
     private var panelVisible = false
     private val autoHideRunnable = Runnable { hidePanel() }
+    private var pauseButton: ImageButton? = null
 
     private var drawingView: DrawingOverlayView? = null
     private var drawingEnabled = false
@@ -102,7 +103,7 @@ class OverlayDrawingService : Service() {
         windowManager.addView(drawingView, params)
     }
 
-    // ---------- Bulle : position selon le réglage ----------
+    // ---------- Bulle ----------
 
     private fun addBubble() {
         bubbleView = TextView(this).apply {
@@ -146,10 +147,8 @@ class OverlayDrawingService : Service() {
         }
     }
 
-    // ---------- Gestes de la bulle : tap = pause/reprise, appui long = arrêter, double-tap = outils ----------
+    // ---------- Gestes simplifiés : un seul tap = ouvrir/fermer les outils, appui long = arrêter ----------
 
-    private var lastTapTime = 0L
-    private var pendingSingleTap: Runnable? = null
     private var longPressRunnable: Runnable? = null
     private var longPressTriggered = false
 
@@ -200,18 +199,7 @@ class OverlayDrawingService : Service() {
                         if (bubbleMinimized) {
                             restoreBubble()
                         } else {
-                            val now = System.currentTimeMillis()
-                            if (now - lastTapTime < 300) {
-                                pendingSingleTap?.let { mainHandler.removeCallbacks(it) }
-                                pendingSingleTap = null
-                                lastTapTime = 0
-                                togglePanel()
-                            } else {
-                                lastTapTime = now
-                                val runnable = Runnable { togglePauseResume() }
-                                pendingSingleTap = runnable
-                                mainHandler.postDelayed(runnable, 300)
-                            }
+                            togglePanel()
                         }
                     }
                     true
@@ -225,22 +213,11 @@ class OverlayDrawingService : Service() {
         startService(Intent(this, ScreenRecordService::class.java).apply {
             action = ScreenRecordService.ACTION_PAUSE_TOGGLE
         })
-        updateBubblePausedAppearance()
+        mainHandler.postDelayed({ updatePauseButtonAppearance() }, 150)
     }
 
-    private fun updateBubblePausedAppearance() {
-        // Laisse le temps au service de basculer l'état avant de rafraîchir l'icône
-        mainHandler.postDelayed({
-            bubbleView?.apply {
-                if (ScreenRecordService.isPaused) {
-                    text = "▶"
-                    background = gradientOval(intArrayOf(Color.parseColor("#FF9800"), Color.parseColor("#E65100")))
-                } else {
-                    text = "🎬"
-                    background = gradientOval(intArrayOf(Color.parseColor("#7C4DFF"), Color.parseColor("#5E35B1")))
-                }
-            }
-        }, 150)
+    private fun updatePauseButtonAppearance() {
+        pauseButton?.setImageResource(if (ScreenRecordService.isPaused) R.drawable.ic_play else R.drawable.ic_pause)
     }
 
     private fun confirmStopFromBubble() {
@@ -254,10 +231,6 @@ class OverlayDrawingService : Service() {
             .create()
         dialog.window?.setType(overlayType())
         dialog.show()
-    }
-
-    private fun toggleMinimized() {
-        if (bubbleMinimized) restoreBubble() else minimizeBubble()
     }
 
     private fun minimizeBubble() {
@@ -276,14 +249,9 @@ class OverlayDrawingService : Service() {
     private fun restoreBubble() {
         bubbleMinimized = false
         bubbleView?.apply {
-            text = if (ScreenRecordService.isPaused) "▶" else "🎬"
+            text = "🎬"
             textSize = 24f
-            background = gradientOval(
-                if (ScreenRecordService.isPaused)
-                    intArrayOf(Color.parseColor("#FF9800"), Color.parseColor("#E65100"))
-                else
-                    intArrayOf(Color.parseColor("#7C4DFF"), Color.parseColor("#5E35B1"))
-            )
+            background = gradientOval(intArrayOf(Color.parseColor("#7C4DFF"), Color.parseColor("#5E35B1")))
         }
         val params = bubbleParams ?: return
         params.width = 140
@@ -298,6 +266,7 @@ class OverlayDrawingService : Service() {
         if (panelView == null) buildPanel()
         repositionPanelIfVisible(forceShow = true)
         panelVisible = true
+        updatePauseButtonAppearance()
         scheduleAutoHide()
     }
 
@@ -317,17 +286,19 @@ class OverlayDrawingService : Service() {
         val bp = bubbleParams ?: return
         val pp = panelParams ?: return
         pp.gravity = bp.gravity
-        pp.x = bp.x + 160
+        pp.x = bp.x + 150
         pp.y = bp.y
         panelView?.visibility = View.VISIBLE
         windowManager.updateViewLayout(panelView, pp)
     }
 
+    // ---------- Carte d'outils réduite ----------
+
     private fun buildPanel() {
         panelView = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            background = gradientRoundedRect(intArrayOf(Color.parseColor("#EE1E1E1E"), Color.parseColor("#EE2A1B45")), 28f)
-            setPadding(20, 20, 20, 20)
+            background = gradientRoundedRect(intArrayOf(Color.parseColor("#EE1E1E1E"), Color.parseColor("#EE2A1B45")), 22f)
+            setPadding(14, 14, 14, 14)
         }
 
         val row1 = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
@@ -340,7 +311,7 @@ class OverlayDrawingService : Service() {
 
         val row2 = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
-            setPadding(0, 12, 0, 0)
+            setPadding(0, 8, 0, 0)
         }
         listOf(Color.RED, Color.parseColor("#2196F3"), Color.parseColor("#4CAF50"), Color.parseColor("#FFC107"))
             .forEach { color -> row2.addView(makeColorSwatch(color) { drawingView?.currentColor = color }) }
@@ -348,26 +319,34 @@ class OverlayDrawingService : Service() {
 
         val row3 = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
-            setPadding(0, 12, 0, 0)
+            setPadding(0, 8, 0, 0)
         }
         row3.addView(makeIconButton(R.drawable.ic_undo, R.drawable.bg_round_blue) { drawingView?.undo() })
         row3.addView(makeIconButton(R.drawable.ic_trash, R.drawable.bg_round_red) { drawingView?.clearAll() })
         row3.addView(makeIconButton(R.drawable.ic_minimize, R.drawable.bg_round_purple) { minimizeBubble() })
+        pauseButton = makeIconButton(R.drawable.ic_pause, R.drawable.bg_round_orange) { togglePauseResume() }.also {
+            it.setOnClickListener {
+                togglePauseResume()
+                // Ce bouton reste ouvert (contrairement aux autres) pour qu'on
+                // puisse suivre visuellement l'état pause/reprise.
+            }
+        }
+        row3.addView(pauseButton)
         panelView?.addView(row3)
 
         val stopButton = Button(this).apply {
-            text = "⏹  Arrêter l'enregistrement"
-            textSize = 13f
+            text = "⏹  Arrêter"
+            textSize = 12f
             setTextColor(Color.WHITE)
-            background = gradientRoundedRect(intArrayOf(Color.parseColor("#E53935"), Color.parseColor("#B71C1C")), 24f)
-            setPadding(24, 20, 24, 20)
+            background = gradientRoundedRect(intArrayOf(Color.parseColor("#E53935"), Color.parseColor("#B71C1C")), 18f)
+            setPadding(16, 14, 16, 14)
         }
         stopButton.setOnClickListener {
             stopService(Intent(this@OverlayDrawingService, ScreenRecordService::class.java))
             stopSelf()
         }
         val stopParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-        stopParams.topMargin = 16
+        stopParams.topMargin = 10
         panelView?.addView(stopButton, stopParams)
 
         val params = WindowManager.LayoutParams(
@@ -388,13 +367,13 @@ class OverlayDrawingService : Service() {
         return ImageButton(this).apply {
             setImageResource(iconRes)
             setBackgroundResource(bgRes)
-            val size = 96
-            layoutParams = LinearLayout.LayoutParams(size, size).apply { setMargins(6, 0, 6, 0) }
-            setPadding(20, 20, 20, 20)
+            val size = 68
+            layoutParams = LinearLayout.LayoutParams(size, size).apply { setMargins(4, 0, 4, 0) }
+            setPadding(14, 14, 14, 14)
             scaleType = android.widget.ImageView.ScaleType.FIT_CENTER
             setOnClickListener {
                 action()
-                hidePanel()
+                if (this@apply != pauseButton) hidePanel()
             }
         }
     }
@@ -402,8 +381,8 @@ class OverlayDrawingService : Service() {
     private fun makeColorSwatch(color: Int, action: () -> Unit): View {
         return View(this).apply {
             background = gradientOval(intArrayOf(color, color))
-            val size = 72
-            layoutParams = LinearLayout.LayoutParams(size, size).apply { setMargins(6, 0, 6, 0) }
+            val size = 52
+            layoutParams = LinearLayout.LayoutParams(size, size).apply { setMargins(4, 0, 4, 0) }
             setOnClickListener {
                 action()
                 hidePanel()
@@ -463,7 +442,6 @@ class OverlayDrawingService : Service() {
         super.onDestroy()
         mainHandler.removeCallbacks(autoHideRunnable)
         longPressRunnable?.let { mainHandler.removeCallbacks(it) }
-        pendingSingleTap?.let { mainHandler.removeCallbacks(it) }
         bubbleView?.let { windowManager.removeView(it) }
         panelView?.let { windowManager.removeView(it) }
         drawingView?.let { windowManager.removeView(it) }
