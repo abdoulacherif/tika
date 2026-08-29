@@ -9,12 +9,17 @@ object SettingsManager {
     private const val KEY_FRAMERATE = "frame_rate"
     private const val KEY_WATERMARK = "watermark_enabled"
     private const val KEY_WATERMARK_TEXT = "watermark_text"
+    private const val KEY_WATERMARK_LOGO_URI = "watermark_logo_uri"
     private const val KEY_HIDE_BUBBLE = "hide_bubble_recording"
     private const val KEY_COUNTDOWN_SECONDS = "countdown_seconds"
     private const val KEY_TRASH_ENABLED = "trash_enabled"
     private const val KEY_BUBBLE_POSITION = "bubble_position"
     private const val KEY_IS_PRO = "is_pro_user"
     private const val KEY_POST_RECORDING_POPUP = "post_recording_popup"
+    private const val KEY_TRIAL_END_TIME = "trial_end_time"
+    private const val KEY_BACKUP_FOLDER_URI = "backup_folder_uri"
+
+    const val FREE_DURATION_LIMIT_MS = 15 * 60 * 1000L // 15 minutes
 
     fun getResolutionHeight(context: Context): Int {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -66,6 +71,17 @@ object SettingsManager {
         prefs.edit().putString(KEY_WATERMARK_TEXT, text).apply()
     }
 
+    // Logo personnalisé en filigrane (Pro)
+    fun getWatermarkLogoUri(context: Context): String? {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        return prefs.getString(KEY_WATERMARK_LOGO_URI, null)
+    }
+
+    fun setWatermarkLogoUri(context: Context, uri: String?) {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        prefs.edit().putString(KEY_WATERMARK_LOGO_URI, uri).apply()
+    }
+
     fun isBubbleHiddenDuringRecording(context: Context): Boolean {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         return prefs.getBoolean(KEY_HIDE_BUBBLE, false)
@@ -79,8 +95,6 @@ object SettingsManager {
     fun getCountdownSeconds(context: Context): Int {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val stored = prefs.getInt(KEY_COUNTDOWN_SECONDS, 3)
-        // Sécurité : si 10s a été enregistré avant que le verrou Pro n'existe,
-        // on le ramène à une valeur gratuite pour un utilisateur non-Pro.
         if (stored == 10 && !isProUser(context)) return 5
         return stored
     }
@@ -110,7 +124,7 @@ object SettingsManager {
         prefs.edit().putString(KEY_BUBBLE_POSITION, position).apply()
     }
 
-    fun isProUser(context: Context): Boolean {
+    private fun isRealProUser(context: Context): Boolean {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         return prefs.getBoolean(KEY_IS_PRO, false)
     }
@@ -120,8 +134,38 @@ object SettingsManager {
         prefs.edit().putBoolean(KEY_IS_PRO, isPro).apply()
     }
 
-    // Popup de résumé après l'enregistrement, activé par défaut.
-    // La désactiver est réservé à la version Pro.
+    // Pro = achat réel OU essai gratuit encore actif
+    fun isProUser(context: Context): Boolean {
+        if (isRealProUser(context)) return true
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val trialEnd = prefs.getLong(KEY_TRIAL_END_TIME, 0L)
+        return trialEnd > System.currentTimeMillis()
+    }
+
+    fun isTrialActive(context: Context): Boolean {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val trialEnd = prefs.getLong(KEY_TRIAL_END_TIME, 0L)
+        return trialEnd > System.currentTimeMillis()
+    }
+
+    fun hasUsedTrial(context: Context): Boolean {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        return prefs.getLong(KEY_TRIAL_END_TIME, 0L) > 0L
+    }
+
+    fun startTrial(context: Context) {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val end = System.currentTimeMillis() + (3 * 24 * 60 * 60 * 1000L) // 3 jours
+        prefs.edit().putLong(KEY_TRIAL_END_TIME, end).apply()
+    }
+
+    fun getTrialRemainingHours(context: Context): Long {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val trialEnd = prefs.getLong(KEY_TRIAL_END_TIME, 0L)
+        val remaining = trialEnd - System.currentTimeMillis()
+        return if (remaining > 0) remaining / (60 * 60 * 1000L) else 0L
+    }
+
     fun isPostRecordingPopupEnabled(context: Context): Boolean {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         return prefs.getBoolean(KEY_POST_RECORDING_POPUP, true)
@@ -130,6 +174,17 @@ object SettingsManager {
     fun setPostRecordingPopupEnabled(context: Context, enabled: Boolean) {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         prefs.edit().putBoolean(KEY_POST_RECORDING_POPUP, enabled).apply()
+    }
+
+    // Dossier de sauvegarde automatique (Pro)
+    fun getBackupFolderUri(context: Context): String? {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        return prefs.getString(KEY_BACKUP_FOLDER_URI, null)
+    }
+
+    fun setBackupFolderUri(context: Context, uri: String?) {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        prefs.edit().putString(KEY_BACKUP_FOLDER_URI, uri).apply()
     }
 
     fun resolveBitrate(context: Context, effectiveHeight: Int): Int {
@@ -148,8 +203,6 @@ object SettingsManager {
         return if (chosen > 0) chosen else 30
     }
 
-    // Sécurité : ramène la résolution à 720p pour un utilisateur non-Pro,
-    // même si 1080 a été enregistré avant l'ajout de ce verrou.
     fun resolveResolutionHeight(context: Context): Int {
         val stored = getResolutionHeight(context)
         if (stored == 1080 && !isProUser(context)) return 720
