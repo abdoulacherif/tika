@@ -102,6 +102,8 @@ class OverlayDrawingService : Service() {
         windowManager.addView(drawingView, params)
     }
 
+    // ---------- Bulle : position selon le réglage ----------
+
     private fun addBubble() {
         bubbleView = TextView(this).apply {
             text = "🎬"
@@ -116,9 +118,14 @@ class OverlayDrawingService : Service() {
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or secureFlag(),
             PixelFormat.TRANSLUCENT
         )
-        params.gravity = Gravity.TOP or Gravity.START
-        params.x = 20
-        params.y = 300
+
+        when (SettingsManager.getBubblePosition(this)) {
+            "top_left" -> { params.gravity = Gravity.TOP or Gravity.START; params.x = 20; params.y = 300 }
+            "top_right" -> { params.gravity = Gravity.TOP or Gravity.END; params.x = 20; params.y = 300 }
+            "bottom_left" -> { params.gravity = Gravity.BOTTOM or Gravity.START; params.x = 20; params.y = 300 }
+            "bottom_right" -> { params.gravity = Gravity.BOTTOM or Gravity.END; params.x = 20; params.y = 300 }
+            else -> { params.gravity = Gravity.TOP or Gravity.START; params.x = 20; params.y = 300 }
+        }
         bubbleParams = params
 
         makeBubbleInteractive(bubbleView!!, params)
@@ -139,7 +146,12 @@ class OverlayDrawingService : Service() {
         }
     }
 
+    // ---------- Gestes de la bulle : tap = pause/reprise, appui long = arrêter, double-tap = outils ----------
+
     private var lastTapTime = 0L
+    private var pendingSingleTap: Runnable? = null
+    private var longPressRunnable: Runnable? = null
+    private var longPressTriggered = false
 
     private fun makeBubbleInteractive(view: View, params: WindowManager.LayoutParams) {
         var initialX = 0
@@ -156,12 +168,23 @@ class OverlayDrawingService : Service() {
                     touchX = event.rawX
                     touchY = event.rawY
                     moved = false
+                    longPressTriggered = false
+
+                    val runnable = Runnable {
+                        longPressTriggered = true
+                        confirmStopFromBubble()
+                    }
+                    longPressRunnable = runnable
+                    mainHandler.postDelayed(runnable, 600)
                     true
                 }
                 MotionEvent.ACTION_MOVE -> {
                     val dx = (event.rawX - touchX).toInt()
                     val dy = (event.rawY - touchY).toInt()
-                    if (abs(dx) > 12 || abs(dy) > 12) moved = true
+                    if (abs(dx) > 12 || abs(dy) > 12) {
+                        moved = true
+                        longPressRunnable?.let { mainHandler.removeCallbacks(it) }
+                    }
                     params.x = initialX + dx
                     params.y = initialY + dy
                     windowManager.updateViewLayout(bubbleView, params)
@@ -169,17 +192,25 @@ class OverlayDrawingService : Service() {
                     true
                 }
                 MotionEvent.ACTION_UP -> {
+                    longPressRunnable?.let { mainHandler.removeCallbacks(it) }
+                    if (longPressTriggered) {
+                        return@setOnTouchListener true
+                    }
                     if (!moved) {
-                        val now = System.currentTimeMillis()
-                        if (now - lastTapTime < 300) {
-                            toggleMinimized()
-                            lastTapTime = 0
+                        if (bubbleMinimized) {
+                            restoreBubble()
                         } else {
-                            lastTapTime = now
-                            if (bubbleMinimized) {
-                                restoreBubble()
-                            } else {
+                            val now = System.currentTimeMillis()
+                            if (now - lastTapTime < 300) {
+                                pendingSingleTap?.let { mainHandler.removeCallbacks(it) }
+                                pendingSingleTap = null
+                                lastTapTime = 0
                                 togglePanel()
+                            } else {
+                                lastTapTime = now
+                                val runnable = Runnable { togglePauseResume() }
+                                pendingSingleTap = runnable
+                                mainHandler.postDelayed(runnable, 300)
                             }
                         }
                     }
@@ -188,6 +219,41 @@ class OverlayDrawingService : Service() {
                 else -> false
             }
         }
+    }
+
+    private fun togglePauseResume() {
+        startService(Intent(this, ScreenRecordService::class.java).apply {
+            action = ScreenRecordService.ACTION_PAUSE_TOGGLE
+        })
+        updateBubblePausedAppearance()
+    }
+
+    private fun updateBubblePausedAppearance() {
+        // Laisse le temps au service de basculer l'état avant de rafraîchir l'icône
+        mainHandler.postDelayed({
+            bubbleView?.apply {
+                if (ScreenRecordService.isPaused) {
+                    text = "▶"
+                    background = gradientOval(intArrayOf(Color.parseColor("#FF9800"), Color.parseColor("#E65100")))
+                } else {
+                    text = "🎬"
+                    background = gradientOval(intArrayOf(Color.parseColor("#7C4DFF"), Color.parseColor("#5E35B1")))
+                }
+            }
+        }, 150)
+    }
+
+    private fun confirmStopFromBubble() {
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("Arrêter l'enregistrement ?")
+            .setPositiveButton("Arrêter") { _, _ ->
+                stopService(Intent(this, ScreenRecordService::class.java))
+                stopSelf()
+            }
+            .setNegativeButton("Continuer", null)
+            .create()
+        dialog.window?.setType(overlayType())
+        dialog.show()
     }
 
     private fun toggleMinimized() {
@@ -204,20 +270,23 @@ class OverlayDrawingService : Service() {
         }
         val params = bubbleParams ?: return
         params.width = 50
-        params.x = 0
         windowManager.updateViewLayout(bubbleView, params)
     }
 
     private fun restoreBubble() {
         bubbleMinimized = false
         bubbleView?.apply {
-            text = "🎬"
+            text = if (ScreenRecordService.isPaused) "▶" else "🎬"
             textSize = 24f
-            background = gradientOval(intArrayOf(Color.parseColor("#7C4DFF"), Color.parseColor("#5E35B1")))
+            background = gradientOval(
+                if (ScreenRecordService.isPaused)
+                    intArrayOf(Color.parseColor("#FF9800"), Color.parseColor("#E65100"))
+                else
+                    intArrayOf(Color.parseColor("#7C4DFF"), Color.parseColor("#5E35B1"))
+            )
         }
         val params = bubbleParams ?: return
         params.width = 140
-        params.x = 20
         windowManager.updateViewLayout(bubbleView, params)
     }
 
@@ -247,6 +316,7 @@ class OverlayDrawingService : Service() {
         if (!panelVisible && !forceShow) return
         val bp = bubbleParams ?: return
         val pp = panelParams ?: return
+        pp.gravity = bp.gravity
         pp.x = bp.x + 160
         pp.y = bp.y
         panelView?.visibility = View.VISIBLE
@@ -392,6 +462,8 @@ class OverlayDrawingService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         mainHandler.removeCallbacks(autoHideRunnable)
+        longPressRunnable?.let { mainHandler.removeCallbacks(it) }
+        pendingSingleTap?.let { mainHandler.removeCallbacks(it) }
         bubbleView?.let { windowManager.removeView(it) }
         panelView?.let { windowManager.removeView(it) }
         drawingView?.let { windowManager.removeView(it) }
