@@ -259,12 +259,25 @@ class GalleryActivity : AppCompatActivity() {
             }
 
             view.findViewById<ImageButton>(R.id.deleteButton).setOnClickListener {
-                val trashDir = File(getExternalFilesDir(Environment.DIRECTORY_MOVIES), ".trash")
-                if (!trashDir.exists()) trashDir.mkdirs()
-                val trashedFile = File(trashDir, file.name)
-                if (file.renameTo(trashedFile)) {
-                    Toast.makeText(context, "Vidéo déplacée vers la corbeille", Toast.LENGTH_SHORT).show()
-                    loadVideos()
+                if (SettingsManager.isTrashEnabled(context)) {
+                    val trashDir = File(getExternalFilesDir(Environment.DIRECTORY_MOVIES), ".trash")
+                    if (!trashDir.exists()) trashDir.mkdirs()
+                    val trashedFile = File(trashDir, file.name)
+                    if (file.renameTo(trashedFile)) {
+                        Toast.makeText(context, "Vidéo déplacée vers la corbeille", Toast.LENGTH_SHORT).show()
+                        loadVideos()
+                    }
+                } else {
+                    AlertDialog.Builder(context)
+                        .setTitle("Supprimer définitivement ?")
+                        .setMessage("La corbeille est désactivée, cette action est irréversible.")
+                        .setPositiveButton("Supprimer") { _, _ ->
+                            file.delete()
+                            Toast.makeText(context, "Vidéo supprimée", Toast.LENGTH_SHORT).show()
+                            loadVideos()
+                        }
+                        .setNegativeButton("Annuler", null)
+                        .show()
                 }
             }
 
