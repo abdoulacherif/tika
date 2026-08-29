@@ -36,12 +36,19 @@ class ScreenRecordService : Service() {
 
     companion object {
         const val ACTION_STOP = "com.abdoula.screenrecorder.STOP"
+        const val ACTION_PAUSE_TOGGLE = "com.abdoula.screenrecorder.PAUSE_TOGGLE"
         var isRunning = false
+        var isPaused = false
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_STOP) {
             stopSelf()
+            return START_NOT_STICKY
+        }
+
+        if (intent?.action == ACTION_PAUSE_TOGGLE) {
+            togglePause()
             return START_NOT_STICKY
         }
 
@@ -58,6 +65,22 @@ class ScreenRecordService : Service() {
         startRecording()
 
         return START_NOT_STICKY
+    }
+
+    private fun togglePause() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) return
+        try {
+            if (isPaused) {
+                mediaRecorder?.resume()
+                isPaused = false
+            } else {
+                mediaRecorder?.pause()
+                isPaused = true
+            }
+        } catch (e: Exception) {
+            // Certains chipsets d'entrée de gamme ne supportent pas pause/reprise ;
+            // on ignore silencieusement plutôt que de planter l'enregistrement.
+        }
     }
 
     private fun requestAudioFocus() {
@@ -163,6 +186,7 @@ class ScreenRecordService : Service() {
 
         mediaRecorder?.start()
         isRunning = true
+        isPaused = false
     }
 
     private fun getOutputFile(): java.io.File {
@@ -175,6 +199,7 @@ class ScreenRecordService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         isRunning = false
+        isPaused = false
         try {
             mediaRecorder?.stop()
             mediaRecorder?.reset()
