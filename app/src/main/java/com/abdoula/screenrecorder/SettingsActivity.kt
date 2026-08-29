@@ -52,13 +52,8 @@ class SettingsActivity : AppCompatActivity() {
         watermarkCheck.isChecked = SettingsManager.isWatermarkEnabled(this)
         watermarkCheck.setOnCheckedChangeListener { _, checked ->
             if (!checked && !SettingsManager.isProUser(this)) {
-                // Retirer le filigrane est réservé à la version Pro
                 watermarkCheck.isChecked = true
-                AlertDialog.Builder(this)
-                    .setTitle("💎 Fonctionnalité Pro")
-                    .setMessage("Retirer le filigrane est réservé à la version Pro. Toutes les autres fonctionnalités restent gratuites et illimitées.")
-                    .setPositiveButton("OK", null)
-                    .show()
+                showProDialog("Retirer le filigrane est réservé à la version Pro.")
             } else {
                 SettingsManager.setWatermarkEnabled(this, checked)
             }
@@ -78,7 +73,26 @@ class SettingsActivity : AppCompatActivity() {
             SettingsManager.setTrashEnabled(this, checked)
         }
 
+        val popupCheck = findViewById<CheckBox>(R.id.popupCheck)
+        popupCheck.isChecked = SettingsManager.isPostRecordingPopupEnabled(this)
+        popupCheck.setOnCheckedChangeListener { _, checked ->
+            if (!checked && !SettingsManager.isProUser(this)) {
+                popupCheck.isChecked = true
+                showProDialog("Masquer le résumé après l'enregistrement est réservé à la version Pro.")
+            } else {
+                SettingsManager.setPostRecordingPopupEnabled(this, checked)
+            }
+        }
+
         refreshLabels()
+    }
+
+    private fun showProDialog(message: String) {
+        AlertDialog.Builder(this)
+            .setTitle("💎 Fonctionnalité Pro")
+            .setMessage("$message Toutes les autres fonctionnalités restent gratuites et illimitées.")
+            .setPositiveButton("OK", null)
+            .show()
     }
 
     private fun requestBatteryExemption() {
@@ -103,7 +117,7 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun refreshLabels() {
         val res = SettingsManager.getResolutionHeight(this)
-        resolutionValue.text = if (res == 0) "Automatique (recommandé)" else "${res}p"
+        resolutionValue.text = if (res == 0) "Automatique (recommandé)" else "${res}p" + if (res == 1080) " 💎" else ""
 
         val bitrate = SettingsManager.getBitrateMbps(this)
         bitrateValue.text = if (bitrate == 0) "Automatique (recommandé)" else "$bitrate Mbps"
@@ -120,14 +134,26 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun showResolutionDialog() {
-        val labels = resolutionOptions.map { if (it == 0) "Automatique (recommandé)" else "${it}p" }.toTypedArray()
+        val labels = resolutionOptions.map {
+            when {
+                it == 0 -> "Automatique (recommandé)"
+                it == 1080 -> "1080p 💎 Pro"
+                else -> "${it}p"
+            }
+        }.toTypedArray()
         val current = resolutionOptions.indexOf(SettingsManager.getResolutionHeight(this))
         AlertDialog.Builder(this)
             .setTitle("Résolution")
             .setSingleChoiceItems(labels, current) { dialog, which ->
-                SettingsManager.setResolutionHeight(this, resolutionOptions[which])
-                refreshLabels()
-                dialog.dismiss()
+                val chosen = resolutionOptions[which]
+                if (chosen == 1080 && !SettingsManager.isProUser(this)) {
+                    dialog.dismiss()
+                    showProDialog("La résolution 1080p est réservée à la version Pro.")
+                } else {
+                    SettingsManager.setResolutionHeight(this, chosen)
+                    refreshLabels()
+                    dialog.dismiss()
+                }
             }
             .setNegativeButton("Annuler", null)
             .show()
@@ -162,14 +188,20 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun showCountdownDialog() {
-        val labels = countdownOptions.map { if (it == 0) "Aucun" else "${it}s" }.toTypedArray()
+        val labels = countdownOptions.map { if (it == 0) "Aucun" else if (it == 10) "10s 💎 Pro" else "${it}s" }.toTypedArray()
         val current = countdownOptions.indexOf(SettingsManager.getCountdownSeconds(this))
         AlertDialog.Builder(this)
             .setTitle("Compte à rebours")
             .setSingleChoiceItems(labels, current) { dialog, which ->
-                SettingsManager.setCountdownSeconds(this, countdownOptions[which])
-                refreshLabels()
-                dialog.dismiss()
+                val chosen = countdownOptions[which]
+                if (chosen == 10 && !SettingsManager.isProUser(this)) {
+                    dialog.dismiss()
+                    showProDialog("Le compte à rebours de 10s est réservé à la version Pro.")
+                } else {
+                    SettingsManager.setCountdownSeconds(this, chosen)
+                    refreshLabels()
+                    dialog.dismiss()
+                }
             }
             .setNegativeButton("Annuler", null)
             .show()
