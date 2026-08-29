@@ -16,6 +16,7 @@ import android.os.Build
 import android.os.Environment
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -25,6 +26,7 @@ class ScreenRecordService : Service() {
     private var virtualDisplay: VirtualDisplay? = null
     private var mediaRecorder: MediaRecorder? = null
     private var audioFocusRequest: AudioFocusRequest? = null
+    private var lastOutputFile: File? = null
 
     private val channelId = "screen_record_channel"
 
@@ -78,8 +80,6 @@ class ScreenRecordService : Service() {
                 isPaused = true
             }
         } catch (e: Exception) {
-            // Certains chipsets d'entrée de gamme ne supportent pas pause/reprise ;
-            // on ignore silencieusement plutôt que de planter l'enregistrement.
         }
     }
 
@@ -139,7 +139,7 @@ class ScreenRecordService : Service() {
         val deviceHeight = metrics.heightPixels
         val density = metrics.densityDpi
 
-        val targetHeight = SettingsManager.getResolutionHeight(this)
+        val targetHeight = SettingsManager.resolveResolutionHeight(this)
 
         val width: Int
         val height: Int
@@ -156,6 +156,7 @@ class ScreenRecordService : Service() {
         val frameRate = SettingsManager.resolveFrameRate(this)
 
         val outputFile = getOutputFile()
+        lastOutputFile = outputFile
 
         mediaRecorder = MediaRecorder().apply {
             setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
@@ -189,11 +190,11 @@ class ScreenRecordService : Service() {
         isPaused = false
     }
 
-    private fun getOutputFile(): java.io.File {
+    private fun getOutputFile(): File {
         val dir = getExternalFilesDir(Environment.DIRECTORY_MOVIES)
         if (dir != null && !dir.exists()) dir.mkdirs()
         val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-        return java.io.File(dir, "enregistrement_$timestamp.mp4")
+        return File(dir, "enregistrement_$timestamp.mp4")
     }
 
     override fun onDestroy() {
@@ -212,6 +213,11 @@ class ScreenRecordService : Service() {
         releaseAudioFocus()
         stopService(Intent(this, OverlayDrawingService::class.java))
         stopService(Intent(this, CameraBubbleService::class.java))
+
+        val file = lastOutputFile
+        if (file != null && SettingsManager.isPostRecordingPopupEnabled(this)) {
+            PostRecordingPopup.show(applicationContext, file)
+        }
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
