@@ -43,6 +43,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var statLast: TextView
 
     private var cameraEnabled = false
+    private var pendingLaunchAfterPermission = false
 
     private val screenCaptureLauncher =
         registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()) { result ->
@@ -171,11 +172,46 @@ class MainActivity : AppCompatActivity() {
         cameraToggleButton.text = if (cameraEnabled) "📷\nCaméra : on" else "📷\nCaméra : off"
     }
 
+    // On attend explicitement la permission micro AVANT de démarrer
+    // l'enregistrement — la lancer en parallèle (comme avant) pouvait
+    // démarrer l'enregistrement sans micro autorisé, produisant une
+    // vidéo sans son.
+    private fun requestPermissionsThenStart() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            pendingLaunchAfterPermission = true
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), 100)
+            return
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 101)
+            }
+        }
+
+        screenCaptureLauncher.launch(projectionManager.createScreenCaptureIntent())
+    }
+
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == 200 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             cameraEnabled = true
             cameraToggleButton.text = "📷\nCaméra : on"
+        }
+        if (requestCode == 100) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (pendingLaunchAfterPermission) {
+                    pendingLaunchAfterPermission = false
+                    requestPermissionsThenStart()
+                }
+            } else {
+                pendingLaunchAfterPermission = false
+                Toast.makeText(this, "Le micro est nécessaire pour enregistrer le son", Toast.LENGTH_LONG).show()
+            }
         }
     }
 
@@ -272,7 +308,7 @@ class MainActivity : AppCompatActivity() {
         popup.menu.add("ℹ️ À propos")
         popup.setOnMenuItemClickListener { item ->
             when (item.title) {
-                "⭐ Passer à la version Pro" -> showComingSoonDialog("Version Pro", "Retire le filigrane de tes vidéos avec la version Pro. Le système de paiement arrive bientôt.")
+                "⭐ Passer à la version Pro" -> startActivity(Intent(this, SettingsActivity::class.java))
                 "🗑️ Vidéos supprimées" -> startActivity(Intent(this, TrashActivity::class.java))
                 "💬 Envoyer un commentaire" -> sendFeedbackEmail()
                 "📤 Partager l'application" -> shareApp()
@@ -360,24 +396,6 @@ class MainActivity : AppCompatActivity() {
             stopButton.isEnabled = false
             stopButton.alpha = 0.5f
         }
-    }
-
-    private fun requestPermissionsThenStart() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), 100)
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-                != PackageManager.PERMISSION_GRANTED
-            ) {
-                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 101)
-            }
-        }
-
-        screenCaptureLauncher.launch(projectionManager.createScreenCaptureIntent())
     }
 
     private fun requestOverlayPermission() {
