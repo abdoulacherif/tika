@@ -134,9 +134,10 @@ object SettingsManager {
         prefs.edit().putBoolean(KEY_IS_PRO, isPro).apply()
     }
 
-    // Pro = achat réel OU essai gratuit encore actif
+    // Pro = achat réel OU essai gratuit encore actif OU code d'activation encore valide
     fun isProUser(context: Context): Boolean {
         if (isRealProUser(context)) return true
+        if (CodeManager.isCodeProActive(context)) return true
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val trialEnd = prefs.getLong(KEY_TRIAL_END_TIME, 0L)
         return trialEnd > System.currentTimeMillis()
