@@ -19,6 +19,46 @@
             android:textStyle="bold"
             android:layout_marginBottom="6dp" />
 
+        <LinearLayout
+            android:id="@+id/trialCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_stat_purple"
+            android:padding="18dp"
+            android:layout_marginTop="14dp"
+            android:layout_marginBottom="14dp">
+
+            <TextView
+                android:id="@+id/trialTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="💎 Essaie la version Pro"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/trialSubtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="3 jours gratuits, sans engagement"
+                android:textColor="#E0D6FF"
+                android:textSize="12sp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="12dp" />
+
+            <Button
+                android:id="@+id/trialButton"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_card"
+                android:textColor="#FFFFFF"
+                android:textAllCaps="false"
+                android:text="Commencer l'essai gratuit" />
+
+        </LinearLayout>
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -26,7 +66,6 @@
             android:textColor="#7C4DFF"
             android:textSize="12sp"
             android:textStyle="bold"
-            android:layout_marginTop="14dp"
             android:layout_marginBottom="8dp" />
 
         <LinearLayout
@@ -234,7 +273,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Désactive l'optimisation de batterie du système pour cette appli, pour éviter qu'elle coupe l'enregistrement"
+                android:text="Désactive l'optimisation de batterie du système pour cette appli"
                 android:textColor="#B388FF"
                 android:textSize="12sp"
                 android:layout_marginTop="4dp" />
@@ -285,6 +324,17 @@
                 android:hint="Texte du filigrane"
                 android:textColor="#FFFFFF"
                 android:textColorHint="#888888"
+                android:layout_marginTop="10dp" />
+
+            <Button
+                android:id="@+id/logoPickerButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_stat_pink"
+                android:textColor="#FFFFFF"
+                android:textAllCaps="false"
+                android:textSize="13sp"
+                android:text="🖼️ Utiliser mon logo (Pro)"
                 android:layout_marginTop="10dp" />
 
         </LinearLayout>
@@ -338,6 +388,30 @@
         </LinearLayout>
 
         <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_card"
+            android:padding="16dp"
+            android:layout_marginBottom="10dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Résumé après enregistrement"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <CheckBox
+                android:id="@+id/popupCheck"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/showTapsRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -345,7 +419,8 @@
             android:background="@drawable/bg_card"
             android:clickable="true"
             android:focusable="true"
-            android:padding="16dp">
+            android:padding="16dp"
+            android:layout_marginBottom="10dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -358,6 +433,43 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Active « Afficher les appuis » dans les Options développeur Android"
+                android:textColor="#B388FF"
+                android:textSize="12sp"
+                android:layout_marginTop="4dp" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SAUVEGARDE"
+            android:textColor="#7C4DFF"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:layout_marginTop="14dp"
+            android:layout_marginBottom="8dp" />
+
+        <LinearLayout
+            android:id="@+id/backupFolderRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_card"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📁 Dossier de sauvegarde auto (Pro)"
+                android:textColor="#FFFFFF"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/backupFolderValue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Aucun dossier choisi"
                 android:textColor="#B388FF"
                 android:textSize="12sp"
                 android:layout_marginTop="4dp" />
