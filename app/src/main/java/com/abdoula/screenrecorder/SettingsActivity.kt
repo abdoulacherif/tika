@@ -10,6 +10,7 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 
@@ -21,6 +22,10 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var countdownValue: TextView
     private lateinit var bubblePositionValue: TextView
     private lateinit var watermarkTextInput: EditText
+    private lateinit var backupFolderValue: TextView
+    private lateinit var trialTitle: TextView
+    private lateinit var trialSubtitle: TextView
+    private lateinit var trialButton: android.widget.Button
 
     private val resolutionOptions = listOf(0, 1080, 720, 640, 540, 480, 360, 240)
     private val bitrateOptions = listOf(0, 16, 14, 12, 10, 8, 6, 4, 2, 1)
@@ -28,6 +33,33 @@ class SettingsActivity : AppCompatActivity() {
     private val countdownOptions = listOf(0, 1, 2, 3, 5, 10)
     private val bubblePositions = listOf("top_left", "top_right", "bottom_left", "bottom_right")
     private val bubblePositionLabels = listOf("Haut à gauche", "Haut à droite", "Bas à gauche", "Bas à droite")
+
+    private val logoPickerLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) {
+            if (!SettingsManager.isProUser(this)) {
+                showProDialog("Utiliser un logo personnalisé est réservé à la version Pro.")
+            } else {
+                contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                SettingsManager.setWatermarkLogoUri(this, uri.toString())
+                Toast.makeText(this, "Logo enregistré", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private val backupFolderLauncher = registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+        if (uri != null) {
+            if (!SettingsManager.isProUser(this)) {
+                showProDialog("La sauvegarde automatique est réservée à la version Pro.")
+            } else {
+                contentResolver.takePersistableUriPermission(
+                    uri, Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                )
+                SettingsManager.setBackupFolderUri(this, uri.toString())
+                refreshLabels()
+                Toast.makeText(this, "Dossier de sauvegarde défini", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +71,10 @@ class SettingsActivity : AppCompatActivity() {
         countdownValue = findViewById(R.id.countdownValue)
         bubblePositionValue = findViewById(R.id.bubblePositionValue)
         watermarkTextInput = findViewById(R.id.watermarkTextInput)
+        backupFolderValue = findViewById(R.id.backupFolderValue)
+        trialTitle = findViewById(R.id.trialTitle)
+        trialSubtitle = findViewById(R.id.trialSubtitle)
+        trialButton = findViewById(R.id.trialButton)
 
         findViewById<LinearLayout>(R.id.resolutionRow).setOnClickListener { showResolutionDialog() }
         findViewById<LinearLayout>(R.id.bitrateRow).setOnClickListener { showBitrateDialog() }
@@ -47,6 +83,12 @@ class SettingsActivity : AppCompatActivity() {
         findViewById<LinearLayout>(R.id.bubblePositionRow).setOnClickListener { showBubblePositionDialog() }
         findViewById<LinearLayout>(R.id.batteryRow).setOnClickListener { requestBatteryExemption() }
         findViewById<LinearLayout>(R.id.showTapsRow).setOnClickListener { openDeveloperOptions() }
+        findViewById<LinearLayout>(R.id.backupFolderRow).setOnClickListener { backupFolderLauncher.launch(null) }
+        findViewById<android.widget.Button>(R.id.logoPickerButton).setOnClickListener {
+            logoPickerLauncher.launch(arrayOf("image/*"))
+        }
+
+        trialButton.setOnClickListener { startTrialOrShowStatus() }
 
         val watermarkCheck = findViewById<CheckBox>(R.id.watermarkCheck)
         watermarkCheck.isChecked = SettingsManager.isWatermarkEnabled(this)
@@ -85,6 +127,43 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         refreshLabels()
+        refreshTrialCard()
+    }
+
+    private fun startTrialOrShowStatus() {
+        if (SettingsManager.isProUser(this) && SettingsManager.isTrialActive(this)) {
+            val hours = SettingsManager.getTrialRemainingHours(this)
+            Toast.makeText(this, "Il te reste environ $hours h d'essai Pro", Toast.LENGTH_LONG).show()
+            return
+        }
+        if (SettingsManager.hasUsedTrial(this)) {
+            Toast.makeText(this, "Tu as déjà utilisé ton essai gratuit", Toast.LENGTH_LONG).show()
+            return
+        }
+        SettingsManager.startTrial(this)
+        Toast.makeText(this, "Essai Pro activé pour 3 jours 🎉", Toast.LENGTH_LONG).show()
+        refreshTrialCard()
+    }
+
+    private fun refreshTrialCard() {
+        when {
+            SettingsManager.isTrialActive(this) -> {
+                val hours = SettingsManager.getTrialRemainingHours(this)
+                trialTitle.text = "💎 Essai Pro actif"
+                trialSubtitle.text = "Il te reste environ $hours heures"
+                trialButton.text = "Voir mon essai"
+            }
+            SettingsManager.hasUsedTrial(this) -> {
+                trialTitle.text = "💎 Essai déjà utilisé"
+                trialSubtitle.text = "Ton essai gratuit de 3 jours est terminé"
+                trialButton.text = "Essai terminé"
+            }
+            else -> {
+                trialTitle.text = "💎 Essaie la version Pro"
+                trialSubtitle.text = "3 jours gratuits, sans engagement"
+                trialButton.text = "Commencer l'essai gratuit"
+            }
+        }
     }
 
     private fun showProDialog(message: String) {
@@ -131,6 +210,9 @@ class SettingsActivity : AppCompatActivity() {
         val position = SettingsManager.getBubblePosition(this)
         val index = bubblePositions.indexOf(position).coerceAtLeast(0)
         bubblePositionValue.text = bubblePositionLabels[index]
+
+        val backupFolder = SettingsManager.getBackupFolderUri(this)
+        backupFolderValue.text = if (backupFolder != null) "Dossier configuré ✅" else "Aucun dossier choisi"
     }
 
     private fun showResolutionDialog() {
@@ -218,6 +300,11 @@ class SettingsActivity : AppCompatActivity() {
             }
             .setNegativeButton("Annuler", null)
             .show()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        refreshTrialCard()
     }
 
     override fun onPause() {
