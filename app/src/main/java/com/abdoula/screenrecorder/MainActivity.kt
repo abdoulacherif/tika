@@ -129,6 +129,12 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
+        val countdownSeconds = SettingsManager.getCountdownSeconds(this)
+        if (countdownSeconds == 0) {
+            requestPermissionsThenStart()
+            return
+        }
+
         val countdownLayout = layoutInflater.inflate(R.layout.dialog_countdown, null)
         val countdownNumber = countdownLayout.findViewById<TextView>(R.id.countdownNumber)
 
@@ -139,10 +145,10 @@ class MainActivity : AppCompatActivity() {
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
         dialog.show()
 
-        object : CountDownTimer(3500, 1000) {
+        object : CountDownTimer((countdownSeconds * 1000 + 500).toLong(), 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 val secondsLeft = (millisUntilFinished / 1000) + 1
-                countdownNumber.text = if (secondsLeft > 3) "3" else secondsLeft.toString()
+                countdownNumber.text = if (secondsLeft > countdownSeconds) countdownSeconds.toString() else secondsLeft.toString()
             }
 
             override fun onFinish() {
@@ -266,7 +272,7 @@ class MainActivity : AppCompatActivity() {
         popup.menu.add("ℹ️ À propos")
         popup.setOnMenuItemClickListener { item ->
             when (item.title) {
-                "⭐ Passer à la version Pro" -> showComingSoonDialog("Version Pro", "Les fonctionnalités payantes arrivent bientôt.")
+                "⭐ Passer à la version Pro" -> showComingSoonDialog("Version Pro", "Retire le filigrane de tes vidéos avec la version Pro. Le système de paiement arrive bientôt.")
                 "🗑️ Vidéos supprimées" -> startActivity(Intent(this, TrashActivity::class.java))
                 "💬 Envoyer un commentaire" -> sendFeedbackEmail()
                 "📤 Partager l'application" -> shareApp()
