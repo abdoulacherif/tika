@@ -4,15 +4,35 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Caméra stylisée -->
+
+    <!-- Cadre d'écran (rectangle arrondi, contour) -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="6"
+        android:pathData="M26,32 h56 a8,8 0 0 1 8,8 v28 a8,8 0 0 1 -8,8 h-56 a8,8 0 0 1 -8,-8 v-28 a8,8 0 0 1 8,-8 z" />
+
+    <!-- Pied d'écran -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M30,40 L68,40 A8,8 0,0 1,76 48 L76,72 A8,8 0,0 1,68 80 L30,80 A8,8 0,0 1,22 72 L22,48 A8,8 0,0 1,30 40 Z" />
+        android:pathData="M48,76 h12 v6 h-12 z" />
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M76,54 L90,46 L90,74 L76,66 Z" />
-    <!-- Point d'enregistrement -->
+        android:pathData="M40,82 h28 v4 h-28 z" />
+
+    <!-- Triangle de lecture au centre de l'écran -->
     <path
-        android:fillColor="#E53935"
-        android:pathData="M49,60m-11,0a11,11 0,1 1,22 0a11,11 0,1 1,-22 0" />
+        android:fillColor="#FFFFFF"
+        android:pathData="M48,44 L48,56 L60,50 Z" />
+
+    <!-- Badge "+" en bas à droite -->
+    <path
+        android:fillColor="#FF6E40"
+        android:pathData="M84,64m-15,0a15,15 0,1 1,30 0a15,15 0,1 1,-30 0" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M81,57 h6 v14 h-6 z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M77,61 h14 v6 h-14 z" />
+
 </vector>
