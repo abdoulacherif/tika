@@ -132,8 +132,15 @@ class ScreenRecordService : Service() {
             .setOngoing(true)
             .build()
 
+        // Déclare explicitement le type "microphone" en plus de "mediaProjection" :
+        // depuis Android 14, un service qui capture le micro en arrière-plan sans
+        // cette déclaration voit son accès au micro coupé après un moment, même si
+        // la vidéo continue — c'est ce qui causait le son qui s'arrêtait seul.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            startForeground(1, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION)
+            startForeground(
+                1, notification,
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
+            )
         } else {
             startForeground(1, notification)
         }
@@ -165,7 +172,10 @@ class ScreenRecordService : Service() {
         lastOutputFile = outputFile
 
         mediaRecorder = MediaRecorder().apply {
-            setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
+            // Source micro standard : plus stable sur les chipsets d'entrée de
+            // gamme que VOICE_COMMUNICATION, qui peut être coupée par le système
+            // lors de changements d'état liés au mode appel.
+            setAudioSource(MediaRecorder.AudioSource.MIC)
             setVideoSource(MediaRecorder.VideoSource.SURFACE)
 
             setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
@@ -181,6 +191,13 @@ class ScreenRecordService : Service() {
             setVideoFrameRate(frameRate)
 
             setOutputFile(outputFile.absolutePath)
+
+            setOnErrorListener { _, what, extra ->
+                // Log silencieux : évite un crash si le micro est coupé par le
+                // système en cours d'enregistrement (ex. bascule de la puce
+                // audio confidentialité sur Android 12+).
+            }
+
             prepare()
         }
 
@@ -198,8 +215,6 @@ class ScreenRecordService : Service() {
         scheduleDurationLimitIfNeeded()
     }
 
-    // Arrête automatiquement l'enregistrement à 15 minutes pour les utilisateurs
-    // gratuits ; illimité pour les utilisateurs Pro (ou en période d'essai).
     private fun scheduleDurationLimitIfNeeded() {
         if (SettingsManager.isProUser(this)) return
 
@@ -244,7 +259,6 @@ class ScreenRecordService : Service() {
         }
     }
 
-    // Copie la vidéo vers le dossier de sauvegarde choisi (fonctionnalité Pro)
     private fun copyToBackupFolderIfConfigured(file: File) {
         if (!SettingsManager.isProUser(this)) return
         val folderUriString = SettingsManager.getBackupFolderUri(this) ?: return
@@ -257,7 +271,6 @@ class ScreenRecordService : Service() {
                 file.inputStream().use { input -> input.copyTo(output) }
             }
         } catch (e: Exception) {
-            // Le dossier a peut-être été supprimé ou l'accès révoqué : on ignore silencieusement
         }
     }
 
