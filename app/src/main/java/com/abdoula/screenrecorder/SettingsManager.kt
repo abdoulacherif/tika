@@ -63,7 +63,7 @@ object SettingsManager {
 
     fun getWatermarkText(context: Context): String {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-        return prefs.getString(KEY_WATERMARK_TEXT, "🎬 Screen Recorder") ?: "🎬 Screen Recorder"
+        return prefs.getString(KEY_WATERMARK_TEXT, "🎬 Écran+") ?: "🎬 Écran+"
     }
 
     fun setWatermarkText(context: Context, text: String) {
@@ -71,7 +71,6 @@ object SettingsManager {
         prefs.edit().putString(KEY_WATERMARK_TEXT, text).apply()
     }
 
-    // Logo personnalisé en filigrane (Pro)
     fun getWatermarkLogoUri(context: Context): String? {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         return prefs.getString(KEY_WATERMARK_LOGO_URI, null)
@@ -134,7 +133,6 @@ object SettingsManager {
         prefs.edit().putBoolean(KEY_IS_PRO, isPro).apply()
     }
 
-    // Pro = achat réel OU essai gratuit encore actif OU code d'activation encore valide
     fun isProUser(context: Context): Boolean {
         if (isRealProUser(context)) return true
         if (CodeManager.isCodeProActive(context)) return true
@@ -156,7 +154,7 @@ object SettingsManager {
 
     fun startTrial(context: Context) {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-        val end = System.currentTimeMillis() + (3 * 24 * 60 * 60 * 1000L) // 3 jours
+        val end = System.currentTimeMillis() + (3 * 24 * 60 * 60 * 1000L)
         prefs.edit().putLong(KEY_TRIAL_END_TIME, end).apply()
     }
 
@@ -177,7 +175,6 @@ object SettingsManager {
         prefs.edit().putBoolean(KEY_POST_RECORDING_POPUP, enabled).apply()
     }
 
-    // Dossier de sauvegarde automatique (Pro)
     fun getBackupFolderUri(context: Context): String? {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         return prefs.getString(KEY_BACKUP_FOLDER_URI, null)
