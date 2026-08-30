@@ -172,10 +172,6 @@ class MainActivity : AppCompatActivity() {
         cameraToggleButton.text = if (cameraEnabled) "📷\nCaméra : on" else "📷\nCaméra : off"
     }
 
-    // On attend explicitement la permission micro AVANT de démarrer
-    // l'enregistrement — la lancer en parallèle (comme avant) pouvait
-    // démarrer l'enregistrement sans micro autorisé, produisant une
-    // vidéo sans son.
     private fun requestPermissionsThenStart() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
             != PackageManager.PERMISSION_GRANTED
@@ -241,8 +237,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // ---------- Enregistrement programmé ----------
-
     private fun showScheduleDialog() {
         val now = Calendar.getInstance()
         TimePickerDialog(this, { _, hour, minute ->
@@ -296,8 +290,6 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
-    // ---------- Menu ☰ ----------
-
     private fun showTopMenu(anchor: android.view.View) {
         val popup = PopupMenu(this, anchor)
         popup.menu.add("⭐ Passer à la version Pro")
@@ -323,7 +315,7 @@ class MainActivity : AppCompatActivity() {
     private fun sendFeedbackEmail() {
         val intent = Intent(Intent.ACTION_SENDTO).apply {
             data = Uri.parse("mailto:")
-            putExtra(Intent.EXTRA_SUBJECT, "Retour sur Screen Recorder")
+            putExtra(Intent.EXTRA_SUBJECT, "Retour sur Écran+")
         }
         try {
             startActivity(intent)
@@ -335,7 +327,7 @@ class MainActivity : AppCompatActivity() {
     private fun shareApp() {
         try {
             val apkFile = File(applicationInfo.sourceDir)
-            val apkCopy = File(cacheDir, "ScreenRecorder.apk")
+            val apkCopy = File(cacheDir, "EcranPlus.apk")
             apkFile.copyTo(apkCopy, overwrite = true)
 
             val uri = androidx.core.content.FileProvider.getUriForFile(
@@ -345,7 +337,7 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(Intent.ACTION_SEND).apply {
                 type = "application/vnd.android.package-archive"
                 putExtra(Intent.EXTRA_STREAM, uri)
-                putExtra(Intent.EXTRA_TEXT, "Installe Screen Recorder : enregistre et annote ton écran facilement !")
+                putExtra(Intent.EXTRA_TEXT, "Installe Écran+ : enregistre et annote ton écran facilement !")
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
             startActivity(Intent.createChooser(intent, "Partager l'application"))
@@ -353,8 +345,6 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "Impossible de partager l'appli pour le moment", Toast.LENGTH_SHORT).show()
         }
     }
-
-    // ---------- Statistiques et état ----------
 
     override fun onResume() {
         super.onResume()
