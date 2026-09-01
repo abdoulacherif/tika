@@ -1,5 +1,7 @@
 package com.abdoula.screenrecorder
 
+import android.content.Context
+
 // Liste des nouveautés par version. Ajoute une entrée ici à chaque nouvelle
 // version que tu publies (même versionCode que dans app/build.gradle), et le
 // badge "Nouveautés" se met à jour automatiquement pour les utilisateurs qui
@@ -23,5 +25,3 @@ object WhatsNewManager {
         return history.filter { it.versionCode > lastSeen }.sortedBy { it.versionCode }
     }
 }
-
-import android.content.Context
