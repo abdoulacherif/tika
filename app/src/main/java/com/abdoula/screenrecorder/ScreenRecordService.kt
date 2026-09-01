@@ -132,10 +132,6 @@ class ScreenRecordService : Service() {
             .setOngoing(true)
             .build()
 
-        // Déclare explicitement le type "microphone" en plus de "mediaProjection" :
-        // depuis Android 14, un service qui capture le micro en arrière-plan sans
-        // cette déclaration voit son accès au micro coupé après un moment, même si
-        // la vidéo continue — c'est ce qui causait le son qui s'arrêtait seul.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             startForeground(
                 1, notification,
@@ -172,9 +168,6 @@ class ScreenRecordService : Service() {
         lastOutputFile = outputFile
 
         mediaRecorder = MediaRecorder().apply {
-            // Source micro standard : plus stable sur les chipsets d'entrée de
-            // gamme que VOICE_COMMUNICATION, qui peut être coupée par le système
-            // lors de changements d'état liés au mode appel.
             setAudioSource(MediaRecorder.AudioSource.MIC)
             setVideoSource(MediaRecorder.VideoSource.SURFACE)
 
@@ -193,9 +186,6 @@ class ScreenRecordService : Service() {
             setOutputFile(outputFile.absolutePath)
 
             setOnErrorListener { _, what, extra ->
-                // Log silencieux : évite un crash si le micro est coupé par le
-                // système en cours d'enregistrement (ex. bascule de la puce
-                // audio confidentialité sur Android 12+).
             }
 
             prepare()
@@ -252,6 +242,7 @@ class ScreenRecordService : Service() {
 
         val file = lastOutputFile
         if (file != null) {
+            SettingsManager.setLastRecordingTime(this, System.currentTimeMillis())
             copyToBackupFolderIfConfigured(file)
             if (SettingsManager.isPostRecordingPopupEnabled(this)) {
                 PostRecordingPopup.show(applicationContext, file)
