@@ -64,31 +64,43 @@ class DrawingOverlayView(context: Context, attrs: AttributeSet? = null) : View(c
                     currentPath = Path().apply { moveTo(x, y) }
                 }
             }
+
             MotionEvent.ACTION_MOVE -> {
                 if (currentTool == ShapeTool.PEN) {
                     currentPath?.lineTo(x, y)
                 }
                 invalidate()
             }
+
             MotionEvent.ACTION_UP -> {
                 when (currentTool) {
                     ShapeTool.PEN -> {
                         currentPath?.let {
-                            shapes.add(DrawnShape(ShapeTool.PEN, path = it, color = currentColor))
+                            shapes.add(
+                                DrawnShape(
+                                    ShapeTool.PEN,
+                                    path = it,
+                                    color = currentColor
+                                )
+                            )
                         }
                         currentPath = null
                         onShapeFinished?.invoke()
                     }
+
                     ShapeTool.TEXT -> {
                         // On ne dessine rien tout de suite : on demande le texte au service
                         onTextRequested?.invoke(startX, startY)
                     }
+
                     else -> {
                         shapes.add(
                             DrawnShape(
                                 currentTool,
-                                startX = startX, startY = startY,
-                                endX = x, endY = y,
+                                startX = startX,
+                                startY = startY,
+                                endX = x,
+                                endY = y,
                                 color = currentColor
                             )
                         )
@@ -104,7 +116,15 @@ class DrawingOverlayView(context: Context, attrs: AttributeSet? = null) : View(c
     // Appelée par le service une fois que l'utilisateur a validé son texte
     fun addTextShape(text: String) {
         if (text.isNotBlank()) {
-            shapes.add(DrawnShape(ShapeTool.TEXT, startX = startX, startY = startY, color = currentColor, text = text))
+            shapes.add(
+                DrawnShape(
+                    ShapeTool.TEXT,
+                    startX = startX,
+                    startY = startY,
+                    color = currentColor,
+                    text = text
+                )
+            )
             invalidate()
         }
     }
@@ -114,19 +134,79 @@ class DrawingOverlayView(context: Context, attrs: AttributeSet? = null) : View(c
 
         for (shape in shapes) {
             paint.color = shape.color
+
             when (shape.tool) {
-                ShapeTool.PEN -> shape.path?.let { canvas.drawPath(it, paint) }
+                ShapeTool.PEN -> shape.path?.let {
+                    canvas.drawPath(it, paint)
+                }
+
                 ShapeTool.CIRCLE -> {
-                    val radius = distance(shape.startX, shape.startY, shape.endX, shape.endY)
-                    canvas.drawCircle(shape.startX, shape.startY, radius, paint)
+                    val radius = distance(
+                        shape.startX,
+                        shape.startY,
+                        shape.endX,
+                        shape.endY
+                    )
+                    canvas.drawCircle(
+                        shape.startX,
+                        shape.startY,
+                        radius,
+                        paint
+                    )
                 }
+
                 ShapeTool.RECTANGLE -> {
-                    canvas.drawRect(shape.startX, shape.startY, shape.endX, shape.endY, paint)
+                    canvas.drawRect(
+                        shape.startX,
+                        shape.startY,
+                        shape.endX,
+                        shape.endY,
+                        paint
+                    )
                 }
-                ShapeTool.ARROW -> drawArrow(canvas, shape.startX, shape.startY, shape.endX, shape.endY, paint)
+
+                ShapeTool.ARROW -> drawArrow(
+                    canvas,
+                    shape.startX,
+                    shape.startY,
+                    shape.endX,
+                    shape.endY,
+                    paint
+                )
+
+                ShapeTool.PRIVACY_BOX -> {
+                    val fillPaint = Paint().apply {
+                        style = Paint.Style.FILL
+                        color = Color.BLACK
+                        isAntiAlias = true
+                    }
+
+                    val left = minOf(shape.startX, shape.endX)
+                    val top = minOf(shape.startY, shape.endY)
+                    val right = maxOf(shape.startX, shape.endX)
+                    val bottom = maxOf(shape.startY, shape.endY)
+
+                    canvas.drawRoundRect(
+                        left,
+                        top,
+                        right,
+                        bottom,
+                        12f,
+                        12f,
+                        fillPaint
+                    )
+                }
+
                 ShapeTool.TEXT -> {
                     textPaint.color = shape.color
-                    shape.text?.let { canvas.drawText(it, shape.startX, shape.startY, textPaint) }
+                    shape.text?.let {
+                        canvas.drawText(
+                            it,
+                            shape.startX,
+                            shape.startY,
+                            textPaint
+                        )
+                    }
                 }
             }
         }
@@ -137,25 +217,67 @@ class DrawingOverlayView(context: Context, attrs: AttributeSet? = null) : View(c
         }
     }
 
-    private fun distance(x1: Float, y1: Float, x2: Float, y2: Float): Float {
+    private fun distance(
+        x1: Float,
+        y1: Float,
+        x2: Float,
+        y2: Float
+    ): Float {
         val dx = x2 - x1
         val dy = y2 - y1
         return kotlin.math.sqrt(dx * dx + dy * dy)
     }
 
-    private fun drawArrow(canvas: Canvas, startX: Float, startY: Float, endX: Float, endY: Float, paint: Paint) {
-        canvas.drawLine(startX, startY, endX, endY, paint)
+    private fun drawArrow(
+        canvas: Canvas,
+        startX: Float,
+        startY: Float,
+        endX: Float,
+        endY: Float,
+        paint: Paint
+    ) {
+        canvas.drawLine(
+            startX,
+            startY,
+            endX,
+            endY,
+            paint
+        )
 
-        val angle = atan2((endY - startY).toDouble(), (endX - startX).toDouble())
+        val angle = atan2(
+            (endY - startY).toDouble(),
+            (endX - startX).toDouble()
+        )
+
         val arrowLength = 30f
 
-        val x1 = endX - arrowLength * cos(angle - Math.PI / 6).toFloat()
-        val y1 = endY - arrowLength * sin(angle - Math.PI / 6).toFloat()
-        val x2 = endX - arrowLength * cos(angle + Math.PI / 6).toFloat()
-        val y2 = endY - arrowLength * sin(angle + Math.PI / 6).toFloat()
+        val x1 = endX - arrowLength *
+                cos(angle - Math.PI / 6).toFloat()
 
-        canvas.drawLine(endX, endY, x1, y1, paint)
-        canvas.drawLine(endX, endY, x2, y2, paint)
+        val y1 = endY - arrowLength *
+                sin(angle - Math.PI / 6).toFloat()
+
+        val x2 = endX - arrowLength *
+                cos(angle + Math.PI / 6).toFloat()
+
+        val y2 = endY - arrowLength *
+                sin(angle + Math.PI / 6).toFloat()
+
+        canvas.drawLine(
+            endX,
+            endY,
+            x1,
+            y1,
+            paint
+        )
+
+        canvas.drawLine(
+            endX,
+            endY,
+            x2,
+            y2,
+            paint
+        )
     }
 
     fun clearAll() {
