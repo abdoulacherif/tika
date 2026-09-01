@@ -9,7 +9,7 @@ import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 
-enum class ShapeTool { PEN, ARROW, CIRCLE, RECTANGLE, TEXT }
+enum class ShapeTool { PEN, ARROW, CIRCLE, RECTANGLE, TEXT, PRIVACY_BOX }
 
 data class DrawnShape(
     val tool: ShapeTool,
