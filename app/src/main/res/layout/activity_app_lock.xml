@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@drawable/bg_gradient_screen"
+    android:padding="30dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="🔒 Écran+"
+        android:textColor="#FFFFFF"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="6dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Entre ton code pour continuer"
+        android:textColor="#9E9E9E"
+        android:textSize="13sp"
+        android:layout_marginBottom="24dp" />
+
+    <EditText
+        android:id="@+id/pinInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Code à 4 chiffres"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#666666"
+        android:gravity="center"
+        android:textSize="24sp"
+        android:letterSpacing="0.3"
+        android:inputType="numberPassword"
+        android:maxLength="4"
+        android:background="@drawable/bg_card"
+        android:padding="18dp"
+        android:layout_marginBottom="20dp" />
+
+    <Button
+        android:id="@+id/unlockButton"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@drawable/bg_button_primary"
+        android:textColor="#FFFFFF"
+        android:textAllCaps="false"
+        android:text="Déverrouiller" />
+
+    <TextView
+        android:id="@+id/lockErrorText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textColor="#E53935"
+        android:textSize="13sp"
+        android:layout_marginTop="16dp" />
+
+</LinearLayout>
