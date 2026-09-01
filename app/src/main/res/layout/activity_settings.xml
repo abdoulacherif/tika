@@ -97,7 +97,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Tap simple = pause/reprendre • Appui long = arrêter • Double-tap = ouvrir les outils"
+                android:text="Tap simple = ouvrir les outils • Appui long = arrêter"
                 android:textColor="#B388FF"
                 android:textSize="12sp"
                 android:layout_marginTop="4dp" />
@@ -447,6 +447,30 @@
                 android:textColor="#B388FF"
                 android:textSize="12sp"
                 android:layout_marginTop="4dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_card"
+            android:padding="16dp"
+            android:layout_marginBottom="10dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="👋 Rappels si inactif"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <CheckBox
+                android:id="@+id/remindersCheck"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
         </LinearLayout>
 
         <TextView
