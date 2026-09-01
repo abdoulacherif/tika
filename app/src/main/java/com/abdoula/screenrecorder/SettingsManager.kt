@@ -18,8 +18,11 @@ object SettingsManager {
     private const val KEY_POST_RECORDING_POPUP = "post_recording_popup"
     private const val KEY_TRIAL_END_TIME = "trial_end_time"
     private const val KEY_BACKUP_FOLDER_URI = "backup_folder_uri"
+    private const val KEY_LAST_SEEN_VERSION = "last_seen_version_code"
+    private const val KEY_REMINDERS_ENABLED = "reminders_enabled"
+    private const val KEY_LAST_RECORDING_TIME = "last_recording_time"
 
-    const val FREE_DURATION_LIMIT_MS = 15 * 60 * 1000L // 15 minutes
+    const val FREE_DURATION_LIMIT_MS = 15 * 60 * 1000L
 
     fun getResolutionHeight(context: Context): Int {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -183,6 +186,36 @@ object SettingsManager {
     fun setBackupFolderUri(context: Context, uri: String?) {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         prefs.edit().putString(KEY_BACKUP_FOLDER_URI, uri).apply()
+    }
+
+    fun getLastSeenVersionCode(context: Context): Int {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        return prefs.getInt(KEY_LAST_SEEN_VERSION, 0)
+    }
+
+    fun setLastSeenVersionCode(context: Context, versionCode: Int) {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        prefs.edit().putInt(KEY_LAST_SEEN_VERSION, versionCode).apply()
+    }
+
+    fun areRemindersEnabled(context: Context): Boolean {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        return prefs.getBoolean(KEY_REMINDERS_ENABLED, true)
+    }
+
+    fun setRemindersEnabled(context: Context, enabled: Boolean) {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        prefs.edit().putBoolean(KEY_REMINDERS_ENABLED, enabled).apply()
+    }
+
+    fun setLastRecordingTime(context: Context, timeMs: Long) {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        prefs.edit().putLong(KEY_LAST_RECORDING_TIME, timeMs).apply()
+    }
+
+    fun getLastRecordingTime(context: Context): Long {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        return prefs.getLong(KEY_LAST_RECORDING_TIME, 0L)
     }
 
     fun resolveBitrate(context: Context, effectiveHeight: Int): Int {
