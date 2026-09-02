@@ -243,6 +243,7 @@ class ScreenRecordService : Service() {
         val file = lastOutputFile
         if (file != null) {
             SettingsManager.setLastRecordingTime(this, System.currentTimeMillis())
+            AnalyticsManager.logEvent(this, "recording_completed")
             copyToBackupFolderIfConfigured(file)
             if (SettingsManager.isPostRecordingPopupEnabled(this)) {
                 PostRecordingPopup.show(applicationContext, file)
