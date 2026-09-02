@@ -65,12 +65,16 @@
             android:name=".RedeemActivity"
             android:exported="false" />
 
-<activity
+        <activity
+            android:name=".CodeGeneratorActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".AppLockActivity"
             android:exported="false" />
 
         <activity
-            android:name=".CodeGeneratorActivity"
+            android:name=".AdminDashboardActivity"
             android:exported="false" />
 
         <service
