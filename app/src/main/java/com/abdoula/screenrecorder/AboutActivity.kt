@@ -10,7 +10,6 @@ import androidx.appcompat.app.AppCompatActivity
 
 class AboutActivity : AppCompatActivity() {
 
-    // Change ce code si tu veux, garde-le pour toi uniquement.
     private val secretPin = "260826"
     private var tapCount = 0
 
@@ -34,16 +33,28 @@ class AboutActivity : AppCompatActivity() {
             inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_VARIATION_PASSWORD
         }
         AlertDialog.Builder(this)
-            .setTitle("Accès générateur")
+            .setTitle("Accès administrateur")
             .setView(input)
             .setPositiveButton("OK") { _, _ ->
                 if (input.text.toString() == secretPin) {
-                    startActivity(Intent(this, CodeGeneratorActivity::class.java))
+                    showAdminMenu()
                 } else {
                     Toast.makeText(this, "Code incorrect", Toast.LENGTH_SHORT).show()
                 }
             }
             .setNegativeButton("Annuler", null)
+            .show()
+    }
+
+    private fun showAdminMenu() {
+        val options = arrayOf("🔐 Générateur de codes", "📊 Tableau de bord")
+        AlertDialog.Builder(this)
+            .setTitle("Menu admin")
+            .setItems(options) { _, which ->
+                val intent = if (which == 0) Intent(this, CodeGeneratorActivity::class.java)
+                             else Intent(this, AdminDashboardActivity::class.java)
+                startActivity(intent)
+            }
             .show()
     }
 }
