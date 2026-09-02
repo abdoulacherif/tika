@@ -22,6 +22,7 @@ class RedeemActivity : AppCompatActivity() {
 
             when (val result = CodeManager.redeem(this, code)) {
                 is CodeManager.RedeemResult.Success -> {
+                    AnalyticsManager.logEvent(this, "pro_activated")
                     resultText.setTextColor(Color.parseColor("#4CAF50"))
                     resultText.text = "✅ Pro activé pour ${result.durationDays} jours !"
                 }
