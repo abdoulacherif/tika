@@ -69,7 +69,16 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 updateUiRecording(true)
-                moveTaskToBack(true)
+
+                // Retour fiable à l'écran d'accueil du téléphone : moveTaskToBack()
+                // n'est pas fiable sur certains téléphones (dont Itel) et pouvait
+                // laisser l'appli bloquer les interactions ailleurs malgré son
+                // apparence de disparition.
+                val homeIntent = Intent(Intent.ACTION_MAIN).apply {
+                    addCategory(Intent.CATEGORY_HOME)
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+                startActivity(homeIntent)
             } else {
                 Toast.makeText(this, "Permission d'enregistrement refusée", Toast.LENGTH_SHORT).show()
             }
