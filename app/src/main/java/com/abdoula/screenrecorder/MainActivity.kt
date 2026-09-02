@@ -24,10 +24,14 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
 
@@ -82,6 +86,8 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
 
+        AnalyticsManager.logEvent(this, "app_open")
+
         projectionManager = getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         statusText = findViewById(R.id.statusText)
         statusDot = findViewById(R.id.statusDot)
@@ -121,6 +127,39 @@ class MainActivity : AppCompatActivity() {
         UpdateChecker.checkForUpdate(BuildConfig.VERSION_CODE) { update ->
             if (update != null) showUpdateDialog(update)
         }
+
+        showWhatsNewIfNeeded()
+        scheduleInactivityReminder()
+    }
+
+    private fun showWhatsNewIfNeeded() {
+        val unseen = WhatsNewManager.getUnseenNotes(this)
+        if (unseen.isEmpty()) {
+            SettingsManager.setLastSeenVersionCode(this, BuildConfig.VERSION_CODE)
+            return
+        }
+
+        val message = unseen.joinToString("\n\n") { notes ->
+            "Version ${notes.versionName} :\n" + notes.features.joinToString("\n") { "• $it" }
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("🆕 Nouveautés")
+            .setMessage(message)
+            .setPositiveButton("Super !") { _, _ ->
+                SettingsManager.setLastSeenVersionCode(this, BuildConfig.VERSION_CODE)
+            }
+            .setCancelable(false)
+            .show()
+    }
+
+    private fun scheduleInactivityReminder() {
+        val request = PeriodicWorkRequestBuilder<InactivityReminderWorker>(1, TimeUnit.DAYS).build()
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "inactivity_reminder",
+            ExistingPeriodicWorkPolicy.KEEP,
+            request
+        )
     }
 
     override fun onNewIntent(intent: Intent) {
