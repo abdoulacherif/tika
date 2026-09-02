@@ -21,8 +21,6 @@ object SettingsManager {
     private const val KEY_LAST_SEEN_VERSION = "last_seen_version_code"
     private const val KEY_REMINDERS_ENABLED = "reminders_enabled"
     private const val KEY_LAST_RECORDING_TIME = "last_recording_time"
-
-    // PIN de l'application
     private const val KEY_PIN_CODE = "app_pin_code"
     private const val KEY_PIN_ENABLED = "app_pin_enabled"
 
@@ -70,10 +68,7 @@ object SettingsManager {
 
     fun getWatermarkText(context: Context): String {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-        return prefs.getString(
-            KEY_WATERMARK_TEXT,
-            "🎬 Écran+"
-        ) ?: "🎬 Écran+"
+        return prefs.getString(KEY_WATERMARK_TEXT, "🎬 Écran+") ?: "🎬 Écran+"
     }
 
     fun setWatermarkText(context: Context, text: String) {
@@ -96,10 +91,7 @@ object SettingsManager {
         return prefs.getBoolean(KEY_HIDE_BUBBLE, false)
     }
 
-    fun setBubbleHiddenDuringRecording(
-        context: Context,
-        hidden: Boolean
-    ) {
+    fun setBubbleHiddenDuringRecording(context: Context, hidden: Boolean) {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         prefs.edit().putBoolean(KEY_HIDE_BUBBLE, hidden).apply()
     }
@@ -107,17 +99,11 @@ object SettingsManager {
     fun getCountdownSeconds(context: Context): Int {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val stored = prefs.getInt(KEY_COUNTDOWN_SECONDS, 3)
-
-        if (stored == 10 && !isProUser(context))
-            return 5
-
+        if (stored == 10 && !isProUser(context)) return 5
         return stored
     }
 
-    fun setCountdownSeconds(
-        context: Context,
-        seconds: Int
-    ) {
+    fun setCountdownSeconds(context: Context, seconds: Int) {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         prefs.edit().putInt(KEY_COUNTDOWN_SECONDS, seconds).apply()
     }
@@ -127,26 +113,17 @@ object SettingsManager {
         return prefs.getBoolean(KEY_TRASH_ENABLED, true)
     }
 
-    fun setTrashEnabled(
-        context: Context,
-        enabled: Boolean
-    ) {
+    fun setTrashEnabled(context: Context, enabled: Boolean) {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         prefs.edit().putBoolean(KEY_TRASH_ENABLED, enabled).apply()
     }
 
     fun getBubblePosition(context: Context): String {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-        return prefs.getString(
-            KEY_BUBBLE_POSITION,
-            "top_right"
-        ) ?: "top_right"
+        return prefs.getString(KEY_BUBBLE_POSITION, "top_right") ?: "top_right"
     }
 
-    fun setBubblePosition(
-        context: Context,
-        position: String
-    ) {
+    fun setBubblePosition(context: Context, position: String) {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         prefs.edit().putString(KEY_BUBBLE_POSITION, position).apply()
     }
@@ -156,233 +133,116 @@ object SettingsManager {
         return prefs.getBoolean(KEY_IS_PRO, false)
     }
 
-    fun setProUser(
-        context: Context,
-        isPro: Boolean
-    ) {
+    fun setProUser(context: Context, isPro: Boolean) {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         prefs.edit().putBoolean(KEY_IS_PRO, isPro).apply()
     }
 
     fun isProUser(context: Context): Boolean {
-        if (isRealProUser(context))
-            return true
-
-        if (CodeManager.isCodeProActive(context))
-            return true
-
+        if (isRealProUser(context)) return true
+        if (CodeManager.isCodeProActive(context)) return true
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val trialEnd = prefs.getLong(KEY_TRIAL_END_TIME, 0L)
-
         return trialEnd > System.currentTimeMillis()
     }
 
     fun isTrialActive(context: Context): Boolean {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val trialEnd = prefs.getLong(KEY_TRIAL_END_TIME, 0L)
-
         return trialEnd > System.currentTimeMillis()
     }
 
     fun hasUsedTrial(context: Context): Boolean {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-
-        return prefs.getLong(
-            KEY_TRIAL_END_TIME,
-            0L
-        ) > 0L
+        return prefs.getLong(KEY_TRIAL_END_TIME, 0L) > 0L
     }
 
     fun startTrial(context: Context) {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-
-        val end = System.currentTimeMillis() +
-            (3 * 24 * 60 * 60 * 1000L)
-
-        prefs.edit()
-            .putLong(KEY_TRIAL_END_TIME, end)
-            .apply()
+        val end = System.currentTimeMillis() + (3 * 24 * 60 * 60 * 1000L)
+        prefs.edit().putLong(KEY_TRIAL_END_TIME, end).apply()
     }
 
     fun getTrialRemainingHours(context: Context): Long {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-
-        val trialEnd = prefs.getLong(
-            KEY_TRIAL_END_TIME,
-            0L
-        )
-
-        val remaining =
-            trialEnd - System.currentTimeMillis()
-
-        return if (remaining > 0)
-            remaining / (60 * 60 * 1000L)
-        else
-            0L
+        val trialEnd = prefs.getLong(KEY_TRIAL_END_TIME, 0L)
+        val remaining = trialEnd - System.currentTimeMillis()
+        return if (remaining > 0) remaining / (60 * 60 * 1000L) else 0L
     }
 
     fun isPostRecordingPopupEnabled(context: Context): Boolean {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-        return prefs.getBoolean(
-            KEY_POST_RECORDING_POPUP,
-            true
-        )
+        return prefs.getBoolean(KEY_POST_RECORDING_POPUP, true)
     }
 
-    fun setPostRecordingPopupEnabled(
-        context: Context,
-        enabled: Boolean
-    ) {
+    fun setPostRecordingPopupEnabled(context: Context, enabled: Boolean) {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-        prefs.edit()
-            .putBoolean(KEY_POST_RECORDING_POPUP, enabled)
-            .apply()
+        prefs.edit().putBoolean(KEY_POST_RECORDING_POPUP, enabled).apply()
     }
 
     fun getBackupFolderUri(context: Context): String? {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-        return prefs.getString(
-            KEY_BACKUP_FOLDER_URI,
-            null
-        )
+        return prefs.getString(KEY_BACKUP_FOLDER_URI, null)
     }
 
-    fun setBackupFolderUri(
-        context: Context,
-        uri: String?
-    ) {
+    fun setBackupFolderUri(context: Context, uri: String?) {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-        prefs.edit()
-            .putString(KEY_BACKUP_FOLDER_URI, uri)
-            .apply()
+        prefs.edit().putString(KEY_BACKUP_FOLDER_URI, uri).apply()
     }
 
     fun getLastSeenVersionCode(context: Context): Int {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-
-        return prefs.getInt(
-            KEY_LAST_SEEN_VERSION,
-            0
-        )
+        return prefs.getInt(KEY_LAST_SEEN_VERSION, 0)
     }
 
-    fun setLastSeenVersionCode(
-        context: Context,
-        versionCode: Int
-    ) {
+    fun setLastSeenVersionCode(context: Context, versionCode: Int) {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-
-        prefs.edit()
-            .putInt(KEY_LAST_SEEN_VERSION, versionCode)
-            .apply()
+        prefs.edit().putInt(KEY_LAST_SEEN_VERSION, versionCode).apply()
     }
 
     fun areRemindersEnabled(context: Context): Boolean {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-
-        return prefs.getBoolean(
-            KEY_REMINDERS_ENABLED,
-            true
-        )
+        return prefs.getBoolean(KEY_REMINDERS_ENABLED, true)
     }
 
-    fun setRemindersEnabled(
-        context: Context,
-        enabled: Boolean
-    ) {
+    fun setRemindersEnabled(context: Context, enabled: Boolean) {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-
-        prefs.edit()
-            .putBoolean(KEY_REMINDERS_ENABLED, enabled)
-            .apply()
+        prefs.edit().putBoolean(KEY_REMINDERS_ENABLED, enabled).apply()
     }
 
-    fun setLastRecordingTime(
-        context: Context,
-        timeMs: Long
-    ) {
+    fun setLastRecordingTime(context: Context, timeMs: Long) {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-
-        prefs.edit()
-            .putLong(KEY_LAST_RECORDING_TIME, timeMs)
-            .apply()
+        prefs.edit().putLong(KEY_LAST_RECORDING_TIME, timeMs).apply()
     }
 
     fun getLastRecordingTime(context: Context): Long {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-
-        return prefs.getLong(
-            KEY_LAST_RECORDING_TIME,
-            0L
-        )
+        return prefs.getLong(KEY_LAST_RECORDING_TIME, 0L)
     }
-
-    // ---------- PIN ----------
 
     fun isPinEnabled(context: Context): Boolean {
-        val prefs = context.getSharedPreferences(
-            PREFS,
-            Context.MODE_PRIVATE
-        )
-
-        return prefs.getBoolean(
-            KEY_PIN_ENABLED,
-            false
-        )
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        return prefs.getBoolean(KEY_PIN_ENABLED, false)
     }
 
-    fun setPin(
-        context: Context,
-        pin: String
-    ) {
-        val prefs = context.getSharedPreferences(
-            PREFS,
-            Context.MODE_PRIVATE
-        )
-
-        prefs.edit()
-            .putString(KEY_PIN_CODE, pin)
-            .putBoolean(KEY_PIN_ENABLED, true)
-            .apply()
+    fun setPin(context: Context, pin: String) {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        prefs.edit().putString(KEY_PIN_CODE, pin).putBoolean(KEY_PIN_ENABLED, true).apply()
     }
 
     fun disablePin(context: Context) {
-        val prefs = context.getSharedPreferences(
-            PREFS,
-            Context.MODE_PRIVATE
-        )
-
-        prefs.edit()
-            .putBoolean(KEY_PIN_ENABLED, false)
-            .apply()
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        prefs.edit().putBoolean(KEY_PIN_ENABLED, false).apply()
     }
 
-    fun checkPin(
-        context: Context,
-        pin: String
-    ): Boolean {
-        val prefs = context.getSharedPreferences(
-            PREFS,
-            Context.MODE_PRIVATE
-        )
-
-        return prefs.getString(
-            KEY_PIN_CODE,
-            null
-        ) == pin
+    fun checkPin(context: Context, pin: String): Boolean {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        return prefs.getString(KEY_PIN_CODE, null) == pin
     }
 
-    // ---------- Résolution / qualité ----------
-
-    fun resolveBitrate(
-        context: Context,
-        effectiveHeight: Int
-    ): Int {
+    fun resolveBitrate(context: Context, effectiveHeight: Int): Int {
         val chosen = getBitrateMbps(context)
-
-        if (chosen > 0)
-            return chosen * 1_000_000
-
+        if (chosen > 0) return chosen * 1_000_000
         return when {
             effectiveHeight >= 1080 -> 8_000_000
             effectiveHeight >= 720 -> 5_000_000
@@ -393,19 +253,12 @@ object SettingsManager {
 
     fun resolveFrameRate(context: Context): Int {
         val chosen = getFrameRate(context)
-
-        return if (chosen > 0)
-            chosen
-        else
-            30
+        return if (chosen > 0) chosen else 30
     }
 
     fun resolveResolutionHeight(context: Context): Int {
         val stored = getResolutionHeight(context)
-
-        if (stored == 1080 && !isProUser(context))
-            return 720
-
+        if (stored == 1080 && !isProUser(context)) return 720
         return stored
     }
 }
