@@ -529,4 +529,15 @@
                 android:textSize="15sp" />
 
             <TextView
+                android:id="@+id/backupFolderValue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Aucun dossier choisi"
+                android:textColor="#B388FF"
+                android:textSize="12sp"
+                android:layout_marginTop="4dp" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>
         
