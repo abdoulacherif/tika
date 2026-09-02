@@ -38,6 +38,7 @@ class OverlayDrawingService : Service() {
 
     private var drawingView: DrawingOverlayView? = null
     private var drawingEnabled = false
+    private var drawingLayerAttached = true
 
     private var watermarkView: TextView? = null
 
@@ -101,6 +102,7 @@ class OverlayDrawingService : Service() {
         params.gravity = Gravity.TOP or Gravity.START
 
         windowManager.addView(drawingView, params)
+        drawingLayerAttached = true
     }
 
     private fun addBubble() {
@@ -308,6 +310,7 @@ class OverlayDrawingService : Service() {
             setPadding(0, 8, 0, 0)
         }
         rowPrivacy.addView(makeIconButton(R.drawable.ic_privacy, R.drawable.bg_round_purple) { setTool(ShapeTool.PRIVACY_BOX) })
+        rowPrivacy.addView(makeIconButton(R.drawable.ic_minimize, R.drawable.bg_round_red) { toggleDrawingLayerAttached() })
         panelView?.addView(rowPrivacy)
 
         val row2 = LinearLayout(this).apply {
@@ -356,6 +359,24 @@ class OverlayDrawingService : Service() {
 
         windowManager.addView(panelView, params)
         panelView?.visibility = View.GONE
+    }
+
+    // Bouton d'urgence : détache complètement le calque de dessin de l'écran.
+    // Si le calque bloque les touchers vers d'autres applis sur ton téléphone
+    // (bug connu sur certains Android modifiés comme XOS d'Itel), ça te rend
+    // immédiatement le contrôle. Attention : les dessins déjà faits disparaissent
+    // de l'écran tant que le calque est masqué (mais restent dans la vidéo déjà
+    // enregistrée jusqu'ici).
+    private fun toggleDrawingLayerAttached() {
+        val view = drawingView ?: return
+        if (drawingLayerAttached) {
+            try { windowManager.removeView(view) } catch (e: Exception) {}
+            drawingLayerAttached = false
+        } else {
+            val params = view.layoutParams as? WindowManager.LayoutParams ?: return
+            try { windowManager.addView(view, params) } catch (e: Exception) {}
+            drawingLayerAttached = true
+        }
     }
 
     private fun makeIconButton(iconRes: Int, bgRes: Int, action: () -> Unit): ImageButton {
@@ -422,6 +443,7 @@ class OverlayDrawingService : Service() {
     }
 
     private fun updateDrawingTouchability() {
+        if (!drawingLayerAttached) return
         val params = drawingView?.layoutParams as? WindowManager.LayoutParams ?: return
         params.flags = if (drawingEnabled) {
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or secureFlag()
@@ -439,7 +461,7 @@ class OverlayDrawingService : Service() {
         longPressRunnable?.let { mainHandler.removeCallbacks(it) }
         bubbleView?.let { windowManager.removeView(it) }
         panelView?.let { windowManager.removeView(it) }
-        drawingView?.let { windowManager.removeView(it) }
+        if (drawingLayerAttached) drawingView?.let { try { windowManager.removeView(it) } catch (e: Exception) {} }
         watermarkView?.let { windowManager.removeView(it) }
     }
 
