@@ -83,6 +83,24 @@ class OverlayDrawingService : Service() {
         windowManager.addView(watermarkView, params)
     }
 
+    private fun buildDrawingLayerParams(touchable: Boolean): WindowManager.LayoutParams {
+        val params = WindowManager.LayoutParams(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.MATCH_PARENT,
+            overlayType(),
+            if (touchable) {
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or secureFlag()
+            } else {
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    secureFlag()
+            },
+            PixelFormat.TRANSLUCENT
+        )
+        params.gravity = Gravity.TOP or Gravity.START
+        return params
+    }
+
     private fun addDrawingLayer() {
         drawingView = DrawingOverlayView(this).apply {
             setLayerType(View.LAYER_TYPE_HARDWARE, null)
@@ -90,17 +108,7 @@ class OverlayDrawingService : Service() {
             onTextRequested = { _, _ -> showTextInputDialog() }
         }
 
-        val params = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.MATCH_PARENT,
-            overlayType(),
-            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                secureFlag(),
-            PixelFormat.TRANSLUCENT
-        )
-        params.gravity = Gravity.TOP or Gravity.START
-
+        val params = buildDrawingLayerParams(touchable = false)
         windowManager.addView(drawingView, params)
         drawingLayerAttached = true
     }
@@ -362,18 +370,15 @@ class OverlayDrawingService : Service() {
     }
 
     // Bouton d'urgence : détache complètement le calque de dessin de l'écran.
-    // Si le calque bloque les touchers vers d'autres applis sur ton téléphone
-    // (bug connu sur certains Android modifiés comme XOS d'Itel), ça te rend
-    // immédiatement le contrôle. Attention : les dessins déjà faits disparaissent
-    // de l'écran tant que le calque est masqué (mais restent dans la vidéo déjà
-    // enregistrée jusqu'ici).
+    // Reste disponible en secours si jamais le retour automatique (ci-dessous)
+    // ne suffisait pas dans certains cas.
     private fun toggleDrawingLayerAttached() {
         val view = drawingView ?: return
         if (drawingLayerAttached) {
             try { windowManager.removeView(view) } catch (e: Exception) {}
             drawingLayerAttached = false
         } else {
-            val params = view.layoutParams as? WindowManager.LayoutParams ?: return
+            val params = buildDrawingLayerParams(touchable = drawingEnabled)
             try { windowManager.addView(view, params) } catch (e: Exception) {}
             drawingLayerAttached = true
         }
@@ -442,17 +447,21 @@ class OverlayDrawingService : Service() {
         updateDrawingTouchability()
     }
 
+    // Retire puis remet le calque avec les nouveaux réglages tactiles, au lieu
+    // de simplement modifier ses paramètres en direct : sur certains Android
+    // modifiés (comme XOS d'Itel), un simple updateViewLayout() ne suffit pas
+    // toujours à faire repasser les touchers vers les autres applis — retirer
+    // puis remettre la fenêtre force le système à bien appliquer le changement.
     private fun updateDrawingTouchability() {
         if (!drawingLayerAttached) return
-        val params = drawingView?.layoutParams as? WindowManager.LayoutParams ?: return
-        params.flags = if (drawingEnabled) {
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or secureFlag()
-        } else {
-            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                secureFlag()
+        val view = drawingView ?: return
+        val newParams = buildDrawingLayerParams(touchable = drawingEnabled)
+        try {
+            windowManager.removeView(view)
+            windowManager.addView(view, newParams)
+        } catch (e: Exception) {
+            try { windowManager.updateViewLayout(view, newParams) } catch (e2: Exception) {}
         }
-        windowManager.updateViewLayout(drawingView, params)
     }
 
     override fun onDestroy() {
