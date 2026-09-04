@@ -208,6 +208,17 @@
 
             </LinearLayout>
 
+            <Button
+                android:id="@+id/locatorButton"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/bg_stat_pink"
+                android:textColor="#FFFFFF"
+                android:textAllCaps="false"
+                android:textSize="14sp"
+                android:text="📍 Localiser mon téléphone" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
