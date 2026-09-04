@@ -123,7 +123,10 @@ class MainActivity : AppCompatActivity() {
 
         cameraToggleButton.setOnClickListener { toggleCamera() }
 
-        findViewById<ImageButton>(R.id.menuButton).setOnClickListener { view ->
+       findViewById<Button>(R.id.locatorButton).setOnClickListener {
+            startActivity(Intent(this, LocatorActivity::class.java))
+        }
+ findViewById<ImageButton>(R.id.menuButton).setOnClickListener { view ->
             showTopMenu(view)
         }
 
