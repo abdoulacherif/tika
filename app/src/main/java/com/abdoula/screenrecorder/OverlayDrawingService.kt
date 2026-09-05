@@ -369,9 +369,8 @@ class OverlayDrawingService : Service() {
         panelView?.visibility = View.GONE
     }
 
-    // Bouton d'urgence : détache complètement le calque de dessin de l'écran.
-    // Reste disponible en secours si jamais le retour automatique (ci-dessous)
-    // ne suffisait pas dans certains cas.
+    // Bouton d'urgence, gardé disponible en secours au cas où le retour
+    // automatique (ci-dessous) ne suffirait pas sur certains téléphones.
     private fun toggleDrawingLayerAttached() {
         val view = drawingView ?: return
         if (drawingLayerAttached) {
@@ -447,20 +446,37 @@ class OverlayDrawingService : Service() {
         updateDrawingTouchability()
     }
 
-    // Retire puis remet le calque avec les nouveaux réglages tactiles, au lieu
-    // de simplement modifier ses paramètres en direct : sur certains Android
-    // modifiés (comme XOS d'Itel), un simple updateViewLayout() ne suffit pas
-    // toujours à faire repasser les touchers vers les autres applis — retirer
-    // puis remettre la fenêtre force le système à bien appliquer le changement.
+    // CORRECTION IMPORTANTE : ce changement est maintenant repoussé d'un instant
+    // (mainHandler.post) au lieu d'être appliqué immédiatement. Avant, on
+    // modifiait la fenêtre du calque PENDANT que le système traitait encore le
+    // relâchement du doigt (ACTION_UP) sur cette même fenêtre — ce genre de
+    // changement "en plein geste" n'est pas garanti de s'appliquer correctement
+    // sur Android, quel que soit le téléphone. En le reportant à juste après la
+    // fin du geste, le changement s'applique de façon fiable partout.
     private fun updateDrawingTouchability() {
         if (!drawingLayerAttached) return
-        val view = drawingView ?: return
-        val newParams = buildDrawingLayerParams(touchable = drawingEnabled)
-        try {
-            windowManager.removeView(view)
-            windowManager.addView(view, newParams)
-        } catch (e: Exception) {
-            try { windowManager.updateViewLayout(view, newParams) } catch (e2: Exception) {}
+        val wantTouchable = drawingEnabled
+        mainHandler.post {
+            val view = drawingView ?: return@post
+            if (!drawingLayerAttached) return@post
+            try {
+                windowManager.removeView(view)
+                val newParams = buildDrawingLayerParams(touchable = wantTouchable)
+                windowManager.addView(view, newParams)
+            } catch (e: Exception) {
+                try {
+                    val params = view.layoutParams as? WindowManager.LayoutParams ?: return@post
+                    params.flags = if (wantTouchable) {
+                        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or secureFlag()
+                    } else {
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
+                            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                            secureFlag()
+                    }
+                    windowManager.updateViewLayout(view, params)
+                } catch (e2: Exception) {
+                }
+            }
         }
     }
 
