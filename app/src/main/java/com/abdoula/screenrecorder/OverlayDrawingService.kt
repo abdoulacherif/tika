@@ -38,14 +38,14 @@ class OverlayDrawingService : Service() {
 
     private var drawingView: DrawingOverlayView? = null
     private var drawingEnabled = false
-    private var drawingLayerAttached = true
+    private var drawingLayerAttached = false
 
     private var watermarkView: TextView? = null
 
     override fun onCreate() {
         super.onCreate()
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
-        addDrawingLayer()
+        attachDrawingLayer(touchable = false)
         if (!SettingsManager.isBubbleHiddenDuringRecording(this)) addBubble()
         addWatermarkIfEnabled()
     }
@@ -83,6 +83,14 @@ class OverlayDrawingService : Service() {
         windowManager.addView(watermarkView, params)
     }
 
+    // ---------- Calque de dessin : une seule vraie méthode, celle qui marche ----------
+    // Pour libérer l'écran de façon fiable, on RETIRE complètement la fenêtre du
+    // calque de dessin (comme le fait le bouton d'urgence), puis on la remet
+    // aussitôt en mode "non tactile" pour qu'elle reste visible mais laisse
+    // passer tous les touchers. C'est la seule approche qui s'est montrée fiable
+    // en pratique — modifier les réglages d'une fenêtre déjà affichée ne suffit
+    // pas sur certains téléphones.
+
     private fun buildDrawingLayerParams(touchable: Boolean): WindowManager.LayoutParams {
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
@@ -101,17 +109,44 @@ class OverlayDrawingService : Service() {
         return params
     }
 
-    private fun addDrawingLayer() {
+    private fun ensureDrawingViewExists() {
+        if (drawingView != null) return
         drawingView = DrawingOverlayView(this).apply {
             setLayerType(View.LAYER_TYPE_HARDWARE, null)
-            onShapeFinished = { disableDrawingMode() }
+            onShapeFinished = { onAnnotationFinished() }
             onTextRequested = { _, _ -> showTextInputDialog() }
         }
-
-        val params = buildDrawingLayerParams(touchable = false)
-        windowManager.addView(drawingView, params)
-        drawingLayerAttached = true
     }
+
+    private fun detachDrawingLayer() {
+        if (!drawingLayerAttached) return
+        val view = drawingView ?: return
+        try { windowManager.removeView(view) } catch (e: Exception) {}
+        drawingLayerAttached = false
+    }
+
+    private fun attachDrawingLayer(touchable: Boolean) {
+        ensureDrawingViewExists()
+        val view = drawingView ?: return
+        if (drawingLayerAttached) {
+            try { windowManager.removeView(view) } catch (e: Exception) {}
+            drawingLayerAttached = false
+        }
+        try {
+            windowManager.addView(view, buildDrawingLayerParams(touchable))
+            drawingLayerAttached = true
+        } catch (e: Exception) {
+        }
+    }
+
+    // Appelé dès qu'une forme vient d'être tracée (le doigt vient de se lever) :
+    // libère l'écran immédiatement, sans attendre de bouton.
+    private fun onAnnotationFinished() {
+        drawingEnabled = false
+        attachDrawingLayer(touchable = false)
+    }
+
+    // ---------- Bulle ----------
 
     private fun addBubble() {
         bubbleView = TextView(this).apply {
@@ -318,7 +353,7 @@ class OverlayDrawingService : Service() {
             setPadding(0, 8, 0, 0)
         }
         rowPrivacy.addView(makeIconButton(R.drawable.ic_privacy, R.drawable.bg_round_purple) { setTool(ShapeTool.PRIVACY_BOX) })
-        rowPrivacy.addView(makeIconButton(R.drawable.ic_minimize, R.drawable.bg_round_red) { toggleDrawingLayerAttached() })
+        rowPrivacy.addView(makeIconButton(R.drawable.ic_minimize, R.drawable.bg_round_red) { onAnnotationFinished() })
         panelView?.addView(rowPrivacy)
 
         val row2 = LinearLayout(this).apply {
@@ -369,20 +404,6 @@ class OverlayDrawingService : Service() {
         panelView?.visibility = View.GONE
     }
 
-    // Bouton d'urgence, gardé disponible en secours au cas où le retour
-    // automatique (ci-dessous) ne suffirait pas sur certains téléphones.
-    private fun toggleDrawingLayerAttached() {
-        val view = drawingView ?: return
-        if (drawingLayerAttached) {
-            try { windowManager.removeView(view) } catch (e: Exception) {}
-            drawingLayerAttached = false
-        } else {
-            val params = buildDrawingLayerParams(touchable = drawingEnabled)
-            try { windowManager.addView(view, params) } catch (e: Exception) {}
-            drawingLayerAttached = true
-        }
-    }
-
     private fun makeIconButton(iconRes: Int, bgRes: Int, action: () -> Unit): ImageButton {
         val button = ImageButton(this)
         button.setImageResource(iconRes)
@@ -422,62 +443,22 @@ class OverlayDrawingService : Service() {
             .setView(input)
             .setPositiveButton("Ajouter") { _, _ ->
                 drawingView?.addTextShape(input.text.toString())
-                disableDrawingMode()
+                onAnnotationFinished()
             }
-            .setNegativeButton("Annuler") { _, _ -> disableDrawingMode() }
+            .setNegativeButton("Annuler") { _, _ -> onAnnotationFinished() }
             .create()
 
         dialog.window?.setType(overlayType())
         dialog.show()
     }
 
+    // Choisir un outil rend le calque tactile pour qu'on puisse tracer LA
+    // forme suivante ; dès qu'elle est terminée, onAnnotationFinished() reprend
+    // la main et libère l'écran automatiquement.
     private fun setTool(tool: ShapeTool) {
         drawingView?.currentTool = tool
-        enableDrawingMode()
-    }
-
-    private fun enableDrawingMode() {
         drawingEnabled = true
-        updateDrawingTouchability()
-    }
-
-    private fun disableDrawingMode() {
-        drawingEnabled = false
-        updateDrawingTouchability()
-    }
-
-    // CORRECTION IMPORTANTE : ce changement est maintenant repoussé d'un instant
-    // (mainHandler.post) au lieu d'être appliqué immédiatement. Avant, on
-    // modifiait la fenêtre du calque PENDANT que le système traitait encore le
-    // relâchement du doigt (ACTION_UP) sur cette même fenêtre — ce genre de
-    // changement "en plein geste" n'est pas garanti de s'appliquer correctement
-    // sur Android, quel que soit le téléphone. En le reportant à juste après la
-    // fin du geste, le changement s'applique de façon fiable partout.
-    private fun updateDrawingTouchability() {
-        if (!drawingLayerAttached) return
-        val wantTouchable = drawingEnabled
-        mainHandler.post {
-            val view = drawingView ?: return@post
-            if (!drawingLayerAttached) return@post
-            try {
-                windowManager.removeView(view)
-                val newParams = buildDrawingLayerParams(touchable = wantTouchable)
-                windowManager.addView(view, newParams)
-            } catch (e: Exception) {
-                try {
-                    val params = view.layoutParams as? WindowManager.LayoutParams ?: return@post
-                    params.flags = if (wantTouchable) {
-                        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or secureFlag()
-                    } else {
-                        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
-                            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                            secureFlag()
-                    }
-                    windowManager.updateViewLayout(view, params)
-                } catch (e2: Exception) {
-                }
-            }
-        }
+        attachDrawingLayer(touchable = true)
     }
 
     override fun onDestroy() {
