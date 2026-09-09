@@ -44,10 +44,6 @@ class OverlayDrawingService : Service() {
     override fun onCreate() {
         super.onCreate()
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
-        // IMPORTANT : le calque de dessin n'est PLUS attaché au démarrage.
-        // Sur certains téléphones, une fenêtre plein écran — même invisible et
-        // non tactile — suffit à bloquer les interactions avec les autres
-        // applis. On ne l'affiche donc que le temps exact de tracer une forme.
         ensureDrawingViewExists()
         if (!SettingsManager.isBubbleHiddenDuringRecording(this)) addBubble()
         addWatermarkIfEnabled()
@@ -86,13 +82,19 @@ class OverlayDrawingService : Service() {
         windowManager.addView(watermarkView, params)
     }
 
-    // ---------- Calque de dessin : affiché UNIQUEMENT pendant le tracé d'une forme ----------
+    // ---------- Calque de dessin : affiché uniquement pendant le tracé ----------
 
     private fun ensureDrawingViewExists() {
         if (drawingView != null) return
         drawingView = DrawingOverlayView(this).apply {
             setLayerType(View.LAYER_TYPE_HARDWARE, null)
-            onShapeFinished = { detachDrawingLayer() }
+            // On laisse un court délai avant de retirer le calque, pour que la
+            // forme qui vient d'être tracée ait le temps de s'afficher à
+            // l'écran avant de disparaître — sinon elle était retirée avant
+            // même d'avoir été dessinée une seule fois.
+            onShapeFinished = {
+                mainHandler.postDelayed({ detachDrawingLayer() }, 80)
+            }
             onTextRequested = { _, _ -> showTextInputDialog() }
         }
     }
@@ -118,9 +120,6 @@ class OverlayDrawingService : Service() {
         }
     }
 
-    // Retire complètement la fenêtre : c'est ce qui rend l'écran utilisable
-    // immédiatement après une forme, plutôt que de simplement la rendre
-    // "non tactile" (insuffisant sur certains téléphones).
     private fun detachDrawingLayer() {
         if (!drawingLayerAttached) return
         val view = drawingView ?: return
@@ -425,7 +424,7 @@ class OverlayDrawingService : Service() {
             .setView(input)
             .setPositiveButton("Ajouter") { _, _ ->
                 drawingView?.addTextShape(input.text.toString())
-                detachDrawingLayer()
+                mainHandler.postDelayed({ detachDrawingLayer() }, 80)
             }
             .setNegativeButton("Annuler") { _, _ -> detachDrawingLayer() }
             .create()
