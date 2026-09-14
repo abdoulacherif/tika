@@ -143,6 +143,22 @@ findViewById<LinearLayout>(R.id.annotationDurationRow).setOnClickListener { show
         refreshTrialCard()
     }
 
+private fun showAnnotationDurationDialog() {
+        val options = listOf(500L, 1000L, 1500L, 2000L, 3000L, 5000L)
+        val labels = options.map { "${it / 1000.0}s".removeSuffix(".0s") + "s" }.toTypedArray()
+        val current = options.indexOf(SettingsManager.getAnnotationDurationMs(this)).coerceAtLeast(1)
+
+        AlertDialog.Builder(this)
+            .setTitle("Durée d'affichage d'une annotation")
+            .setSingleChoiceItems(labels, current) { dialog, which ->
+                SettingsManager.setAnnotationDurationMs(this, options[which])
+                findViewById<TextView>(R.id.annotationDurationValue).text = labels[which]
+                dialog.dismiss()
+            }
+            .setNegativeButton("Annuler", null)
+            .show()
+    }
+
     private fun setupPinRow() {
         val pinCheck = findViewById<CheckBox>(R.id.pinCheck)
         pinCheck.isChecked = SettingsManager.isPinEnabled(this)
