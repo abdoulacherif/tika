@@ -82,26 +82,36 @@ class OverlayDrawingService : Service() {
         windowManager.addView(watermarkView, params)
     }
 
-    // ---------- Calque de dessin : affiché uniquement pendant le tracé ----------
+    // ---------- Calque de dessin : affiché uniquement pendant le tracé, puis
+    // reste visible le temps réglé dans les Réglages avant de disparaître
+    // définitivement (les formes ne s'accumulent pas d'une annotation à l'autre)
 
     private fun ensureDrawingViewExists() {
         if (drawingView != null) return
         drawingView = DrawingOverlayView(this).apply {
             setLayerType(View.LAYER_TYPE_HARDWARE, null)
-            // On laisse un court délai avant de retirer le calque, pour que la
-            // forme qui vient d'être tracée ait le temps de s'afficher à
-            // l'écran avant de disparaître — sinon elle était retirée avant
-            // même d'avoir été dessinée une seule fois.
-            onShapeFinished = {
-                mainHandler.postDelayed({ detachDrawingLayer() }, 80)
-            }
+            onShapeFinished = { scheduleAutoDetach() }
             onTextRequested = { _, _ -> showTextInputDialog() }
         }
+    }
+
+    private val detachAndClearRunnable = Runnable {
+        detachDrawingLayer()
+        // Efface la forme une fois qu'elle a disparu de l'écran, pour que la
+        // prochaine annotation reparte de zéro (pas d'accumulation).
+        drawingView?.clearAll()
+    }
+
+    private fun scheduleAutoDetach() {
+        mainHandler.removeCallbacks(detachAndClearRunnable)
+        val duration = SettingsManager.getAnnotationDurationMs(this)
+        mainHandler.postDelayed(detachAndClearRunnable, duration)
     }
 
     private fun attachDrawingLayerForDrawing() {
         ensureDrawingViewExists()
         val view = drawingView ?: return
+        mainHandler.removeCallbacks(detachAndClearRunnable)
         if (drawingLayerAttached) return
 
         val params = WindowManager.LayoutParams(
@@ -334,7 +344,11 @@ class OverlayDrawingService : Service() {
             setPadding(0, 8, 0, 0)
         }
         rowPrivacy.addView(makeIconButton(R.drawable.ic_privacy, R.drawable.bg_round_purple) { setTool(ShapeTool.PRIVACY_BOX) })
-        rowPrivacy.addView(makeIconButton(R.drawable.ic_minimize, R.drawable.bg_round_red) { detachDrawingLayer() })
+        rowPrivacy.addView(makeIconButton(R.drawable.ic_minimize, R.drawable.bg_round_red) {
+            mainHandler.removeCallbacks(detachAndClearRunnable)
+            detachDrawingLayer()
+            drawingView?.clearAll()
+        })
         panelView?.addView(rowPrivacy)
 
         val row2 = LinearLayout(this).apply {
@@ -424,9 +438,12 @@ class OverlayDrawingService : Service() {
             .setView(input)
             .setPositiveButton("Ajouter") { _, _ ->
                 drawingView?.addTextShape(input.text.toString())
-                mainHandler.postDelayed({ detachDrawingLayer() }, 80)
+                scheduleAutoDetach()
             }
-            .setNegativeButton("Annuler") { _, _ -> detachDrawingLayer() }
+            .setNegativeButton("Annuler") { _, _ ->
+                detachDrawingLayer()
+                drawingView?.clearAll()
+            }
             .create()
 
         dialog.window?.setType(overlayType())
@@ -441,6 +458,7 @@ class OverlayDrawingService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         mainHandler.removeCallbacks(autoHideRunnable)
+        mainHandler.removeCallbacks(detachAndClearRunnable)
         longPressRunnable?.let { mainHandler.removeCallbacks(it) }
         bubbleView?.let { windowManager.removeView(it) }
         panelView?.let { windowManager.removeView(it) }
