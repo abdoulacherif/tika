@@ -29,6 +29,12 @@ class DrawingOverlayView(context: Context, attrs: AttributeSet? = null) : View(c
 
     var onShapeFinished: (() -> Unit)? = null
     var onTextRequested: ((x: Float, y: Float) -> Unit)? = null
+    // Le cache de confidentialité n'est PAS dessiné dans ce calque temporaire :
+    // il est géré par une fenêtre indépendante et persistante (voir
+    // OverlayDrawingService), pour pouvoir rester affiché en permanence sans
+    // garder ce grand calque plein écran attaché (ce qui bloquait le
+    // téléphone). Ce callback transmet juste les coordonnées choisies.
+    var onPrivacyBoxDrawn: ((left: Float, top: Float, right: Float, bottom: Float) -> Unit)? = null
 
     private val shapes = mutableListOf<DrawnShape>()
     private var currentPath: Path? = null
@@ -47,12 +53,6 @@ class DrawingOverlayView(context: Context, attrs: AttributeSet? = null) : View(c
         style = Paint.Style.FILL
         isAntiAlias = true
         textSize = 48f
-    }
-
-    private val privacyPaint = Paint().apply {
-        style = Paint.Style.FILL
-        color = Color.BLACK
-        isAntiAlias = true
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -84,6 +84,14 @@ class DrawingOverlayView(context: Context, attrs: AttributeSet? = null) : View(c
                     }
                     ShapeTool.TEXT -> {
                         onTextRequested?.invoke(startX, startY)
+                    }
+                    ShapeTool.PRIVACY_BOX -> {
+                        val left = minOf(startX, x)
+                        val top = minOf(startY, y)
+                        val right = maxOf(startX, x)
+                        val bottom = maxOf(startY, y)
+                        onPrivacyBoxDrawn?.invoke(left, top, right, bottom)
+                        onShapeFinished?.invoke()
                     }
                     else -> {
                         shapes.add(
@@ -130,11 +138,7 @@ class DrawingOverlayView(context: Context, attrs: AttributeSet? = null) : View(c
                     shape.text?.let { canvas.drawText(it, shape.startX, shape.startY, textPaint) }
                 }
                 ShapeTool.PRIVACY_BOX -> {
-                    val left = minOf(shape.startX, shape.endX)
-                    val top = minOf(shape.startY, shape.endY)
-                    val right = maxOf(shape.startX, shape.endX)
-                    val bottom = maxOf(shape.startY, shape.endY)
-                    canvas.drawRoundRect(left, top, right, bottom, 12f, 12f, privacyPaint)
+                    // Jamais dessiné ici — géré par une fenêtre persistante séparée.
                 }
             }
         }
