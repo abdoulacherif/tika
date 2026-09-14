@@ -41,6 +41,11 @@ class OverlayDrawingService : Service() {
 
     private var watermarkView: TextView? = null
 
+    // Caches de confidentialité : petites fenêtres indépendantes et
+    // persistantes (comme la bulle), qui restent affichées jusqu'à ce que
+    // l'utilisateur les retire lui-même.
+    private val privacyBoxViews = mutableListOf<View>()
+
     override fun onCreate() {
         super.onCreate()
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
@@ -82,23 +87,34 @@ class OverlayDrawingService : Service() {
         windowManager.addView(watermarkView, params)
     }
 
-    // ---------- Calque de dessin : affiché uniquement pendant le tracé, puis
-    // reste visible le temps réglé dans les Réglages avant de disparaître
-    // définitivement (les formes ne s'accumulent pas d'une annotation à l'autre)
+    // ---------- Calque de dessin temporaire (annotations normales) ----------
 
     private fun ensureDrawingViewExists() {
         if (drawingView != null) return
         drawingView = DrawingOverlayView(this).apply {
             setLayerType(View.LAYER_TYPE_HARDWARE, null)
-            onShapeFinished = { scheduleAutoDetach() }
+            onShapeFinished = { onShapeOrPrivacyFinished() }
             onTextRequested = { _, _ -> showTextInputDialog() }
+            onPrivacyBoxDrawn = { left, top, right, bottom -> addPersistentPrivacyBox(left, top, right, bottom) }
+        }
+    }
+
+    // Le cache de confidentialité crée déjà sa propre fenêtre persistante
+    // (addPersistentPrivacyBox) : on referme donc le calque temporaire de
+    // sélection immédiatement. Les autres formes suivent le délai réglé dans
+    // les Réglages avant de disparaître.
+    private fun onShapeOrPrivacyFinished() {
+        if (drawingView?.currentTool == ShapeTool.PRIVACY_BOX) {
+            mainHandler.removeCallbacks(detachAndClearRunnable)
+            detachDrawingLayer()
+            drawingView?.clearAll()
+        } else {
+            scheduleAutoDetach()
         }
     }
 
     private val detachAndClearRunnable = Runnable {
         detachDrawingLayer()
-        // Efface la forme une fois qu'elle a disparu de l'écran, pour que la
-        // prochaine annotation reparte de zéro (pas d'accumulation).
         drawingView?.clearAll()
     }
 
@@ -135,6 +151,40 @@ class OverlayDrawingService : Service() {
         val view = drawingView ?: return
         try { windowManager.removeView(view) } catch (e: Exception) {}
         drawingLayerAttached = false
+    }
+
+    // ---------- Caches de confidentialité persistants ----------
+
+    private fun addPersistentPrivacyBox(left: Float, top: Float, right: Float, bottom: Float) {
+        val width = (right - left).toInt().coerceAtLeast(20)
+        val height = (bottom - top).toInt().coerceAtLeast(20)
+
+        val box = View(this).apply {
+            setBackgroundColor(Color.BLACK)
+        }
+
+        val params = WindowManager.LayoutParams(
+            width, height,
+            overlayType(),
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+            PixelFormat.OPAQUE
+        )
+        params.gravity = Gravity.TOP or Gravity.START
+        params.x = left.toInt()
+        params.y = top.toInt()
+
+        try {
+            windowManager.addView(box, params)
+            privacyBoxViews.add(box)
+        } catch (e: Exception) {
+        }
+    }
+
+    private fun clearAllPrivacyBoxes() {
+        for (box in privacyBoxViews) {
+            try { windowManager.removeView(box) } catch (e: Exception) {}
+        }
+        privacyBoxViews.clear()
     }
 
     // ---------- Bulle ----------
@@ -344,10 +394,13 @@ class OverlayDrawingService : Service() {
             setPadding(0, 8, 0, 0)
         }
         rowPrivacy.addView(makeIconButton(R.drawable.ic_privacy, R.drawable.bg_round_purple) { setTool(ShapeTool.PRIVACY_BOX) })
+        // Ce bouton rouge retire maintenant tous les caches de confidentialité
+        // encore affichés, en plus de son rôle de secours habituel.
         rowPrivacy.addView(makeIconButton(R.drawable.ic_minimize, R.drawable.bg_round_red) {
             mainHandler.removeCallbacks(detachAndClearRunnable)
             detachDrawingLayer()
             drawingView?.clearAll()
+            clearAllPrivacyBoxes()
         })
         panelView?.addView(rowPrivacy)
 
@@ -464,6 +517,7 @@ class OverlayDrawingService : Service() {
         panelView?.let { windowManager.removeView(it) }
         if (drawingLayerAttached) drawingView?.let { try { windowManager.removeView(it) } catch (e: Exception) {} }
         watermarkView?.let { windowManager.removeView(it) }
+        clearAllPrivacyBoxes()
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
