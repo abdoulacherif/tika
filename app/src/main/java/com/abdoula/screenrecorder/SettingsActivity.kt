@@ -336,6 +336,9 @@ private fun showAnnotationDurationDialog() {
             .setTitle("Fréquence d'images")
             .setSingleChoiceItems(labels, current) { dialog, which ->
                 SettingsManager.setFrameRate(this, frameRateOptions[which])
+val annotationMs = SettingsManager.getAnnotationDurationMs(this)
+        findViewById<TextView>(R.id.annotationDurationValue).text = "${annotationMs / 1000.0}s".removeSuffix(".0s") + "s"
+
                 refreshLabels()
                 dialog.dismiss()
             }
