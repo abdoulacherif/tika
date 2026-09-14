@@ -80,7 +80,9 @@ class SettingsActivity : AppCompatActivity() {
         findViewById<LinearLayout>(R.id.bitrateRow).setOnClickListener { showBitrateDialog() }
         findViewById<LinearLayout>(R.id.frameRateRow).setOnClickListener { showFrameRateDialog() }
         findViewById<LinearLayout>(R.id.countdownRow).setOnClickListener { showCountdownDialog() }
-        findViewById<LinearLayout>(R.id.bubblePositionRow).setOnClickListener { showBubblePositionDialog() }
+       
+findViewById<LinearLayout>(R.id.annotationDurationRow).setOnClickListener { showAnnotationDurationDialog() }
+ findViewById<LinearLayout>(R.id.bubblePositionRow).setOnClickListener { showBubblePositionDialog() }
         findViewById<LinearLayout>(R.id.batteryRow).setOnClickListener { requestBatteryExemption() }
         findViewById<LinearLayout>(R.id.showTapsRow).setOnClickListener { openDeveloperOptions() }
         findViewById<LinearLayout>(R.id.backupFolderRow).setOnClickListener { backupFolderLauncher.launch(null) }
