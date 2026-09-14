@@ -23,6 +23,7 @@ object SettingsManager {
     private const val KEY_LAST_RECORDING_TIME = "last_recording_time"
     private const val KEY_PIN_CODE = "app_pin_code"
     private const val KEY_PIN_ENABLED = "app_pin_enabled"
+    private const val KEY_ANNOTATION_DURATION_MS = "annotation_duration_ms"
 
     const val FREE_DURATION_LIMIT_MS = 15 * 60 * 1000L
 
@@ -238,6 +239,18 @@ object SettingsManager {
     fun checkPin(context: Context, pin: String): Boolean {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         return prefs.getString(KEY_PIN_CODE, null) == pin
+    }
+
+    // Durée d'affichage (en millisecondes) d'une annotation avant qu'elle
+    // disparaisse définitivement de l'écran.
+    fun getAnnotationDurationMs(context: Context): Long {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        return prefs.getLong(KEY_ANNOTATION_DURATION_MS, 1000L)
+    }
+
+    fun setAnnotationDurationMs(context: Context, durationMs: Long) {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        prefs.edit().putLong(KEY_ANNOTATION_DURATION_MS, durationMs).apply()
     }
 
     fun resolveBitrate(context: Context, effectiveHeight: Int): Int {
