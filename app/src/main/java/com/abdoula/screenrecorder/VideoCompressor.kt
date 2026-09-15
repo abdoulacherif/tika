@@ -1,13 +1,11 @@
 package com.abdoula.screenrecorder
 
+import android.content.Context
 import android.media.*
 import java.nio.ByteBuffer
 
 object VideoCompressor {
 
-    // Réencode uniquement la piste vidéo à un bitrate plus bas (la piste audio
-    // est copiée telle quelle, sans perte) — réduit fortement la taille du
-    // fichier pour un envoi facile sur WhatsApp.
     fun compress(inputPath: String, outputPath: String, targetBitrate: Int = 1_500_000): Boolean {
         val timeoutUs = 10_000L
         var muxer: MediaMuxer? = null
@@ -150,6 +148,31 @@ object VideoCompressor {
             return true
         } catch (e: Exception) {
             try { muxer?.release() } catch (ignored: Exception) {}
+            return false
+        }
+    }
+
+    // Compresse pour atteindre approximativement une taille de fichier cible
+    // (en Mo), en calculant automatiquement le bitrate vidéo nécessaire selon
+    // la durée de la vidéo — l'utilisateur n'a pas besoin de connaître les
+    // Mbps, juste la taille finale qu'il veut.
+    fun compressToTargetSize(inputPath: String, outputPath: String, targetSizeMB: Double): Boolean {
+        try {
+            val retriever = MediaMetadataRetriever()
+            retriever.setDataSource(inputPath)
+            val durationMs = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull()
+            retriever.release()
+            if (durationMs == null || durationMs <= 0) return false
+
+            val durationSec = durationMs / 1000.0
+            val targetBits = targetSizeMB * 8.0 * 1024.0 * 1024.0
+            val audioBitrate = 128_000.0
+
+            var videoBitrate = ((targetBits / durationSec) - audioBitrate).toInt()
+            if (videoBitrate < 300_000) videoBitrate = 300_000 // seuil minimal pour rester regardable
+
+            return compress(inputPath, outputPath, videoBitrate)
+        } catch (e: Exception) {
             return false
         }
     }
