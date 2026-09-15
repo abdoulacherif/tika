@@ -41,10 +41,18 @@ class OverlayDrawingService : Service() {
 
     private var watermarkView: TextView? = null
 
-    // Caches de confidentialité : petites fenêtres indépendantes et
-    // persistantes (comme la bulle), qui restent affichées jusqu'à ce que
-    // l'utilisateur les retire lui-même.
     private val privacyBoxViews = mutableListOf<View>()
+
+    // ---------- Chronomètre gravé dans la vidéo ----------
+    private var chronometerView: TextView? = null
+    private var chronometerStartTime = 0L
+    private val chronometerRunnable = object : Runnable {
+        override fun run() {
+            val elapsed = System.currentTimeMillis() - chronometerStartTime
+            chronometerView?.text = formatElapsed(elapsed)
+            mainHandler.postDelayed(this, 1000)
+        }
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -52,6 +60,7 @@ class OverlayDrawingService : Service() {
         ensureDrawingViewExists()
         if (!SettingsManager.isBubbleHiddenDuringRecording(this)) addBubble()
         addWatermarkIfEnabled()
+        addChronometerIfEnabled()
     }
 
     private fun overlayType(): Int =
@@ -87,6 +96,41 @@ class OverlayDrawingService : Service() {
         windowManager.addView(watermarkView, params)
     }
 
+    private fun addChronometerIfEnabled() {
+        if (!SettingsManager.isChronometerEnabled(this)) return
+
+        chronometerStartTime = System.currentTimeMillis()
+        chronometerView = TextView(this).apply {
+            text = "00:00"
+            textSize = 14f
+            setTextColor(Color.WHITE)
+            setBackgroundColor(Color.parseColor("#77000000"))
+            setPadding(20, 10, 20, 10)
+        }
+
+        val params = WindowManager.LayoutParams(
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            overlayType(),
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            PixelFormat.TRANSLUCENT
+        )
+        params.gravity = Gravity.TOP or Gravity.START
+        params.x = 20
+        params.y = 20
+
+        windowManager.addView(chronometerView, params)
+        mainHandler.post(chronometerRunnable)
+    }
+
+    private fun formatElapsed(ms: Long): String {
+        val totalSeconds = ms / 1000
+        val h = totalSeconds / 3600
+        val m = (totalSeconds % 3600) / 60
+        val s = totalSeconds % 60
+        return if (h > 0) String.format("%d:%02d:%02d", h, m, s) else String.format("%02d:%02d", m, s)
+    }
+
     // ---------- Calque de dessin temporaire (annotations normales) ----------
 
     private fun ensureDrawingViewExists() {
@@ -99,10 +143,6 @@ class OverlayDrawingService : Service() {
         }
     }
 
-    // Le cache de confidentialité crée déjà sa propre fenêtre persistante
-    // (addPersistentPrivacyBox) : on referme donc le calque temporaire de
-    // sélection immédiatement. Les autres formes suivent le délai réglé dans
-    // les Réglages avant de disparaître.
     private fun onShapeOrPrivacyFinished() {
         if (drawingView?.currentTool == ShapeTool.PRIVACY_BOX) {
             mainHandler.removeCallbacks(detachAndClearRunnable)
@@ -394,8 +434,6 @@ class OverlayDrawingService : Service() {
             setPadding(0, 8, 0, 0)
         }
         rowPrivacy.addView(makeIconButton(R.drawable.ic_privacy, R.drawable.bg_round_purple) { setTool(ShapeTool.PRIVACY_BOX) })
-        // Ce bouton rouge retire maintenant tous les caches de confidentialité
-        // encore affichés, en plus de son rôle de secours habituel.
         rowPrivacy.addView(makeIconButton(R.drawable.ic_minimize, R.drawable.bg_round_red) {
             mainHandler.removeCallbacks(detachAndClearRunnable)
             detachDrawingLayer()
@@ -479,7 +517,7 @@ class OverlayDrawingService : Service() {
         }
     }
 
-    private fun showTextInputDialog() {
+private fun showTextInputDialog() {
         val input = EditText(this).apply {
             hint = "Ton texte…"
             setTextColor(Color.WHITE)
@@ -512,11 +550,13 @@ class OverlayDrawingService : Service() {
         super.onDestroy()
         mainHandler.removeCallbacks(autoHideRunnable)
         mainHandler.removeCallbacks(detachAndClearRunnable)
+        mainHandler.removeCallbacks(chronometerRunnable)
         longPressRunnable?.let { mainHandler.removeCallbacks(it) }
         bubbleView?.let { windowManager.removeView(it) }
         panelView?.let { windowManager.removeView(it) }
         if (drawingLayerAttached) drawingView?.let { try { windowManager.removeView(it) } catch (e: Exception) {} }
         watermarkView?.let { windowManager.removeView(it) }
+        chronometerView?.let { try { windowManager.removeView(it) } catch (e: Exception) {} }
         clearAllPrivacyBoxes()
     }
 
