@@ -131,6 +131,12 @@ findViewById<LinearLayout>(R.id.annotationDurationRow).setOnClickListener { show
             }
         }
 
+val chronometerCheck = findViewById<CheckBox>(R.id.chronometerCheck)
+        chronometerCheck.isChecked = SettingsManager.isChronometerEnabled(this)
+        chronometerCheck.setOnCheckedChangeListener { _, checked ->
+            SettingsManager.setChronometerEnabled(this, checked)
+        }
+
         val remindersCheck = findViewById<CheckBox>(R.id.remindersCheck)
         remindersCheck.isChecked = SettingsManager.areRemindersEnabled(this)
         remindersCheck.setOnCheckedChangeListener { _, checked ->
