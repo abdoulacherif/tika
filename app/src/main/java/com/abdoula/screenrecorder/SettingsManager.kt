@@ -24,6 +24,7 @@ object SettingsManager {
     private const val KEY_PIN_CODE = "app_pin_code"
     private const val KEY_PIN_ENABLED = "app_pin_enabled"
     private const val KEY_ANNOTATION_DURATION_MS = "annotation_duration_ms"
+    private const val KEY_CHRONOMETER_ENABLED = "chronometer_enabled"
 
     const val FREE_DURATION_LIMIT_MS = 15 * 60 * 1000L
 
@@ -241,8 +242,6 @@ object SettingsManager {
         return prefs.getString(KEY_PIN_CODE, null) == pin
     }
 
-    // Durée d'affichage (en millisecondes) d'une annotation avant qu'elle
-    // disparaisse définitivement de l'écran.
     fun getAnnotationDurationMs(context: Context): Long {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         return prefs.getLong(KEY_ANNOTATION_DURATION_MS, 1000L)
@@ -251,6 +250,17 @@ object SettingsManager {
     fun setAnnotationDurationMs(context: Context, durationMs: Long) {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         prefs.edit().putLong(KEY_ANNOTATION_DURATION_MS, durationMs).apply()
+    }
+
+    // Chronomètre gravé dans la vidéo, affiché pendant tout l'enregistrement
+    fun isChronometerEnabled(context: Context): Boolean {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        return prefs.getBoolean(KEY_CHRONOMETER_ENABLED, false)
+    }
+
+    fun setChronometerEnabled(context: Context, enabled: Boolean) {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        prefs.edit().putBoolean(KEY_CHRONOMETER_ENABLED, enabled).apply()
     }
 
     fun resolveBitrate(context: Context, effectiveHeight: Int): Int {
