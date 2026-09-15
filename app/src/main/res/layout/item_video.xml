@@ -89,6 +89,15 @@
                 android:background="@drawable/bg_round_amber"
                 android:src="@drawable/ic_volume" />
 
+<ImageButton
+                android:id="@+id/budgetCompressButton"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginEnd="5dp"
+                android:padding="7dp"
+                android:background="@drawable/bg_round_cyan"
+                android:src="@drawable/ic_target" />
+
             <ImageButton
                 android:id="@+id/compressButton"
                 android:layout_width="32dp"
