@@ -41,7 +41,7 @@ class GalleryActivity : AppCompatActivity() {
     private var selectionMode = false
     private val selectedFiles = mutableSetOf<File>()
     private var pendingMusicTargetFile: File? = null
-    private var pendingMusicMode: String = "replace" // "replace" ou "mix"
+    private var pendingMusicMode: String = "replace"
 
     private val musicPickerLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         val target = pendingMusicTargetFile
@@ -63,9 +63,7 @@ class GalleryActivity : AppCompatActivity() {
         selectModeButton = findViewById(R.id.selectModeButton)
         mergeBar = findViewById(R.id.mergeBar)
         selectionCountText = findViewById(R.id.selectionCountText)
-view.findViewById<ImageButton>(R.id.budgetCompressButton).setOnClickListener {
-                showBudgetCompressDialog(file)
-            }
+
         selectModeButton.setOnClickListener { toggleSelectionMode() }
         findViewById<android.widget.Button>(R.id.mergeConfirmButton).setOnClickListener { confirmMerge() }
 
@@ -117,8 +115,6 @@ view.findViewById<ImageButton>(R.id.budgetCompressButton).setOnClickListener {
             }
         }.start()
     }
-
-    // ---------- Choix Remplacer / Mélanger, avec design carte arrondie ----------
 
     private fun showMusicChoiceDialog(file: File) {
         val layout = layoutInflater.inflate(R.layout.dialog_music_choice, null)
@@ -232,6 +228,54 @@ view.findViewById<ImageButton>(R.id.budgetCompressButton).setOnClickListener {
         }.start()
     }
 
+    private fun showBudgetCompressDialog(file: File) {
+        val input = EditText(this).apply {
+            hint = "Taille cible en Mo (ex: 10)"
+            inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("🎯 Compresser à une taille précise")
+            .setMessage("L'appli calcule automatiquement la qualité nécessaire pour atteindre cette taille.")
+            .setView(input)
+            .setPositiveButton("Compresser") { _, _ ->
+                val targetMB = input.text.toString().toDoubleOrNull()
+                if (targetMB == null || targetMB <= 0) {
+                    Toast.makeText(this, "Entre une taille valide", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+                runBudgetCompression(file, targetMB)
+            }
+            .setNegativeButton("Annuler", null)
+            .show()
+    }
+
+    private fun runBudgetCompression(file: File, targetMB: Double) {
+        val progressBar = ProgressBar(this)
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("Compression en cours…")
+            .setView(progressBar)
+            .setCancelable(false)
+            .create()
+        dialog.show()
+
+        Thread {
+            val outputFile = File(file.parent, "${file.nameWithoutExtension}_${targetMB.toInt()}Mo.mp4")
+            val success = VideoCompressor.compressToTargetSize(file.absolutePath, outputFile.absolutePath, targetMB)
+
+            mainHandler.post {
+                dialog.dismiss()
+                if (success) {
+                    val actualMb = outputFile.length() / (1024 * 1024)
+                    Toast.makeText(this, "Fichier créé : ~${actualMb} Mo", Toast.LENGTH_LONG).show()
+                    loadVideos()
+                } else {
+                    Toast.makeText(this, "La compression a échoué", Toast.LENGTH_LONG).show()
+                }
+            }
+        }.start()
+    }
+
     private fun loadVideos() {
         val dir = getExternalFilesDir(Environment.DIRECTORY_MOVIES)
         val files = dir?.listFiles { f -> f.extension == "mp4" }
@@ -295,6 +339,10 @@ view.findViewById<ImageButton>(R.id.budgetCompressButton).setOnClickListener {
 
             view.findViewById<ImageButton>(R.id.amplifyButton).setOnClickListener {
                 amplifyAudio(file)
+            }
+
+            view.findViewById<ImageButton>(R.id.budgetCompressButton).setOnClickListener {
+                showBudgetCompressDialog(file)
             }
 
             view.findViewById<ImageButton>(R.id.compressButton).setOnClickListener {
@@ -380,54 +428,6 @@ view.findViewById<ImageButton>(R.id.budgetCompressButton).setOnClickListener {
                     shareToApp(uri, "com.whatsapp")
                 } else {
                     Toast.makeText(this, "La compression a échoué, réessaie avec une vidéo plus courte", Toast.LENGTH_LONG).show()
-                }
-            }
-        }.start()
-    }
-
-private fun showBudgetCompressDialog(file: File) {
-        val input = EditText(this).apply {
-            hint = "Taille cible en Mo (ex: 10)"
-            inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
-        }
-
-        AlertDialog.Builder(this)
-            .setTitle("🎯 Compresser à une taille précise")
-            .setMessage("L'appli calcule automatiquement la qualité nécessaire pour atteindre cette taille.")
-            .setView(input)
-            .setPositiveButton("Compresser") { _, _ ->
-                val targetMB = input.text.toString().toDoubleOrNull()
-                if (targetMB == null || targetMB <= 0) {
-                    Toast.makeText(this, "Entre une taille valide", Toast.LENGTH_SHORT).show()
-                    return@setPositiveButton
-                }
-                runBudgetCompression(file, targetMB)
-            }
-            .setNegativeButton("Annuler", null)
-            .show()
-    }
-
-    private fun runBudgetCompression(file: File, targetMB: Double) {
-        val progressBar = ProgressBar(this)
-        val dialog = AlertDialog.Builder(this)
-            .setTitle("Compression en cours…")
-            .setView(progressBar)
-            .setCancelable(false)
-            .create()
-        dialog.show()
-
-        Thread {
-            val outputFile = File(file.parent, "${file.nameWithoutExtension}_${targetMB.toInt()}Mo.mp4")
-            val success = VideoCompressor.compressToTargetSize(file.absolutePath, outputFile.absolutePath, targetMB)
-
-            mainHandler.post {
-                dialog.dismiss()
-                if (success) {
-                    val actualMb = outputFile.length() / (1024 * 1024)
-                    Toast.makeText(this, "Fichier créé : ~${actualMb} Mo", Toast.LENGTH_LONG).show()
-                    loadVideos()
-                } else {
-                    Toast.makeText(this, "La compression a échoué", Toast.LENGTH_LONG).show()
                 }
             }
         }.start()
