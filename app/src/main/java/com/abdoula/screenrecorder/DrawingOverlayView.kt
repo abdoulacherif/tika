@@ -9,7 +9,7 @@ import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 
-enum class ShapeTool { PEN, ARROW, CIRCLE, RECTANGLE, TEXT, PRIVACY_BOX }
+enum class ShapeTool { PEN, ARROW, CIRCLE, RECTANGLE, TEXT, PRIVACY_BOX, ZOOM }
 
 data class DrawnShape(
     val tool: ShapeTool,
@@ -29,12 +29,8 @@ class DrawingOverlayView(context: Context, attrs: AttributeSet? = null) : View(c
 
     var onShapeFinished: (() -> Unit)? = null
     var onTextRequested: ((x: Float, y: Float) -> Unit)? = null
-    // Le cache de confidentialité n'est PAS dessiné dans ce calque temporaire :
-    // il est géré par une fenêtre indépendante et persistante (voir
-    // OverlayDrawingService), pour pouvoir rester affiché en permanence sans
-    // garder ce grand calque plein écran attaché (ce qui bloquait le
-    // téléphone). Ce callback transmet juste les coordonnées choisies.
     var onPrivacyBoxDrawn: ((left: Float, top: Float, right: Float, bottom: Float) -> Unit)? = null
+    var onZoomBoxDrawn: ((left: Float, top: Float, right: Float, bottom: Float) -> Unit)? = null
 
     private val shapes = mutableListOf<DrawnShape>()
     private var currentPath: Path? = null
@@ -93,6 +89,14 @@ class DrawingOverlayView(context: Context, attrs: AttributeSet? = null) : View(c
                         onPrivacyBoxDrawn?.invoke(left, top, right, bottom)
                         onShapeFinished?.invoke()
                     }
+                    ShapeTool.ZOOM -> {
+                        val left = minOf(startX, x)
+                        val top = minOf(startY, y)
+                        val right = maxOf(startX, x)
+                        val bottom = maxOf(startY, y)
+                        onZoomBoxDrawn?.invoke(left, top, right, bottom)
+                        onShapeFinished?.invoke()
+                    }
                     else -> {
                         shapes.add(
                             DrawnShape(
@@ -137,9 +141,8 @@ class DrawingOverlayView(context: Context, attrs: AttributeSet? = null) : View(c
                     textPaint.color = shape.color
                     shape.text?.let { canvas.drawText(it, shape.startX, shape.startY, textPaint) }
                 }
-                ShapeTool.PRIVACY_BOX -> {
-                    // Jamais dessiné ici — géré par une fenêtre persistante séparée.
-                }
+                ShapeTool.PRIVACY_BOX -> {}
+                ShapeTool.ZOOM -> {}
             }
         }
 
