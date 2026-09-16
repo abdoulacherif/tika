@@ -60,15 +60,21 @@ class ScreenRecordService : Service() {
             return START_NOT_STICKY
         }
 
-        val resultCode = intent?.getIntExtra("resultCode", Activity.RESULT_CANCELED) ?: return START_NOT_STICKY
-        val data = intent.getParcelableExtra<Intent>("data") ?: return START_NOT_STICKY
+        val resultCode = intent?.getIntExtra("resultCode", Activity.RESULT_CANCELED)
+            ?: return START_NOT_STICKY
+
+        val data = intent.getParcelableExtra<Intent>("data")
+            ?: return START_NOT_STICKY
 
         startForegroundNotification()
         requestAudioFocus()
 
-        val projectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+        val projectionManager =
+            getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+
         mediaProjection = projectionManager.getMediaProjection(resultCode, data)
         mediaProjection?.registerCallback(projectionCallback, null)
+        activeMediaProjection = mediaProjection
 
         startRecording()
 
@@ -77,6 +83,7 @@ class ScreenRecordService : Service() {
 
     private fun togglePause() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) return
+
         try {
             if (isPaused) {
                 mediaRecorder?.resume()
@@ -91,6 +98,7 @@ class ScreenRecordService : Service() {
 
     private fun requestAudioFocus() {
         val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
         val attributes = AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_MEDIA)
             .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
@@ -106,20 +114,31 @@ class ScreenRecordService : Service() {
 
     private fun releaseAudioFocus() {
         val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        audioFocusRequest?.let { audioManager.abandonAudioFocusRequest(it) }
+        audioFocusRequest?.let {
+            audioManager.abandonAudioFocusRequest(it)
+        }
     }
 
     private fun startForegroundNotification() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                channelId, "Enregistrement d'écran", NotificationManager.IMPORTANCE_LOW
+                channelId,
+                "Enregistrement d'écran",
+                NotificationManager.IMPORTANCE_LOW
             )
-            (getSystemService(NOTIFICATION_SERVICE) as NotificationManager).createNotificationChannel(channel)
+
+            (getSystemService(NOTIFICATION_SERVICE) as NotificationManager)
+                .createNotificationChannel(channel)
         }
 
-        val stopIntent = Intent(this, ScreenRecordService::class.java).apply { action = ACTION_STOP }
+        val stopIntent = Intent(this, ScreenRecordService::class.java).apply {
+            action = ACTION_STOP
+        }
+
         val stopPendingIntent = PendingIntent.getService(
-            this, 0, stopIntent,
+            this,
+            0,
+            stopIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
@@ -128,14 +147,20 @@ class ScreenRecordService : Service() {
             .setContentText("Appuie ici pour arrêter")
             .setSmallIcon(android.R.drawable.presence_video_online)
             .setContentIntent(stopPendingIntent)
-            .addAction(android.R.drawable.ic_media_pause, "Arrêter", stopPendingIntent)
+            .addAction(
+                android.R.drawable.ic_media_pause,
+                "Arrêter",
+                stopPendingIntent
+            )
             .setOngoing(true)
             .build()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             startForeground(
-                1, notification,
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
+                1,
+                notification,
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION or
+                        ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
             )
         } else {
             startForeground(1, notification)
@@ -144,6 +169,7 @@ class ScreenRecordService : Service() {
 
     private fun startRecording() {
         val metrics = resources.displayMetrics
+
         val deviceWidth = metrics.widthPixels
         val deviceHeight = metrics.heightPixels
         val density = metrics.densityDpi
@@ -152,11 +178,13 @@ class ScreenRecordService : Service() {
 
         val width: Int
         val height: Int
+
         if (targetHeight == 0 || targetHeight >= deviceHeight) {
             width = (deviceWidth / 2) * 2
             height = (deviceHeight / 2) * 2
         } else {
             val scale = targetHeight.toDouble() / deviceHeight.toDouble()
+
             height = (targetHeight / 2) * 2
             width = ((deviceWidth * scale).toInt() / 2) * 2
         }
@@ -193,12 +221,17 @@ class ScreenRecordService : Service() {
 
         virtualDisplay = mediaProjection?.createVirtualDisplay(
             "ScreenRecord",
-            width, height, density,
+            width,
+            height,
+            density,
             DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC,
-            mediaRecorder!!.surface, null, null
+            mediaRecorder!!.surface,
+            null,
+            null
         )
 
         mediaRecorder?.start()
+
         isRunning = true
         isPaused = false
 
@@ -211,56 +244,112 @@ class ScreenRecordService : Service() {
         val runnable = Runnable {
             stopSelf()
         }
+
         durationLimitRunnable = runnable
-        mainHandler.postDelayed(runnable, SettingsManager.FREE_DURATION_LIMIT_MS)
+
+        mainHandler.postDelayed(
+            runnable,
+            SettingsManager.FREE_DURATION_LIMIT_MS
+        )
     }
 
     private fun getOutputFile(): File {
         val dir = getExternalFilesDir(Environment.DIRECTORY_MOVIES)
-        if (dir != null && !dir.exists()) dir.mkdirs()
-        val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-        return File(dir, "enregistrement_$timestamp.mp4")
+
+        if (dir != null && !dir.exists()) {
+            dir.mkdirs()
+        }
+
+        val timestamp = SimpleDateFormat(
+            "yyyyMMdd_HHmmss",
+            Locale.getDefault()
+        ).format(Date())
+
+        return File(
+            dir,
+            "enregistrement_$timestamp.mp4"
+        )
     }
 
     override fun onDestroy() {
         super.onDestroy()
+
         isRunning = false
         isPaused = false
-        durationLimitRunnable?.let { mainHandler.removeCallbacks(it) }
+
+        durationLimitRunnable?.let {
+            mainHandler.removeCallbacks(it)
+        }
+
         try {
             mediaRecorder?.stop()
             mediaRecorder?.reset()
         } catch (e: Exception) {
         }
+
         mediaRecorder?.release()
         virtualDisplay?.release()
+
         mediaProjection?.unregisterCallback(projectionCallback)
         mediaProjection?.stop()
+        activeMediaProjection = null
+
         releaseAudioFocus()
-        stopService(Intent(this, OverlayDrawingService::class.java))
-        stopService(Intent(this, CameraBubbleService::class.java))
+
+        stopService(
+            Intent(this, OverlayDrawingService::class.java)
+        )
+
+        stopService(
+            Intent(this, CameraBubbleService::class.java)
+        )
 
         val file = lastOutputFile
+
         if (file != null) {
-            SettingsManager.setLastRecordingTime(this, System.currentTimeMillis())
-            AnalyticsManager.logEvent(this, "recording_completed")
+            SettingsManager.setLastRecordingTime(
+                this,
+                System.currentTimeMillis()
+            )
+
+            AnalyticsManager.logEvent(
+                this,
+                "recording_completed"
+            )
+
             copyToBackupFolderIfConfigured(file)
+
             if (SettingsManager.isPostRecordingPopupEnabled(this)) {
-                PostRecordingPopup.show(applicationContext, file)
+                PostRecordingPopup.show(
+                    applicationContext,
+                    file
+                )
             }
         }
     }
 
     private fun copyToBackupFolderIfConfigured(file: File) {
         if (!SettingsManager.isProUser(this)) return
-        val folderUriString = SettingsManager.getBackupFolderUri(this) ?: return
+
+        val folderUriString =
+            SettingsManager.getBackupFolderUri(this)
+                ?: return
 
         try {
             val folderUri = Uri.parse(folderUriString)
-            val folder = DocumentFile.fromTreeUri(this, folderUri) ?: return
-            val newFile = folder.createFile("video/mp4", file.name) ?: return
+
+            val folder =
+                DocumentFile.fromTreeUri(this, folderUri)
+                    ?: return
+
+            val newFile =
+                folder.createFile("video/mp4", file.name)
+                    ?: return
+
             contentResolver.openOutputStream(newFile.uri)?.use { output ->
-                file.inputStream().use { input -> input.copyTo(output) }
+                file.inputStream().use { input ->
+                    input.copyTo(output)
+                }
             }
         } catch (e: Exception) {
         }
