@@ -3,9 +3,13 @@ package com.abdoula.screenrecorder
 import android.app.AlertDialog
 import android.app.Service
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.PixelFormat
 import android.graphics.drawable.GradientDrawable
+import android.hardware.display.DisplayManager
+import android.hardware.display.VirtualDisplay
+import android.media.ImageReader
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
@@ -17,9 +21,11 @@ import android.view.WindowManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import kotlin.math.abs
+import kotlin.math.min
 
 class OverlayDrawingService : Service() {
 
@@ -42,8 +48,8 @@ class OverlayDrawingService : Service() {
     private var watermarkView: TextView? = null
 
     private val privacyBoxViews = mutableListOf<View>()
+    private val zoomWindowViews = mutableListOf<View>()
 
-    // ---------- Chronomètre gravé dans la vidéo ----------
     private var chronometerView: TextView? = null
     private var chronometerStartTime = 0L
     private val chronometerRunnable = object : Runnable {
@@ -131,20 +137,22 @@ class OverlayDrawingService : Service() {
         return if (h > 0) String.format("%d:%02d:%02d", h, m, s) else String.format("%02d:%02d", m, s)
     }
 
-    // ---------- Calque de dessin temporaire (annotations normales) ----------
+    // ---------- Calque de dessin temporaire ----------
 
     private fun ensureDrawingViewExists() {
         if (drawingView != null) return
         drawingView = DrawingOverlayView(this).apply {
             setLayerType(View.LAYER_TYPE_HARDWARE, null)
-            onShapeFinished = { onShapeOrPrivacyFinished() }
+            onShapeFinished = { onShapeOrSpecialFinished() }
             onTextRequested = { _, _ -> showTextInputDialog() }
             onPrivacyBoxDrawn = { left, top, right, bottom -> addPersistentPrivacyBox(left, top, right, bottom) }
+            onZoomBoxDrawn = { left, top, right, bottom -> captureAndShowZoom(left, top, right, bottom) }
         }
     }
 
-    private fun onShapeOrPrivacyFinished() {
-        if (drawingView?.currentTool == ShapeTool.PRIVACY_BOX) {
+    private fun onShapeOrSpecialFinished() {
+        val tool = drawingView?.currentTool
+        if (tool == ShapeTool.PRIVACY_BOX || tool == ShapeTool.ZOOM) {
             mainHandler.removeCallbacks(detachAndClearRunnable)
             detachDrawingLayer()
             drawingView?.clearAll()
@@ -220,11 +228,127 @@ class OverlayDrawingService : Service() {
         }
     }
 
-    private fun clearAllPrivacyBoxes() {
+    // ---------- Zoom instantané (capture une seule image, puis l'affiche agrandie) ----------
+
+    private fun captureAndShowZoom(left: Float, top: Float, right: Float, bottom: Float) {
+        val projection = ScreenRecordService.activeMediaProjection
+        if (projection == null) {
+            android.widget.Toast.makeText(this, "Zoom indisponible (enregistrement non actif)", android.widget.Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val metrics = resources.displayMetrics
+        val screenWidth = metrics.widthPixels
+        val screenHeight = metrics.heightPixels
+        val density = metrics.densityDpi
+
+        val imageReader = ImageReader.newInstance(screenWidth, screenHeight, PixelFormat.RGBA_8888, 2)
+
+        var virtualDisplay: VirtualDisplay? = null
+
+        imageReader.setOnImageAvailableListener({ reader ->
+            try {
+                val image = reader.acquireLatestImage() ?: return@setOnImageAvailableListener
+                val bitmap = imageToBitmap(image, screenWidth, screenHeight)
+                image.close()
+
+                val cropLeft = left.toInt().coerceIn(0, screenWidth - 2)
+                val cropTop = top.toInt().coerceIn(0, screenHeight - 2)
+                val cropWidth = (right - left).toInt().coerceIn(2, screenWidth - cropLeft)
+                val cropHeight = (bottom - top).toInt().coerceIn(2, screenHeight - cropTop)
+                val cropped = Bitmap.createBitmap(bitmap, cropLeft, cropTop, cropWidth, cropHeight)
+
+                mainHandler.post {
+                    showZoomWindow(cropped, cropLeft.toFloat(), cropTop.toFloat())
+                    try { virtualDisplay?.release() } catch (e: Exception) {}
+                    try { reader.close() } catch (e: Exception) {}
+                }
+            } catch (e: Exception) {
+                mainHandler.post {
+                    try { virtualDisplay?.release() } catch (ex: Exception) {}
+                    try { reader.close() } catch (ex: Exception) {}
+                }
+            }
+        }, mainHandler)
+
+        virtualDisplay = projection.createVirtualDisplay(
+            "ZoomCapture", screenWidth, screenHeight, density,
+            DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC,
+            imageReader.surface, null, mainHandler
+        )
+    }
+
+    private fun imageToBitmap(image: android.media.Image, width: Int, height: Int): Bitmap {
+        val planes = image.planes
+        val buffer = planes[0].buffer
+        val pixelStride = planes[0].pixelStride
+        val rowStride = planes[0].rowStride
+        val rowPadding = rowStride - pixelStride * width
+        val bitmap = Bitmap.createBitmap(width + rowPadding / pixelStride, height, Bitmap.Config.ARGB_8888)
+        bitmap.copyPixelsFromBuffer(buffer)
+        return Bitmap.createBitmap(bitmap, 0, 0, width, height)
+    }
+
+    private fun showZoomWindow(bitmap: Bitmap, originalLeft: Float, originalTop: Float) {
+        val displayWidth = min(bitmap.width * 2, 700)
+        val displayHeight = (bitmap.height.toFloat() / bitmap.width.toFloat() * displayWidth).toInt()
+
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = gradientRoundedRect(intArrayOf(Color.parseColor("#EE1E1E1E"), Color.parseColor("#EE2A1B45")), 16f)
+            setPadding(8, 8, 8, 8)
+        }
+
+        val imageView = ImageView(this).apply {
+            setImageBitmap(bitmap)
+            scaleType = ImageView.ScaleType.FIT_CENTER
+            layoutParams = LinearLayout.LayoutParams(displayWidth, displayHeight)
+        }
+        container.addView(imageView)
+
+        val closeButton = Button(this).apply {
+            text = "✖ Fermer"
+            textSize = 11f
+            setTextColor(Color.WHITE)
+            background = gradientRoundedRect(intArrayOf(Color.parseColor("#E53935"), Color.parseColor("#B71C1C")), 12f)
+            setPadding(12, 8, 12, 8)
+        }
+        container.addView(closeButton, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = 6 })
+
+        val params = WindowManager.LayoutParams(
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            overlayType(),
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+            PixelFormat.TRANSLUCENT
+        )
+        params.gravity = Gravity.TOP or Gravity.START
+        // Positionne la fenêtre de zoom légèrement décalée pour ne pas cacher
+        // exactement la zone qu'elle vient d'agrandir.
+        params.x = (originalLeft + 40).toInt().coerceAtMost(resources.displayMetrics.widthPixels - displayWidth - 20)
+        params.y = (originalTop + 40).toInt()
+
+        closeButton.setOnClickListener {
+            try { windowManager.removeView(container) } catch (e: Exception) {}
+            zoomWindowViews.remove(container)
+        }
+
+        try {
+            windowManager.addView(container, params)
+            zoomWindowViews.add(container)
+        } catch (e: Exception) {
+        }
+    }
+
+    private fun clearAllSpecialOverlays() {
         for (box in privacyBoxViews) {
             try { windowManager.removeView(box) } catch (e: Exception) {}
         }
         privacyBoxViews.clear()
+        for (zoom in zoomWindowViews) {
+            try { windowManager.removeView(zoom) } catch (e: Exception) {}
+        }
+        zoomWindowViews.clear()
     }
 
     // ---------- Bulle ----------
@@ -429,18 +553,19 @@ class OverlayDrawingService : Service() {
         row1.addView(makeIconButton(R.drawable.ic_text_tool, R.drawable.bg_round_purple) { setTool(ShapeTool.TEXT) })
         panelView?.addView(row1)
 
-        val rowPrivacy = LinearLayout(this).apply {
+        val rowSpecial = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             setPadding(0, 8, 0, 0)
         }
-        rowPrivacy.addView(makeIconButton(R.drawable.ic_privacy, R.drawable.bg_round_purple) { setTool(ShapeTool.PRIVACY_BOX) })
-        rowPrivacy.addView(makeIconButton(R.drawable.ic_minimize, R.drawable.bg_round_red) {
+        rowSpecial.addView(makeIconButton(R.drawable.ic_privacy, R.drawable.bg_round_purple) { setTool(ShapeTool.PRIVACY_BOX) })
+        rowSpecial.addView(makeIconButton(R.drawable.ic_zoom, R.drawable.bg_round_lime) { setTool(ShapeTool.ZOOM) })
+        rowSpecial.addView(makeIconButton(R.drawable.ic_minimize, R.drawable.bg_round_red) {
             mainHandler.removeCallbacks(detachAndClearRunnable)
             detachDrawingLayer()
             drawingView?.clearAll()
-            clearAllPrivacyBoxes()
+            clearAllSpecialOverlays()
         })
-        panelView?.addView(rowPrivacy)
+        panelView?.addView(rowSpecial)
 
         val row2 = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -517,7 +642,7 @@ class OverlayDrawingService : Service() {
         }
     }
 
-private fun showTextInputDialog() {
+    private fun showTextInputDialog() {
         val input = EditText(this).apply {
             hint = "Ton texte…"
             setTextColor(Color.WHITE)
@@ -557,7 +682,7 @@ private fun showTextInputDialog() {
         if (drawingLayerAttached) drawingView?.let { try { windowManager.removeView(it) } catch (e: Exception) {} }
         watermarkView?.let { windowManager.removeView(it) }
         chronometerView?.let { try { windowManager.removeView(it) } catch (e: Exception) {} }
-        clearAllPrivacyBoxes()
+        clearAllSpecialOverlays()
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
