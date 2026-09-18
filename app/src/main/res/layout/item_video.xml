@@ -143,6 +143,15 @@
                 android:background="@drawable/bg_round_blue"
                 android:src="@drawable/ic_send" />
 
+<ImageButton
+                android:id="@+id/exportFormatButton"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginEnd="5dp"
+                android:padding="7dp"
+                android:background="@drawable/bg_round_indigo2"
+                android:src="@drawable/ic_export" />
+
             <ImageButton
                 android:id="@+id/shareButton"
                 android:layout_width="32dp"
