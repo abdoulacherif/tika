@@ -350,6 +350,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun showTopMenu(anchor: android.view.View) {
         val popup = PopupMenu(this, anchor)
+        popup.menu.add("🎨 Modèles de montage")
         popup.menu.add("⭐ Passer à la version Pro")
         popup.menu.add("🗑️ Vidéos supprimées")
         popup.menu.add("💬 Envoyer un commentaire")
@@ -358,6 +359,7 @@ class MainActivity : AppCompatActivity() {
         popup.menu.add("ℹ️ À propos")
         popup.setOnMenuItemClickListener { item ->
             when (item.title) {
+                "🎨 Modèles de montage" -> startActivity(Intent(this, TemplatesActivity::class.java))
                 "⭐ Passer à la version Pro" -> startActivity(Intent(this, SettingsActivity::class.java))
                 "🗑️ Vidéos supprimées" -> startActivity(Intent(this, TrashActivity::class.java))
                 "💬 Envoyer un commentaire" -> sendFeedbackEmail()
