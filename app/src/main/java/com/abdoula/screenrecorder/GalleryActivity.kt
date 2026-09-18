@@ -250,6 +250,51 @@ class GalleryActivity : AppCompatActivity() {
             .show()
     }
 
+private fun showExportFormatDialog(file: File) {
+        val options = arrayOf("⬛ Carré (Instagram) — 1080×1080", "📱 Vertical (Stories/TikTok) — 1080×1920", "🖥️ Horizontal (YouTube) — 1920×1080")
+        AlertDialog.Builder(this)
+            .setTitle("Choisir un format d'export")
+            .setItems(options) { _, which ->
+                val (w, h) = when (which) {
+                    0 -> 1080 to 1080
+                    1 -> 1080 to 1920
+                    else -> 1920 to 1080
+                }
+                runExportFormat(file, w, h, options[which])
+            }
+            .show()
+    }
+
+    private fun runExportFormat(file: File, width: Int, height: Int, label: String) {
+        val progressBar = ProgressBar(this)
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("Export en cours… (peut prendre du temps)")
+            .setView(progressBar)
+            .setCancelable(false)
+            .create()
+        dialog.show()
+
+        Thread {
+            val suffix = when {
+                width == height -> "carre"
+                height > width -> "vertical"
+                else -> "horizontal"
+            }
+            val outputFile = File(file.parent, "${file.nameWithoutExtension}_$suffix.mp4")
+            val success = VideoReformatter.reformat(file.absolutePath, outputFile.absolutePath, width, height)
+
+            mainHandler.post {
+                dialog.dismiss()
+                if (success) {
+                    Toast.makeText(this, "Export terminé : ${outputFile.name}", Toast.LENGTH_LONG).show()
+                    loadVideos()
+                } else {
+                    Toast.makeText(this, "L'export a échoué, réessaie avec une vidéo plus courte", Toast.LENGTH_LONG).show()
+                }
+            }
+        }.start()
+    }
+
     private fun runBudgetCompression(file: File, targetMB: Double) {
         val progressBar = ProgressBar(this)
         val dialog = AlertDialog.Builder(this)
@@ -355,7 +400,10 @@ class GalleryActivity : AppCompatActivity() {
                 startActivity(intent)
             }
 
-            view.findViewById<ImageButton>(R.id.renameButton).setOnClickListener {
+           view.findViewById<ImageButton>(R.id.exportFormatButton).setOnClickListener {
+                showExportFormatDialog(file)
+            }
+ view.findViewById<ImageButton>(R.id.renameButton).setOnClickListener {
                 showRenameDialog(file)
             }
 
