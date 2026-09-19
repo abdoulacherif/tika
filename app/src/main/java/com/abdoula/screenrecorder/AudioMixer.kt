@@ -8,13 +8,28 @@ import java.nio.ByteOrder
 import kotlin.math.max
 import kotlin.math.min
 
-// Mélange la voix originale de la vidéo AVEC une musique de fond (au lieu de
-// remplacer l'une par l'autre). Décode les deux pistes en PCM, additionne les
-// échantillons avec un léger gain réduit sur la musique pour ne pas couvrir la
-// voix, puis ré-encode en AAC.
 object AudioMixer {
 
     fun mix(context: Context, videoPath: String, musicUri: Uri, outputPath: String, musicGain: Float = 0.5f): Boolean {
+        val pfd = context.contentResolver.openFileDescriptor(musicUri, "r") ?: return false
+        val result = doMix(videoPath, outputPath, musicGain, musicPath = null, musicFd = pfd.fileDescriptor)
+        pfd.close()
+        return result
+    }
+
+    // Variante pour la voix off générée localement (fichier .wav) : pas besoin
+    // de Context/ContentResolver, le fichier est déjà accessible directement.
+    fun mixFromFile(videoPath: String, audioFilePath: String, outputPath: String, musicGain: Float = 1.0f): Boolean {
+        return doMix(videoPath, outputPath, musicGain, musicPath = audioFilePath, musicFd = null)
+    }
+
+    private fun doMix(
+        videoPath: String,
+        outputPath: String,
+        musicGain: Float,
+        musicPath: String?,
+        musicFd: java.io.FileDescriptor?
+    ): Boolean {
         var muxer: MediaMuxer? = null
         try {
             val videoRetriever = MediaMetadataRetriever()
@@ -24,7 +39,7 @@ object AudioMixer {
             if (videoDurationMs <= 0) return false
 
             val videoPcm = decodeToPcm(videoPath, null)
-            val musicPcm = decodeToPcm(null, context.contentResolver.openFileDescriptor(musicUri, "r")?.fileDescriptor)
+            val musicPcm = decodeToPcm(musicPath, musicFd)
 
             if (videoPcm == null) return false
 
@@ -93,7 +108,7 @@ object AudioMixer {
     private fun decodeToPcm(path: String?, fd: java.io.FileDescriptor?): PcmResult? {
         try {
             val extractor = MediaExtractor()
-            if (path != null) extractor.setDataSource(path) else extractor.setDataSource(fd!!)
+            if (path != null) extractor.setDataSource(path) else if (fd != null) extractor.setDataSource(fd) else return null
 
             var audioTrack = -1
             var audioFormat: MediaFormat? = null
