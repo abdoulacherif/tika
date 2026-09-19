@@ -5,10 +5,6 @@ import android.media.*
 import android.net.Uri
 import java.nio.ByteBuffer
 
-// Remplace la piste audio d'une vidéo par une musique choisie. La musique est
-// décodée puis ré-encodée en AAC (format accepté par le conteneur MP4), quel
-// que soit son format d'origine (MP3, WAV, etc.) — c'est indispensable, MP4
-// n'accepte pas le MP3 brut.
 object AudioReplacer {
 
     fun replaceAudio(context: Context, videoPath: String, musicUri: Uri, outputPath: String): Boolean {
@@ -20,6 +16,44 @@ object AudioReplacer {
             retriever.release()
             if (videoDurationUs <= 0L) return false
 
+            val pfd = context.contentResolver.openFileDescriptor(musicUri, "r") ?: return false
+            val result = doReplace(videoPath, outputPath, videoDurationUs) { extractor ->
+                extractor.setDataSource(pfd.fileDescriptor)
+            }
+            pfd.close()
+            return result
+        } catch (e: Exception) {
+            return false
+        }
+    }
+
+    // Variante utilisée pour la voix off générée localement (fichier .wav) :
+    // pas besoin de passer par un Uri/ContentResolver puisque le fichier
+    // audio est déjà sur le disque de l'appli.
+    fun replaceAudioFromFile(videoPath: String, audioFilePath: String, outputPath: String): Boolean {
+        try {
+            val retriever = MediaMetadataRetriever()
+            retriever.setDataSource(videoPath)
+            val videoDurationUs = (retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull() ?: 0L) * 1000L
+            retriever.release()
+            if (videoDurationUs <= 0L) return false
+
+            return doReplace(videoPath, outputPath, videoDurationUs) { extractor ->
+                extractor.setDataSource(audioFilePath)
+            }
+        } catch (e: Exception) {
+            return false
+        }
+    }
+
+    private fun doReplace(
+        videoPath: String,
+        outputPath: String,
+        videoDurationUs: Long,
+        setAudioSource: (MediaExtractor) -> Unit
+    ): Boolean {
+        var muxer: MediaMuxer? = null
+        try {
             val videoExtractor = MediaExtractor()
             videoExtractor.setDataSource(videoPath)
             var videoTrack = -1
@@ -31,9 +65,8 @@ object AudioReplacer {
             }
             if (videoTrack == -1 || videoFormat == null) return false
 
-            val pfd = context.contentResolver.openFileDescriptor(musicUri, "r") ?: return false
             val musicExtractor = MediaExtractor()
-            musicExtractor.setDataSource(pfd.fileDescriptor)
+            setAudioSource(musicExtractor)
             var musicTrack = -1
             var musicInFormat: MediaFormat? = null
             for (i in 0 until musicExtractor.trackCount) {
@@ -41,7 +74,7 @@ object AudioReplacer {
                 val mime = format.getString(MediaFormat.KEY_MIME) ?: continue
                 if (mime.startsWith("audio/")) { musicTrack = i; musicInFormat = format; break }
             }
-            if (musicTrack == -1 || musicInFormat == null) { pfd.close(); return false }
+            if (musicTrack == -1 || musicInFormat == null) return false
 
             val decoder = MediaCodec.createDecoderByType(musicInFormat.getString(MediaFormat.KEY_MIME)!!)
             decoder.configure(musicInFormat, null, null, 0)
@@ -139,7 +172,6 @@ object AudioReplacer {
             decoder.stop(); decoder.release()
             encoder.stop(); encoder.release()
             musicExtractor.release()
-            pfd.close()
 
             if (!muxerStarted) { muxer.release(); return false }
 
