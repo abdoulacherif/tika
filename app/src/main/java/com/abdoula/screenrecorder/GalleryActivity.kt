@@ -116,6 +116,96 @@ class GalleryActivity : AppCompatActivity() {
         }.start()
     }
 
+private fun showVoiceoverDialog(file: File) {
+        val layout = layoutInflater.inflate(R.layout.dialog_voiceover_choice, null)
+        val textInput = layout.findViewById<EditText>(R.id.voiceoverTextInput)
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(layout)
+            .create()
+        dialog.window?.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+
+        layout.findViewById<LinearLayout>(R.id.voiceoverReplaceOption).setOnClickListener {
+            val text = textInput.text.toString().trim()
+            if (text.isEmpty()) {
+                Toast.makeText(this, "Tape un texte d'abord", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            dialog.dismiss()
+            generateAndApplyVoiceover(file, text, mode = "replace")
+        }
+
+        layout.findViewById<LinearLayout>(R.id.voiceoverMixOption).setOnClickListener {
+            val text = textInput.text.toString().trim()
+            if (text.isEmpty()) {
+                Toast.makeText(this, "Tape un texte d'abord", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            dialog.dismiss()
+            generateAndApplyVoiceover(file, text, mode = "mix")
+        }
+
+        layout.findViewById<TextView>(R.id.voiceoverCancelText).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    private fun generateAndApplyVoiceover(file: File, text: String, mode: String) {
+        val progressBar = ProgressBar(this)
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("🎤 Génération de la voix off…")
+            .setView(progressBar)
+            .setCancelable(false)
+            .create()
+        dialog.show()
+
+        val voiceoverManager = VoiceoverManager(this)
+        voiceoverManager.initialize { ready ->
+            if (!ready) {
+                dialog.dismiss()
+                Toast.makeText(this, "Moteur vocal indisponible sur ce téléphone", Toast.LENGTH_LONG).show()
+                return@initialize
+            }
+
+            val wavFile = File(cacheDir, "voiceover_${System.currentTimeMillis()}.wav")
+            voiceoverManager.generateSpeech(text, wavFile) { resultFile ->
+                if (resultFile == null) {
+                    dialog.dismiss()
+                    voiceoverManager.shutdown()
+                    Toast.makeText(this, "La génération de la voix a échoué", Toast.LENGTH_LONG).show()
+                    return@generateSpeech
+                }
+
+                dialog.setTitle("🎬 Application à la vidéo…")
+
+                Thread {
+                    val suffix = if (mode == "mix") "voixmixee" else "voixoff"
+                    val outputFile = File(file.parent, "${file.nameWithoutExtension}_$suffix.mp4")
+                    val success = if (mode == "mix") {
+                        AudioMixer.mixFromFile(file.absolutePath, resultFile.absolutePath, outputFile.absolutePath)
+                    } else {
+                        AudioReplacer.replaceAudioFromFile(file.absolutePath, resultFile.absolutePath, outputFile.absolutePath)
+                    }
+
+                    voiceoverManager.shutdown()
+                    resultFile.delete()
+
+                    mainHandler.post {
+                        dialog.dismiss()
+                        if (success) {
+                            Toast.makeText(this, "Voix off ajoutée : ${outputFile.name}", Toast.LENGTH_LONG).show()
+                            loadVideos()
+                        } else {
+                            Toast.makeText(this, "Impossible d'ajouter la voix off", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                }.start()
+            }
+        }
+    }
+
     private fun showMusicChoiceDialog(file: File) {
         val layout = layoutInflater.inflate(R.layout.dialog_music_choice, null)
 
@@ -349,8 +439,13 @@ private fun showExportFormatDialog(file: File) {
             val file = files[position]
             view.findViewById<TextView>(R.id.fileName).text = file.name
 
+view.findViewById<ImageButton>(R.id.voiceoverButton).setOnClickListener {
+                showVoiceoverDialog(file)
+            }
+
             val thumbView = view.findViewById<ImageView>(R.id.thumbnail)
-            thumbView.setImageBitmap(null)
+         
+   thumbView.setImageBitmap(null)
             thumbView.tag = file.absolutePath
             loadThumbnailAsync(file, thumbView)
 
