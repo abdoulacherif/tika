@@ -14,6 +14,10 @@ import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.BackgroundColorSpan
+import android.text.style.StyleSpan
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
@@ -59,6 +63,11 @@ class OverlayDrawingService : Service() {
             mainHandler.postDelayed(this, 1000)
         }
     }
+
+    // ---------- Sous-titres karaoké (incrustés en direct pendant l'enregistrement) ----------
+    private var karaokeBarView: TextView? = null
+    private var karaokeWords: List<String> = emptyList()
+    private var karaokeCurrentIndex = 0
 
     override fun onCreate() {
         super.onCreate()
@@ -135,6 +144,97 @@ class OverlayDrawingService : Service() {
         val m = (totalSeconds % 3600) / 60
         val s = totalSeconds % 60
         return if (h > 0) String.format("%d:%02d:%02d", h, m, s) else String.format("%02d:%02d", m, s)
+    }
+
+    // ---------- Sous-titres karaoké ----------
+
+    private fun showKaraokeInputDialog() {
+        val input = EditText(this).apply {
+            hint = "Tape ton texte complet…"
+            minLines = 3
+            setTextColor(Color.WHITE)
+            setHintTextColor(Color.LTGRAY)
+        }
+
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("🎤 Sous-titres karaoké")
+            .setMessage("Tape à l'avance tout ce que tu vas dire. Une barre apparaîtra en bas de l'écran : tape dessus pour avancer mot par mot, en rythme avec ta voix.")
+            .setView(input)
+            .setPositiveButton("Démarrer") { _, _ ->
+                val text = input.text.toString().trim()
+                if (text.isNotEmpty()) startKaraoke(text)
+            }
+            .setNegativeButton("Annuler", null)
+            .create()
+        dialog.window?.setType(overlayType())
+        dialog.show()
+    }
+
+    private fun startKaraoke(fullText: String) {
+        karaokeWords = fullText.split(Regex("\\s+")).filter { it.isNotBlank() }
+        karaokeCurrentIndex = 0
+        if (karaokeWords.isEmpty()) return
+
+        if (karaokeBarView == null) {
+            karaokeBarView = TextView(this).apply {
+                textSize = 16f
+                setTextColor(Color.WHITE)
+                setBackgroundColor(Color.parseColor("#CC000000"))
+                setPadding(24, 16, 24, 16)
+                gravity = Gravity.CENTER
+                setOnClickListener { advanceKaraokeWord() }
+            }
+
+            val params = WindowManager.LayoutParams(
+                (resources.displayMetrics.widthPixels * 0.92).toInt(),
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                overlayType(),
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                PixelFormat.TRANSLUCENT
+            )
+            params.gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+            params.y = 60
+
+            windowManager.addView(karaokeBarView, params)
+        }
+
+        updateKaraokeText()
+    }
+
+    private fun advanceKaraokeWord() {
+        if (karaokeWords.isEmpty()) return
+        if (karaokeCurrentIndex < karaokeWords.size - 1) {
+            karaokeCurrentIndex++
+            updateKaraokeText()
+        } else {
+            // Fin du texte atteinte : on retire la barre automatiquement.
+            stopKaraoke()
+        }
+    }
+
+    private fun updateKaraokeText() {
+        val fullText = karaokeWords.joinToString(" ")
+        val spannable = SpannableString(fullText)
+
+        var charIndex = 0
+        for ((i, word) in karaokeWords.withIndex()) {
+            val start = charIndex
+            val end = start + word.length
+            if (i == karaokeCurrentIndex) {
+                spannable.setSpan(BackgroundColorSpan(Color.parseColor("#7C4DFF")), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                spannable.setSpan(StyleSpan(android.graphics.Typeface.BOLD), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+            charIndex = end + 1
+        }
+
+        karaokeBarView?.text = spannable
+    }
+
+    private fun stopKaraoke() {
+        karaokeBarView?.let { try { windowManager.removeView(it) } catch (e: Exception) {} }
+        karaokeBarView = null
+        karaokeWords = emptyList()
+        karaokeCurrentIndex = 0
     }
 
     // ---------- Calque de dessin temporaire ----------
@@ -228,7 +328,7 @@ class OverlayDrawingService : Service() {
         }
     }
 
-    // ---------- Zoom instantané (capture une seule image, puis l'affiche agrandie) ----------
+    // ---------- Zoom instantané ----------
 
     private fun captureAndShowZoom(left: Float, top: Float, right: Float, bottom: Float) {
         val projection = ScreenRecordService.activeMediaProjection
@@ -323,8 +423,6 @@ class OverlayDrawingService : Service() {
             PixelFormat.TRANSLUCENT
         )
         params.gravity = Gravity.TOP or Gravity.START
-        // Positionne la fenêtre de zoom légèrement décalée pour ne pas cacher
-        // exactement la zone qu'elle vient d'agrandir.
         params.x = (originalLeft + 40).toInt().coerceAtMost(resources.displayMetrics.widthPixels - displayWidth - 20)
         params.y = (originalTop + 40).toInt()
 
@@ -349,6 +447,7 @@ class OverlayDrawingService : Service() {
             try { windowManager.removeView(zoom) } catch (e: Exception) {}
         }
         zoomWindowViews.clear()
+        stopKaraoke()
     }
 
     // ---------- Bulle ----------
@@ -559,12 +658,7 @@ class OverlayDrawingService : Service() {
         }
         rowSpecial.addView(makeIconButton(R.drawable.ic_privacy, R.drawable.bg_round_purple) { setTool(ShapeTool.PRIVACY_BOX) })
         rowSpecial.addView(makeIconButton(R.drawable.ic_zoom, R.drawable.bg_round_lime) { setTool(ShapeTool.ZOOM) })
-        rowSpecial.addView(makeIconButton(R.drawable.ic_minimize, R.drawable.bg_round_red) {
-            mainHandler.removeCallbacks(detachAndClearRunnable)
-            detachDrawingLayer()
-            drawingView?.clearAll()
-            clearAllSpecialOverlays()
-        })
+        rowSpecial.addView(makeIconButton(R.drawable.ic_karaoke, R.drawable.bg_round_fuchsia) { showKaraokeInputDialog() })
         panelView?.addView(rowSpecial)
 
         val row2 = LinearLayout(this).apply {
@@ -580,7 +674,12 @@ class OverlayDrawingService : Service() {
             setPadding(0, 8, 0, 0)
         }
         row3.addView(makeIconButton(R.drawable.ic_undo, R.drawable.bg_round_blue) { drawingView?.undo() })
-        row3.addView(makeIconButton(R.drawable.ic_trash, R.drawable.bg_round_red) { drawingView?.clearAll() })
+        row3.addView(makeIconButton(R.drawable.ic_minimize, R.drawable.bg_round_red) {
+            mainHandler.removeCallbacks(detachAndClearRunnable)
+            detachDrawingLayer()
+            drawingView?.clearAll()
+            clearAllSpecialOverlays()
+        })
         row3.addView(makeIconButton(R.drawable.ic_minimize, R.drawable.bg_round_purple) { minimizeBubble() })
         pauseButton = makeIconButton(R.drawable.ic_pause, R.drawable.bg_round_orange) { togglePauseResume() }
         row3.addView(pauseButton)
@@ -687,3 +786,4 @@ class OverlayDrawingService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 }
+    
