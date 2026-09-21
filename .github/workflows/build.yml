@@ -27,6 +27,10 @@ jobs:
         run: |
           echo "=== Application ID ==="
           grep -R "applicationId" -n . --include="*.gradle" --include="*.gradle.kts" || true
+
+          echo "=== Namespace ==="
+          grep -R "namespace" -n app --include="*.gradle" --include="*.gradle.kts" || true
+
           echo "=== Gradle files ==="
           find . -name "build.gradle" -o -name "build.gradle.kts"
 
@@ -36,11 +40,30 @@ jobs:
       - name: Get SHA-256 signing fingerprint
         if: success()
         run: |
+          mkdir -p ~/.android
+
+          if [ ! -f ~/.android/debug.keystore ]; then
+            echo "Debug keystore not found. Creating one..."
+
+            keytool -genkeypair \
+              -v \
+              -keystore ~/.android/debug.keystore \
+              -alias androiddebugkey \
+              -keyalg RSA \
+              -keysize 2048 \
+              -validity 10000 \
+              -storepass android \
+              -keypass android \
+              -dname "CN=Android Debug,O=Android,C=US"
+          fi
+
+          echo "=== SHA-256 ==="
+
           keytool -list -v \
             -keystore ~/.android/debug.keystore \
             -alias androiddebugkey \
             -storepass android \
-            -keypass android | grep "SHA256"
+            -keypass android | grep -E "SHA256|SHA-256" || true
 
       - name: Upload APK
         if: success()
