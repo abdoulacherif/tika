@@ -473,7 +473,12 @@ view.findViewById<ImageButton>(R.id.voiceoverButton).setOnClickListener {
                 startActivity(intent)
             }
 
-            view.findViewById<ImageButton>(R.id.musicButton).setOnClickListener {
+           view.findViewById<ImageButton>(R.id.cropButton).setOnClickListener {
+                val intent = Intent(this@GalleryActivity, CropActivity::class.java)
+                intent.putExtra("videoPath", file.absolutePath)
+                startActivity(intent)
+            }
+ view.findViewById<ImageButton>(R.id.musicButton).setOnClickListener {
                 showMusicChoiceDialog(file)
             }
 
