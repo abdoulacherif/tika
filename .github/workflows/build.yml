@@ -23,10 +23,18 @@ jobs:
         with:
           gradle-version: 8.7
 
+      - name: Check project
+        run: |
+          echo "=== Application ID ==="
+          grep -R "applicationId" -n . --include="*.gradle" --include="*.gradle.kts" || true
+          echo "=== Gradle files ==="
+          find . -name "build.gradle" -o -name "build.gradle.kts"
+
       - name: Build debug APK
-        run: gradle assembleDebug
+        run: gradle assembleDebug --stacktrace
 
       - name: Get SHA-256 signing fingerprint
+        if: success()
         run: |
           keytool -list -v \
             -keystore ~/.android/debug.keystore \
@@ -35,6 +43,7 @@ jobs:
             -keypass android | grep "SHA256"
 
       - name: Upload APK
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: app-debug
