@@ -1,8 +1,9 @@
-name: Build APK
+name: Build Android App Bundle
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -10,7 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -26,48 +28,27 @@ jobs:
       - name: Check project
         run: |
           echo "=== Application ID ==="
-          grep -R "applicationId" -n . --include="*.gradle" --include="*.gradle.kts" || true
+          grep -R "applicationId" -n app --include="*.gradle" --include="*.gradle.kts" || true
 
           echo "=== Namespace ==="
           grep -R "namespace" -n app --include="*.gradle" --include="*.gradle.kts" || true
 
-          echo "=== Gradle files ==="
-          find . -name "build.gradle" -o -name "build.gradle.kts"
+      - name: Clean project
+        run: gradle clean
 
-      - name: Build debug APK
-        run: gradle assembleDebug --stacktrace
+      - name: Build Release AAB
+        run: gradle bundleRelease --stacktrace
 
-      - name: Get SHA-256 signing fingerprint
+      - name: Show generated files
         if: success()
         run: |
-          mkdir -p ~/.android
+          echo "=== Generated AAB ==="
+          find app/build/outputs -type f -name "*.aab" -print
 
-          if [ ! -f ~/.android/debug.keystore ]; then
-            echo "Debug keystore not found. Creating one..."
-
-            keytool -genkeypair \
-              -v \
-              -keystore ~/.android/debug.keystore \
-              -alias androiddebugkey \
-              -keyalg RSA \
-              -keysize 2048 \
-              -validity 10000 \
-              -storepass android \
-              -keypass android \
-              -dname "CN=Android Debug,O=Android,C=US"
-          fi
-
-          echo "=== SHA-256 ==="
-
-          keytool -list -v \
-            -keystore ~/.android/debug.keystore \
-            -alias androiddebugkey \
-            -storepass android \
-            -keypass android | grep -E "SHA256|SHA-256" || true
-
-      - name: Upload APK
+      - name: Upload Release AAB
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug
-          path: app/build/outputs/apk/debug/app-debug.apk
+          name: app-release
+          path: app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
