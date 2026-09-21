@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace 'com.abdoula.screenrecorder'
+    namespace 'com.abdoula.ecranplus'
     compileSdk 34
 
     defaultConfig {
