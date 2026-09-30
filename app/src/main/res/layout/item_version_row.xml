@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:background="#1E1E1E"
+    android:padding="10dp"
+    android:layout_marginBottom="6dp">
+
+    <TextView
+        android:id="@+id/versionLabel"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textColor="#CCCCCC"
+        android:textSize="12sp" />
+
+    <ImageButton
+        android:id="@+id/versionPlayButton"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginEnd="6dp"
+        android:padding="6dp"
+        android:background="@drawable/bg_round_green"
+        android:src="@drawable/ic_play" />
+
+    <ImageButton
+        android:id="@+id/versionDeleteButton"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:padding="6dp"
+        android:background="@drawable/bg_round_red"
+        android:src="@drawable/ic_trash" />
+
+</LinearLayout>
