@@ -498,6 +498,12 @@ class GalleryActivity : AppCompatActivity() {
             val file = files[position]
             view.findViewById<TextView>(R.id.fileName).text = file.name
 
+view.findViewById<ImageButton>(R.id.wifiTransferButton).setOnClickListener {
+                val intent = Intent(this@GalleryActivity, WifiTransferActivity::class.java)
+                intent.putExtra("videoPath", file.absolutePath)
+                startActivity(intent)
+            }
+
             val thumbView = view.findViewById<ImageView>(R.id.thumbnail)
             thumbView.setImageBitmap(null)
             thumbView.tag = file.absolutePath
