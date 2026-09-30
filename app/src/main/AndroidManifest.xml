@@ -44,6 +44,10 @@
             android:exported="false" />
 
 <activity
+            android:name=".VersionHistoryActivity"
+            android:exported="false" />
+
+<activity
             android:name=".TemplatesActivity"
             android:exported="false" />
 
