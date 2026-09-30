@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/bg_gradient_screen"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="🕓 Historique des versions"
+        android:textColor="#FFFFFF"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="6dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Toutes les variantes d'une même vidéo, regroupées"
+        android:textColor="#9E9E9E"
+        android:textSize="13sp"
+        android:layout_marginBottom="20dp" />
+
+    <TextView
+        android:id="@+id/versionsEmptyText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Aucune vidéo avec plusieurs versions pour l'instant"
+        android:textColor="#9E9E9E"
+        android:gravity="center"
+        android:visibility="gone"
+        android:layout_marginTop="40dp" />
+
+    <ScrollView
+        android:id="@+id/versionsScroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/versionsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+    </ScrollView>
+
+</LinearLayout>
