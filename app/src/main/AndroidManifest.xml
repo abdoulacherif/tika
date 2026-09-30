@@ -40,7 +40,11 @@
             android:exported="false" />
 
         <activity
-            android:name=".GalleryActivity"
+          
+<activity
+            android:name=".WifiTransferActivity"
+            android:exported="false" />
+  android:name=".GalleryActivity"
             android:exported="false" />
 
 <activity
