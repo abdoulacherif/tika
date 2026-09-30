@@ -13,10 +13,14 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
 
-    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
 
     <application
         android:allowBackup="true"
@@ -35,23 +39,23 @@
             </intent-filter>
         </activity>
 
-<activity
+        <activity
             android:name=".CropActivity"
             android:exported="false" />
 
         <activity
-          
-<activity
             android:name=".WifiTransferActivity"
             android:exported="false" />
-  android:name=".GalleryActivity"
+
+        <activity
+            android:name=".GalleryActivity"
             android:exported="false" />
 
-<activity
+        <activity
             android:name=".VersionHistoryActivity"
             android:exported="false" />
 
-<activity
+        <activity
             android:name=".TemplatesActivity"
             android:exported="false" />
 
@@ -120,12 +124,15 @@
         <receiver
             android:name=".RecorderWidgetProvider"
             android:exported="false">
+
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
+
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/app_widget_info" />
+
         </receiver>
 
         <provider
@@ -133,9 +140,11 @@
             android:authorities="${applicationId}.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
+
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
+
         </provider>
 
     </application>
