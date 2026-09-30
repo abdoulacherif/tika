@@ -71,7 +71,7 @@
                 android:background="@drawable/bg_round_indigo"
                 android:src="@drawable/ic_subtitle" />
 
-<ImageButton
+            <ImageButton
                 android:id="@+id/voiceoverButton"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
@@ -98,7 +98,7 @@
                 android:background="@drawable/bg_round_amber"
                 android:src="@drawable/ic_volume" />
 
-<ImageButton
+            <ImageButton
                 android:id="@+id/budgetCompressButton"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
@@ -152,7 +152,7 @@
                 android:background="@drawable/bg_round_blue"
                 android:src="@drawable/ic_send" />
 
-<ImageButton
+            <ImageButton
                 android:id="@+id/cropButton"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
@@ -161,8 +161,7 @@
                 android:background="@drawable/bg_round_teal"
                 android:src="@drawable/ic_scissors" />
 
-
-<ImageButton
+            <ImageButton
                 android:id="@+id/exportFormatButton"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
@@ -170,6 +169,16 @@
                 android:padding="7dp"
                 android:background="@drawable/bg_round_indigo2"
                 android:src="@drawable/ic_export" />
+
+            <!-- NOUVEAU : TRANSFERT WI-FI -->
+            <ImageButton
+                android:id="@+id/wifiTransferButton"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginEnd="5dp"
+                android:padding="7dp"
+                android:background="@drawable/bg_round_cyan"
+                android:src="@drawable/ic_wifi" />
 
             <ImageButton
                 android:id="@+id/shareButton"
