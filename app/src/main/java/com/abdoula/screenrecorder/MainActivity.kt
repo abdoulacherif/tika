@@ -70,10 +70,6 @@ class MainActivity : AppCompatActivity() {
 
                 updateUiRecording(true)
 
-                // Retour fiable à l'écran d'accueil du téléphone : moveTaskToBack()
-                // n'est pas fiable sur certains téléphones (dont Itel) et pouvait
-                // laisser l'appli bloquer les interactions ailleurs malgré son
-                // apparence de disparition.
                 val homeIntent = Intent(Intent.ACTION_MAIN).apply {
                     addCategory(Intent.CATEGORY_HOME)
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK
@@ -123,10 +119,11 @@ class MainActivity : AppCompatActivity() {
 
         cameraToggleButton.setOnClickListener { toggleCamera() }
 
-       findViewById<Button>(R.id.locatorButton).setOnClickListener {
+        findViewById<Button>(R.id.locatorButton).setOnClickListener {
             startActivity(Intent(this, LocatorActivity::class.java))
         }
- findViewById<ImageButton>(R.id.menuButton).setOnClickListener { view ->
+
+        findViewById<ImageButton>(R.id.menuButton).setOnClickListener { view ->
             showTopMenu(view)
         }
 
@@ -351,6 +348,7 @@ class MainActivity : AppCompatActivity() {
     private fun showTopMenu(anchor: android.view.View) {
         val popup = PopupMenu(this, anchor)
         popup.menu.add("🎨 Modèles de montage")
+        popup.menu.add("🕓 Historique des versions")
         popup.menu.add("⭐ Passer à la version Pro")
         popup.menu.add("🗑️ Vidéos supprimées")
         popup.menu.add("💬 Envoyer un commentaire")
@@ -360,6 +358,7 @@ class MainActivity : AppCompatActivity() {
         popup.setOnMenuItemClickListener { item ->
             when (item.title) {
                 "🎨 Modèles de montage" -> startActivity(Intent(this, TemplatesActivity::class.java))
+                "🕓 Historique des versions" -> startActivity(Intent(this, VersionHistoryActivity::class.java))
                 "⭐ Passer à la version Pro" -> startActivity(Intent(this, SettingsActivity::class.java))
                 "🗑️ Vidéos supprimées" -> startActivity(Intent(this, TrashActivity::class.java))
                 "💬 Envoyer un commentaire" -> sendFeedbackEmail()
