@@ -28,6 +28,8 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.journeyapps.barcodescanner.ScanContract
+import com.journeyapps.barcodescanner.ScanOptions
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -48,6 +50,7 @@ class MainActivity : AppCompatActivity() {
 
     private var cameraEnabled = false
     private var pendingLaunchAfterPermission = false
+    private var pendingQrScanAfterPermission = false
 
     private val screenCaptureLauncher =
         registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()) { result ->
@@ -79,6 +82,27 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "Permission d'enregistrement refusée", Toast.LENGTH_SHORT).show()
             }
         }
+
+    // Scanner de QR code intégré (ouvre directement la caméra dans l'appli) :
+    // utilisé pour recevoir une vidéo envoyée via "Envoi sans internet" depuis
+    // un autre téléphone, sans avoir besoin d'une appli de scan tierce.
+    private val qrScanLauncher = registerForActivityResult(ScanContract()) { result ->
+        if (result.contents != null) {
+            val scannedUrl = result.contents
+            AlertDialog.Builder(this)
+                .setTitle("📥 Recevoir la vidéo ?")
+                .setMessage("Lien détecté :\n$scannedUrl\n\nOuvrir pour télécharger la vidéo ?")
+                .setPositiveButton("Télécharger") { _, _ ->
+                    try {
+                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(scannedUrl)))
+                    } catch (e: Exception) {
+                        Toast.makeText(this, "Lien invalide", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                .setNegativeButton("Annuler", null)
+                .show()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -139,6 +163,24 @@ class MainActivity : AppCompatActivity() {
 
         showWhatsNewIfNeeded()
         scheduleInactivityReminder()
+    }
+
+    private fun startQrScan() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            pendingQrScanAfterPermission = true
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), 400)
+            return
+        }
+
+        val options = ScanOptions().apply {
+            setDesiredBarcodeFormats(ScanOptions.QR_CODE)
+            setPrompt("Scanne le QR code affiché sur l'autre téléphone")
+            setBeepEnabled(true)
+            setOrientationLocked(false)
+        }
+        qrScanLauncher.launch(options)
     }
 
     private fun showWhatsNewIfNeeded() {
@@ -264,6 +306,17 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "Le micro est nécessaire pour enregistrer le son", Toast.LENGTH_LONG).show()
             }
         }
+        if (requestCode == 400) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (pendingQrScanAfterPermission) {
+                    pendingQrScanAfterPermission = false
+                    startQrScan()
+                }
+            } else {
+                pendingQrScanAfterPermission = false
+                Toast.makeText(this, "La caméra est nécessaire pour scanner un code", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     private fun setupBottomNav() {
@@ -347,6 +400,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun showTopMenu(anchor: android.view.View) {
         val popup = PopupMenu(this, anchor)
+        popup.menu.add("📷 Scanner un code (recevoir une vidéo)")
         popup.menu.add("🎨 Modèles de montage")
         popup.menu.add("🕓 Historique des versions")
         popup.menu.add("⭐ Passer à la version Pro")
@@ -357,6 +411,7 @@ class MainActivity : AppCompatActivity() {
         popup.menu.add("ℹ️ À propos")
         popup.setOnMenuItemClickListener { item ->
             when (item.title) {
+                "📷 Scanner un code (recevoir une vidéo)" -> startQrScan()
                 "🎨 Modèles de montage" -> startActivity(Intent(this, TemplatesActivity::class.java))
                 "🕓 Historique des versions" -> startActivity(Intent(this, VersionHistoryActivity::class.java))
                 "⭐ Passer à la version Pro" -> startActivity(Intent(this, SettingsActivity::class.java))
