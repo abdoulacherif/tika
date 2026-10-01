@@ -1,4 +1,4 @@
-name: Build Release AAB
+name: Build Release APK
 
 on:
   push:
@@ -29,25 +29,25 @@ jobs:
           test -f ecranplus-release.jks
           ls -lh ecranplus-release.jks
 
-      - name: Build Release AAB
+      - name: Build Release APK
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          gradle bundleRelease \
+          gradle assembleRelease \
             -Pandroid.injected.signing.store.file="$GITHUB_WORKSPACE/ecranplus-release.jks" \
             -Pandroid.injected.signing.store.password="$KEYSTORE_PASSWORD" \
             -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
             -Pandroid.injected.signing.key.password="$KEY_PASSWORD"
 
-      - name: Verify AAB
+      - name: Verify APK
         run: |
           jarsigner -verify \
-            app/build/outputs/bundle/release/app-release.aab
+            app/build/outputs/apk/release/app-release.apk
 
-      - name: Upload Release AAB
+      - name: Upload Release APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-release-aab
-          path: app/build/outputs/bundle/release/app-release.aab
+          name: app-release-apk
+          path: app/build/outputs/apk/release/app-release.apk
