@@ -68,34 +68,6 @@
                 android:textSize="13sp"
                 android:text="🎟️ J'ai un code d'activation" />
 
-<LinearLayout
-            android:id="@+id/annotationDurationRow"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/bg_card"
-            android:clickable="true"
-            android:focusable="true"
-            android:padding="16dp"
-            android:layout_marginBottom="10dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Durée d'affichage d'une annotation"
-                android:textColor="#FFFFFF"
-                android:textSize="15sp" />
-
-            <TextView
-                android:id="@+id/annotationDurationValue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="1s"
-                android:textColor="#B388FF"
-                android:textSize="13sp"
-                android:layout_marginTop="4dp" />
-        </LinearLayout>
-
         </LinearLayout>
 
         <TextView
@@ -106,30 +78,6 @@
             android:textSize="12sp"
             android:textStyle="bold"
             android:layout_marginBottom="8dp" />
-
-<LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:background="@drawable/bg_card"
-            android:padding="16dp"
-            android:layout_marginBottom="10dp">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="⏱️ Chronomètre gravé dans la vidéo"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp" />
-
-            <CheckBox
-                android:id="@+id/chronometerCheck"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -178,6 +126,34 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Haut à droite"
+                android:textColor="#B388FF"
+                android:textSize="13sp"
+                android:layout_marginTop="4dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/annotationDurationRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_card"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="16dp"
+            android:layout_marginBottom="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Durée d'affichage d'une annotation"
+                android:textColor="#FFFFFF"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/annotationDurationValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1s"
                 android:textColor="#B388FF"
                 android:textSize="13sp"
                 android:layout_marginTop="4dp" />
@@ -415,6 +391,30 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:text="⏱️ Chronomètre gravé dans la vidéo"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <CheckBox
+                android:id="@+id/chronometerCheck"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_card"
+            android:padding="16dp"
+            android:layout_marginBottom="10dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:text="Masquer la bulle d'outils pendant l'enregistrement"
                 android:textColor="#FFFFFF"
                 android:textSize="14sp" />
@@ -526,6 +526,30 @@
         </LinearLayout>
 
         <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_card"
+            android:padding="16dp"
+            android:layout_marginBottom="10dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="🔔 Raccourci de démarrage en notification"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <CheckBox
+                android:id="@+id/quickStartCheck"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/pinRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -592,4 +616,3 @@
 
     </LinearLayout>
 </ScrollView>
-        
