@@ -90,6 +90,72 @@
             android:textSize="13sp" />
     </LinearLayout>
 
+<TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="📢 Annonce visible par tous"
+        android:textColor="#7C4DFF"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="8dp" />
+
+    <EditText
+        android:id="@+id/announcementVersionCodeInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Numéro de version (ex: 5)"
+        android:inputType="number"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#888888"
+        android:background="@drawable/bg_card"
+        android:padding="12dp"
+        android:layout_marginBottom="8dp" />
+
+    <EditText
+        android:id="@+id/announcementVersionNameInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nom de version (ex: 1.5)"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#888888"
+        android:background="@drawable/bg_card"
+        android:padding="12dp"
+        android:layout_marginBottom="8dp" />
+
+    <EditText
+        android:id="@+id/announcementMessageInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Message affiché à l'utilisateur"
+        android:minLines="3"
+        android:gravity="top"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#888888"
+        android:background="@drawable/bg_card"
+        android:padding="12dp"
+        android:layout_marginBottom="8dp" />
+
+    <EditText
+        android:id="@+id/announcementUrlInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Lien de téléchargement"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#888888"
+        android:background="@drawable/bg_card"
+        android:padding="12dp"
+        android:layout_marginBottom="10dp" />
+
+    <Button
+        android:id="@+id/publishAnnouncementButton"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/bg_stat_pink"
+        android:textColor="#FFFFFF"
+        android:textAllCaps="false"
+        android:text="📢 Publier l'annonce" />
+
     <Button
         android:id="@+id/refreshButton"
         android:layout_width="match_parent"
