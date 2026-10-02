@@ -25,6 +25,7 @@ object SettingsManager {
     private const val KEY_PIN_ENABLED = "app_pin_enabled"
     private const val KEY_ANNOTATION_DURATION_MS = "annotation_duration_ms"
     private const val KEY_CHRONOMETER_ENABLED = "chronometer_enabled"
+    private const val KEY_QUICK_START_NOTIFICATION = "quick_start_notification_enabled"
 
     const val FREE_DURATION_LIMIT_MS = 15 * 60 * 1000L
 
@@ -252,7 +253,6 @@ object SettingsManager {
         prefs.edit().putLong(KEY_ANNOTATION_DURATION_MS, durationMs).apply()
     }
 
-    // Chronomètre gravé dans la vidéo, affiché pendant tout l'enregistrement
     fun isChronometerEnabled(context: Context): Boolean {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         return prefs.getBoolean(KEY_CHRONOMETER_ENABLED, false)
@@ -261,6 +261,16 @@ object SettingsManager {
     fun setChronometerEnabled(context: Context, enabled: Boolean) {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         prefs.edit().putBoolean(KEY_CHRONOMETER_ENABLED, enabled).apply()
+    }
+
+    fun isQuickStartNotificationEnabled(context: Context): Boolean {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        return prefs.getBoolean(KEY_QUICK_START_NOTIFICATION, false)
+    }
+
+    fun setQuickStartNotificationEnabled(context: Context, enabled: Boolean) {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        prefs.edit().putBoolean(KEY_QUICK_START_NOTIFICATION, enabled).apply()
     }
 
     fun resolveBitrate(context: Context, effectiveHeight: Int): Int {
