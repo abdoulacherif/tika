@@ -33,6 +33,7 @@ class SettingsActivity : AppCompatActivity() {
     private val countdownOptions = listOf(0, 1, 2, 3, 5, 10)
     private val bubblePositions = listOf("top_left", "top_right", "bottom_left", "bottom_right")
     private val bubblePositionLabels = listOf("Haut à gauche", "Haut à droite", "Bas à gauche", "Bas à droite")
+    private val annotationDurationOptions = listOf(500L, 1000L, 1500L, 2000L, 3000L, 5000L)
 
     private val logoPickerLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) {
@@ -80,9 +81,8 @@ class SettingsActivity : AppCompatActivity() {
         findViewById<LinearLayout>(R.id.bitrateRow).setOnClickListener { showBitrateDialog() }
         findViewById<LinearLayout>(R.id.frameRateRow).setOnClickListener { showFrameRateDialog() }
         findViewById<LinearLayout>(R.id.countdownRow).setOnClickListener { showCountdownDialog() }
-       
-findViewById<LinearLayout>(R.id.annotationDurationRow).setOnClickListener { showAnnotationDurationDialog() }
- findViewById<LinearLayout>(R.id.bubblePositionRow).setOnClickListener { showBubblePositionDialog() }
+        findViewById<LinearLayout>(R.id.bubblePositionRow).setOnClickListener { showBubblePositionDialog() }
+        findViewById<LinearLayout>(R.id.annotationDurationRow).setOnClickListener { showAnnotationDurationDialog() }
         findViewById<LinearLayout>(R.id.batteryRow).setOnClickListener { requestBatteryExemption() }
         findViewById<LinearLayout>(R.id.showTapsRow).setOnClickListener { openDeveloperOptions() }
         findViewById<LinearLayout>(R.id.backupFolderRow).setOnClickListener { backupFolderLauncher.launch(null) }
@@ -108,6 +108,12 @@ findViewById<LinearLayout>(R.id.annotationDurationRow).setOnClickListener { show
 
         watermarkTextInput.setText(SettingsManager.getWatermarkText(this))
 
+        val chronometerCheck = findViewById<CheckBox>(R.id.chronometerCheck)
+        chronometerCheck.isChecked = SettingsManager.isChronometerEnabled(this)
+        chronometerCheck.setOnCheckedChangeListener { _, checked ->
+            SettingsManager.setChronometerEnabled(this, checked)
+        }
+
         val hideBubbleCheck = findViewById<CheckBox>(R.id.hideBubbleCheck)
         hideBubbleCheck.isChecked = SettingsManager.isBubbleHiddenDuringRecording(this)
         hideBubbleCheck.setOnCheckedChangeListener { _, checked ->
@@ -131,38 +137,25 @@ findViewById<LinearLayout>(R.id.annotationDurationRow).setOnClickListener { show
             }
         }
 
-val chronometerCheck = findViewById<CheckBox>(R.id.chronometerCheck)
-        chronometerCheck.isChecked = SettingsManager.isChronometerEnabled(this)
-        chronometerCheck.setOnCheckedChangeListener { _, checked ->
-            SettingsManager.setChronometerEnabled(this, checked)
-        }
-
         val remindersCheck = findViewById<CheckBox>(R.id.remindersCheck)
         remindersCheck.isChecked = SettingsManager.areRemindersEnabled(this)
         remindersCheck.setOnCheckedChangeListener { _, checked ->
             SettingsManager.setRemindersEnabled(this, checked)
         }
 
+        val quickStartCheck = findViewById<CheckBox>(R.id.quickStartCheck)
+        quickStartCheck.isChecked = SettingsManager.isQuickStartNotificationEnabled(this)
+        quickStartCheck.setOnCheckedChangeListener { _, checked ->
+            SettingsManager.setQuickStartNotificationEnabled(this, checked)
+            if (!checked) {
+                (getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager).cancel(777)
+            }
+        }
+
         setupPinRow()
 
         refreshLabels()
         refreshTrialCard()
-    }
-
-private fun showAnnotationDurationDialog() {
-        val options = listOf(500L, 1000L, 1500L, 2000L, 3000L, 5000L)
-        val labels = options.map { "${it / 1000.0}s".removeSuffix(".0s") + "s" }.toTypedArray()
-        val current = options.indexOf(SettingsManager.getAnnotationDurationMs(this)).coerceAtLeast(1)
-
-        AlertDialog.Builder(this)
-            .setTitle("Durée d'affichage d'une annotation")
-            .setSingleChoiceItems(labels, current) { dialog, which ->
-                SettingsManager.setAnnotationDurationMs(this, options[which])
-                findViewById<TextView>(R.id.annotationDurationValue).text = labels[which]
-                dialog.dismiss()
-            }
-            .setNegativeButton("Annuler", null)
-            .show()
     }
 
     private fun setupPinRow() {
@@ -291,6 +284,9 @@ private fun showAnnotationDurationDialog() {
         val index = bubblePositions.indexOf(position).coerceAtLeast(0)
         bubblePositionValue.text = bubblePositionLabels[index]
 
+        val annotationMs = SettingsManager.getAnnotationDurationMs(this)
+        findViewById<TextView>(R.id.annotationDurationValue).text = "${annotationMs / 1000.0}s".removeSuffix(".0s") + "s"
+
         val backupFolder = SettingsManager.getBackupFolderUri(this)
         backupFolderValue.text = if (backupFolder != null) "Dossier configuré ✅" else "Aucun dossier choisi"
     }
@@ -342,9 +338,6 @@ private fun showAnnotationDurationDialog() {
             .setTitle("Fréquence d'images")
             .setSingleChoiceItems(labels, current) { dialog, which ->
                 SettingsManager.setFrameRate(this, frameRateOptions[which])
-val annotationMs = SettingsManager.getAnnotationDurationMs(this)
-        findViewById<TextView>(R.id.annotationDurationValue).text = "${annotationMs / 1000.0}s".removeSuffix(".0s") + "s"
-
                 refreshLabels()
                 dialog.dismiss()
             }
@@ -379,6 +372,21 @@ val annotationMs = SettingsManager.getAnnotationDurationMs(this)
             .setSingleChoiceItems(bubblePositionLabels.toTypedArray(), current) { dialog, which ->
                 SettingsManager.setBubblePosition(this, bubblePositions[which])
                 refreshLabels()
+                dialog.dismiss()
+            }
+            .setNegativeButton("Annuler", null)
+            .show()
+    }
+
+    private fun showAnnotationDurationDialog() {
+        val labels = annotationDurationOptions.map { "${it / 1000.0}s".removeSuffix(".0s") + "s" }.toTypedArray()
+        val current = annotationDurationOptions.indexOf(SettingsManager.getAnnotationDurationMs(this)).coerceAtLeast(1)
+
+        AlertDialog.Builder(this)
+            .setTitle("Durée d'affichage d'une annotation")
+            .setSingleChoiceItems(labels, current) { dialog, which ->
+                SettingsManager.setAnnotationDurationMs(this, annotationDurationOptions[which])
+                findViewById<TextView>(R.id.annotationDurationValue).text = labels[which]
                 dialog.dismiss()
             }
             .setNegativeButton("Annuler", null)
