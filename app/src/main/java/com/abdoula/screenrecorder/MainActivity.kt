@@ -4,6 +4,8 @@ import android.Manifest
 import android.app.Activity
 import android.app.AlarmManager
 import android.app.AlertDialog
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.TimePickerDialog
 import android.content.Intent
@@ -23,6 +25,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
@@ -83,9 +86,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-    // Scanner de QR code intégré (ouvre directement la caméra dans l'appli) :
-    // utilisé pour recevoir une vidéo envoyée via "Envoi sans internet" depuis
-    // un autre téléphone, sans avoir besoin d'une appli de scan tierce.
     private val qrScanLauncher = registerForActivityResult(ScanContract()) { result ->
         if (result.contents != null) {
             val scannedUrl = result.contents
@@ -161,8 +161,9 @@ class MainActivity : AppCompatActivity() {
             if (update != null) showUpdateDialog(update)
         }
 
-        showWhatsNewIfNeeded()
+        checkAnnouncement()
         scheduleInactivityReminder()
+        postQuickStartNotificationIfEnabled()
     }
 
     private fun startQrScan() {
@@ -183,25 +184,56 @@ class MainActivity : AppCompatActivity() {
         qrScanLauncher.launch(options)
     }
 
-    private fun showWhatsNewIfNeeded() {
-        val unseen = WhatsNewManager.getUnseenNotes(this)
-        if (unseen.isEmpty()) {
-            SettingsManager.setLastSeenVersionCode(this, BuildConfig.VERSION_CODE)
-            return
-        }
-
-        val message = unseen.joinToString("\n\n") { notes ->
-            "Version ${notes.versionName} :\n" + notes.features.joinToString("\n") { "• $it" }
-        }
-
-        AlertDialog.Builder(this)
-            .setTitle("🆕 Nouveautés")
-            .setMessage(message)
-            .setPositiveButton("Super !") { _, _ ->
-                SettingsManager.setLastSeenVersionCode(this, BuildConfig.VERSION_CODE)
+    private fun checkAnnouncement() {
+        AnalyticsManager.fetchAnnouncement { info ->
+            runOnUiThread {
+                if (info != null && info.versionCode > BuildConfig.VERSION_CODE && info.message.isNotBlank()) {
+                    AlertDialog.Builder(this)
+                        .setTitle("📢 Mise à jour disponible")
+                        .setMessage(info.message)
+                        .setPositiveButton("Télécharger") { _, _ ->
+                            if (info.downloadUrl.isNotBlank()) {
+                                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(info.downloadUrl)))
+                            }
+                        }
+                        .setNegativeButton("Plus tard", null)
+                        .show()
+                }
             }
-            .setCancelable(false)
-            .show()
+        }
+    }
+
+    private fun postQuickStartNotificationIfEnabled() {
+        if (!SettingsManager.isQuickStartNotificationEnabled(this)) return
+
+        val channelId = "quick_start_channel"
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                channelId, "Raccourci de démarrage", NotificationManager.IMPORTANCE_LOW
+            )
+            (getSystemService(NOTIFICATION_SERVICE) as NotificationManager).createNotificationChannel(channel)
+        }
+
+        val startIntent = Intent(this, MainActivity::class.java).apply {
+            putExtra("autoStart", true)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            this, 0, startIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val notification = NotificationCompat.Builder(this, channelId)
+            .setContentTitle("Écran+")
+            .setContentText("Démarrer un enregistrement rapidement")
+            .setSmallIcon(android.R.drawable.presence_video_online)
+            .setContentIntent(pendingIntent)
+            .addAction(android.R.drawable.ic_media_play, "Démarrer", pendingIntent)
+            .setOngoing(true)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .build()
+
+        (getSystemService(NOTIFICATION_SERVICE) as NotificationManager).notify(777, notification)
     }
 
     private fun scheduleInactivityReminder() {
