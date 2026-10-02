@@ -7,6 +7,13 @@ import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
 
+data class AnnouncementInfo(
+    val versionCode: Long,
+    val versionName: String,
+    val message: String,
+    val downloadUrl: String
+)
+
 object AnalyticsManager {
 
     private const val SUPABASE_URL = "https://dwfecbladynxlaryxkcj.supabase.co"
@@ -68,9 +75,6 @@ object AnalyticsManager {
         }.start()
     }
 
-    // Enregistre la position actuelle du téléphone (une seule ligne par appareil,
-    // écrasée à chaque nouvel envoi) — utile pour retrouver la dernière position
-    // connue si le téléphone est égaré.
     fun logLocation(context: Context, latitude: Double, longitude: Double, callback: (success: Boolean) -> Unit) {
         Thread {
             try {
@@ -89,6 +93,67 @@ object AnalyticsManager {
                 connection.setRequestProperty("Content-Type", "application/json")
                 connection.setRequestProperty("Prefer", "resolution=merge-duplicates")
                 connection.doOutput = true
+                connection.outputStream.use { it.write(json.toString().toByteArray()) }
+                val code = connection.responseCode
+                connection.disconnect()
+                callback(code in 200..299)
+            } catch (e: Exception) {
+                callback(false)
+            }
+        }.start()
+    }
+
+    // Lit l'annonce actuelle pilotée depuis le tableau de bord admin — aucun
+    // besoin de recompiler l'appli pour changer ce message.
+    fun fetchAnnouncement(callback: (AnnouncementInfo?) -> Unit) {
+        Thread {
+            try {
+                val url = URL("$SUPABASE_URL/rest/v1/app_announcement?id=eq.1&select=*")
+                val connection = url.openConnection() as HttpURLConnection
+                connection.connectTimeout = 8000
+                connection.setRequestProperty("apikey", SUPABASE_ANON_KEY)
+                connection.setRequestProperty("Authorization", "Bearer $SUPABASE_ANON_KEY")
+                val response = connection.inputStream.bufferedReader().use { it.readText() }
+                connection.disconnect()
+
+                val array = JSONArray(response)
+                if (array.length() == 0) { callback(null); return@Thread }
+                val obj = array.getJSONObject(0)
+                callback(
+                    AnnouncementInfo(
+                        versionCode = obj.optLong("version_code", 0L),
+                        versionName = obj.optString("version_name", ""),
+                        message = obj.optString("message", ""),
+                        downloadUrl = obj.optString("download_url", "")
+                    )
+                )
+            } catch (e: Exception) {
+                callback(null)
+            }
+        }.start()
+    }
+
+    // Réservé à l'admin (écran du tableau de bord) : met à jour l'annonce
+    // visible par tous les utilisateurs.
+    fun pushAnnouncement(versionCode: Long, versionName: String, message: String, downloadUrl: String, callback: (success: Boolean) -> Unit) {
+        Thread {
+            try {
+                val json = JSONObject().apply {
+                    put("version_code", versionCode)
+                    put("version_name", versionName)
+                    put("message", message)
+                    put("download_url", downloadUrl)
+                }
+
+                val url = URL("$SUPABASE_URL/rest/v1/app_announcement?id=eq.1")
+                val connection = url.openConnection() as HttpURLConnection
+                connection.requestMethod = "PATCH"
+                connection.connectTimeout = 8000
+                connection.setRequestProperty("apikey", SUPABASE_ANON_KEY)
+                connection.setRequestProperty("Authorization", "Bearer $SUPABASE_ANON_KEY")
+                connection.setRequestProperty("Content-Type", "application/json")
+                connection.doOutput = true
+                connection.requestMethod = "PATCH"
                 connection.outputStream.use { it.write(json.toString().toByteArray()) }
                 val code = connection.responseCode
                 connection.disconnect()
