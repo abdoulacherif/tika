@@ -5,8 +5,10 @@ import android.os.Handler
 import android.os.Looper
 import android.view.View
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 class AdminDashboardActivity : AppCompatActivity() {
@@ -27,8 +29,10 @@ class AdminDashboardActivity : AppCompatActivity() {
         progress = findViewById(R.id.dashboardProgress)
 
         findViewById<Button>(R.id.refreshButton).setOnClickListener { loadStats() }
+        findViewById<Button>(R.id.publishAnnouncementButton).setOnClickListener { publishAnnouncement() }
 
         loadStats()
+        loadCurrentAnnouncement()
     }
 
     private fun loadStats() {
@@ -44,6 +48,41 @@ class AdminDashboardActivity : AppCompatActivity() {
                     opensValue.text = opens.toString()
                     recordingsValue.text = recordings.toString()
                     proValue.text = proActivations.toString()
+                }
+            }
+        }
+    }
+
+    private fun loadCurrentAnnouncement() {
+        AnalyticsManager.fetchAnnouncement { info ->
+            mainHandler.post {
+                if (info != null) {
+                    findViewById<EditText>(R.id.announcementVersionCodeInput).setText(info.versionCode.toString())
+                    findViewById<EditText>(R.id.announcementVersionNameInput).setText(info.versionName)
+                    findViewById<EditText>(R.id.announcementMessageInput).setText(info.message)
+                    findViewById<EditText>(R.id.announcementUrlInput).setText(info.downloadUrl)
+                }
+            }
+        }
+    }
+
+    private fun publishAnnouncement() {
+        val versionCode = findViewById<EditText>(R.id.announcementVersionCodeInput).text.toString().toLongOrNull()
+        val versionName = findViewById<EditText>(R.id.announcementVersionNameInput).text.toString().trim()
+        val message = findViewById<EditText>(R.id.announcementMessageInput).text.toString().trim()
+        val url = findViewById<EditText>(R.id.announcementUrlInput).text.toString().trim()
+
+        if (versionCode == null) {
+            Toast.makeText(this, "Numéro de version invalide", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        AnalyticsManager.pushAnnouncement(versionCode, versionName, message, url) { success ->
+            mainHandler.post {
+                if (success) {
+                    Toast.makeText(this, "Annonce publiée ✅", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "Échec de la publication", Toast.LENGTH_LONG).show()
                 }
             }
         }
