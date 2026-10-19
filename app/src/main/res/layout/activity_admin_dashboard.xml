@@ -1,176 +1,182 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@drawable/bg_gradient_screen"
-    android:padding="20dp">
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="📊 Tableau de bord"
-        android:textColor="#FFFFFF"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="20dp" />
+    android:background="@drawable/bg_gradient_screen">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@drawable/bg_stat_purple"
-        android:padding="20dp"
-        android:layout_marginBottom="12dp">
+        android:padding="20dp">
 
         <TextView
-            android:id="@+id/opensValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="—"
+            android:text="📊 Tableau de bord"
             android:textColor="#FFFFFF"
-            android:textSize="28sp"
-            android:textStyle="bold" />
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="20dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_stat_purple"
+            android:padding="20dp"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:id="@+id/opensValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="—"
+                android:textColor="#FFFFFF"
+                android:textSize="28sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ouvertures de l'appli"
+                android:textColor="#E0D6FF"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_stat_blue"
+            android:padding="20dp"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:id="@+id/recordingsValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="—"
+                android:textColor="#FFFFFF"
+                android:textSize="28sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Enregistrements terminés"
+                android:textColor="#D6EBFF"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_stat_green"
+            android:padding="20dp"
+            android:layout_marginBottom="20dp">
+
+            <TextView
+                android:id="@+id/proValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="—"
+                android:textColor="#FFFFFF"
+                android:textSize="28sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Activations Pro (essai + codes)"
+                android:textColor="#D6FFE8"
+                android:textSize="13sp" />
+        </LinearLayout>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ouvertures de l'appli"
-            android:textColor="#E0D6FF"
-            android:textSize="13sp" />
-    </LinearLayout>
+            android:text="📢 Annonce visible par tous"
+            android:textColor="#7C4DFF"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="8dp" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@drawable/bg_stat_blue"
-        android:padding="20dp"
-        android:layout_marginBottom="12dp">
-
-        <TextView
-            android:id="@+id/recordingsValue"
-            android:layout_width="wrap_content"
+        <EditText
+            android:id="@+id/announcementVersionCodeInput"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="—"
+            android:hint="Numéro de version (ex: 5)"
+            android:inputType="number"
             android:textColor="#FFFFFF"
-            android:textSize="28sp"
-            android:textStyle="bold" />
+            android:textColorHint="#888888"
+            android:background="@drawable/bg_card"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp" />
 
-        <TextView
-            android:layout_width="wrap_content"
+        <EditText
+            android:id="@+id/announcementVersionNameInput"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Enregistrements terminés"
-            android:textColor="#D6EBFF"
-            android:textSize="13sp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@drawable/bg_stat_green"
-        android:padding="20dp"
-        android:layout_marginBottom="20dp">
-
-        <TextView
-            android:id="@+id/proValue"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="—"
+            android:hint="Nom de version (ex: 1.5)"
             android:textColor="#FFFFFF"
-            android:textSize="28sp"
-            android:textStyle="bold" />
+            android:textColorHint="#888888"
+            android:background="@drawable/bg_card"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp" />
 
-        <TextView
+        <EditText
+            android:id="@+id/announcementMessageInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Message affiché à l'utilisateur"
+            android:minLines="3"
+            android:gravity="top"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#888888"
+            android:background="@drawable/bg_card"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp" />
+
+        <EditText
+            android:id="@+id/announcementUrlInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Lien de téléchargement"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#888888"
+            android:background="@drawable/bg_card"
+            android:padding="12dp"
+            android:layout_marginBottom="10dp" />
+
+        <Button
+            android:id="@+id/publishAnnouncementButton"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/bg_stat_pink"
+            android:textColor="#FFFFFF"
+            android:textAllCaps="false"
+            android:text="📢 Publier l'annonce"
+            android:layout_marginBottom="20dp" />
+
+        <Button
+            android:id="@+id/refreshButton"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:background="@drawable/bg_button_primary"
+            android:textColor="#FFFFFF"
+            android:textAllCaps="false"
+            android:text="🔄 Actualiser" />
+
+        <ProgressBar
+            android:id="@+id/dashboardProgress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Activations Pro (essai + codes)"
-            android:textColor="#D6FFE8"
-            android:textSize="13sp" />
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:visibility="gone" />
+
     </LinearLayout>
-
-<TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="📢 Annonce visible par tous"
-        android:textColor="#7C4DFF"
-        android:textSize="13sp"
-        android:textStyle="bold"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="8dp" />
-
-    <EditText
-        android:id="@+id/announcementVersionCodeInput"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Numéro de version (ex: 5)"
-        android:inputType="number"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#888888"
-        android:background="@drawable/bg_card"
-        android:padding="12dp"
-        android:layout_marginBottom="8dp" />
-
-    <EditText
-        android:id="@+id/announcementVersionNameInput"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Nom de version (ex: 1.5)"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#888888"
-        android:background="@drawable/bg_card"
-        android:padding="12dp"
-        android:layout_marginBottom="8dp" />
-
-    <EditText
-        android:id="@+id/announcementMessageInput"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Message affiché à l'utilisateur"
-        android:minLines="3"
-        android:gravity="top"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#888888"
-        android:background="@drawable/bg_card"
-        android:padding="12dp"
-        android:layout_marginBottom="8dp" />
-
-    <EditText
-        android:id="@+id/announcementUrlInput"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Lien de téléchargement"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#888888"
-        android:background="@drawable/bg_card"
-        android:padding="12dp"
-        android:layout_marginBottom="10dp" />
-
-    <Button
-        android:id="@+id/publishAnnouncementButton"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="@drawable/bg_stat_pink"
-        android:textColor="#FFFFFF"
-        android:textAllCaps="false"
-        android:text="📢 Publier l'annonce" />
-
-    <Button
-        android:id="@+id/refreshButton"
-        android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:background="@drawable/bg_button_primary"
-        android:textColor="#FFFFFF"
-        android:textAllCaps="false"
-        android:text="🔄 Actualiser" />
-
-    <ProgressBar
-        android:id="@+id/dashboardProgress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="20dp"
-        android:visibility="gone" />
-
-</LinearLayout>
+</ScrollView>
